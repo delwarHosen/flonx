@@ -8,10 +8,24 @@ import { Platform } from 'react-native';
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
 
+const appBackground = "#0F0B1A";
+const neutral0 = "#FFFFFF";
+const placeholderText = "#C9C6D6";
+const BRAND_PRIMARY = "#822CE7";
+const BRAND_PRIMARY_LIGHT = "#BB82FF";
+// const secondaryColor="#1D1733";
+const colorActive = "#22C55E";
+const colorDanger = "#EF4444";
+const colorOranger = "#FFB020";
+const borderColor = "#2A2448";
+const inputBackground = "#1D1733";
+const iconBgColor="#FFFFFF0D"
+
+
 export const Colors = {
   light: {
     text: '#11181C',
-    background: '#fff',
+    background: "#0F0B1A",
     tint: tintColorLight,
     icon: '#687076',
     tabIconDefault: '#687076',
@@ -19,12 +33,26 @@ export const Colors = {
   },
   dark: {
     text: '#ECEDEE',
-    background: '#151718',
+    background: '#0F0B1A',
     tint: tintColorDark,
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
   },
+
+  APP_BACKGROUND: appBackground,
+  NEUTRAL0: neutral0,
+  PLACEHOLLDER_TEXT: placeholderText,
+  BRAND_PRIMARY: BRAND_PRIMARY,
+  BRAND_PRIMARY_LIGHT: BRAND_PRIMARY_LIGHT,
+  COLOR_ACTIVE: colorActive,
+  COLOR_DANGER: colorDanger,
+  COLOR_ORANGE: colorOranger,
+  BORDER_COLOR: borderColor,
+  INPUT_BACKGROUND: inputBackground,
+  ICON_BG_COLOR: iconBgColor
+
+
 };
 
 export const Fonts = Platform.select({
