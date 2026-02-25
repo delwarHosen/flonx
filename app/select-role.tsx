@@ -3,12 +3,14 @@ import { CustomButton } from '@/components/CustomButton'
 import { Caption1, Caption2, H3 } from '@/components/typo/Typography'
 import { Colors } from '@/constants/theme'
 import { LinearGradient } from 'expo-linear-gradient'
+import { useRouter } from 'expo-router'
 import React from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function SelectRole() {
+    const router = useRouter();
 
     const handleRole = () => {
         console.log("Hello handle")
@@ -33,11 +35,11 @@ export default function SelectRole() {
                     </Caption1>
                 </Animated.View>
 
-                {/* ---- Guest Role (Full Width Gradient) ---- */}
+                {/* ---- Guest Role ---- */}
                 <Animated.View
                     entering={FadeInDown.delay(400).duration(500).springify()}
                 >
-                    <Pressable onPress={() => { /* Handle Navigation */ }}>
+                    <Pressable onPress={() => { router.push("/guest/(tabs)/search") }}>
                         <LinearGradient
                             colors={[Colors.BRAND_PRIMARY, Colors.BRAND_PRIMARY_LIGHT]}
                             start={{ x: 0, y: 0 }}
