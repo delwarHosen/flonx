@@ -1,4 +1,4 @@
-import { OrderTabIcon, SearchBarIcon } from "@/assets/images/icon/icon";
+import { BrowseIcon, JobsIcon, ProfileIcon } from "@/assets/images/icon/icon";
 import { Colors } from "@/constants/theme";
 import { LinearGradient } from "expo-linear-gradient";
 import { Tabs } from "expo-router";
@@ -31,10 +31,10 @@ export default function TabsLayout() {
             }}
         >
             <Tabs.Screen
-                name="search"
+                name="browse"
                 options={{
-                    title: "Search",
-                    tabBarLabel: "Search",
+                    title: "Browse",
+                    tabBarLabel: "Browse",
                     tabBarIcon: ({ focused }) => {
                         const progress = useSharedValue(focused ? 0 : 1);
 
@@ -54,15 +54,55 @@ export default function TabsLayout() {
                             >
                                 {focused ? (
                                     <LinearGradient
-                                        colors={[ Colors.BRAND_PRIMARY,Colors.BRAND_PRIMARY_LIGHT]}
+                                        colors={[Colors.BRAND_PRIMARY, Colors.BRAND_PRIMARY_LIGHT]}
                                         start={{ x: -0.5, y: 1 }}
                                         end={{ x: 1, y: -0.5 }}
                                         style={{ borderRadius: 25, padding: 12 }}
                                     >
-                                        <SearchBarIcon />
+                                        <BrowseIcon />
                                     </LinearGradient>
                                 ) : (
-                                    <SearchBarIcon />
+                                    <BrowseIcon />
+                                )}
+                            </Animated.View>
+                        );
+                    },
+                }}
+            />
+        
+            <Tabs.Screen
+                name="my-jobs"
+                options={{
+                    title: "My Jobs",
+                    tabBarLabel: "My Jobs",
+                    tabBarIcon: ({ focused }) => {
+                        const progress = useSharedValue(focused ? 0 : 1);
+
+                        useDerivedValue(() => {
+                            progress.value = withTiming(focused ? 1 : 0, { duration: 250 });
+                        });
+
+                        const animatedStyle = useAnimatedStyle(() => ({
+                            transform: [{ translateY: -10 * progress.value }],
+                            borderRadius: 25,
+                            padding: 12,
+                        }));
+
+                        return (
+                            <Animated.View
+                                style={animatedStyle}
+                            >
+                                {focused ? (
+                                    <LinearGradient
+                                        colors={[Colors.BRAND_PRIMARY, Colors.BRAND_PRIMARY_LIGHT]}
+                                        start={{ x: -0.5, y: 1 }}
+                                        end={{ x: 1, y: -0.5 }}
+                                        style={{ borderRadius: 25, padding: 12 }}
+                                    >
+                                        <JobsIcon />
+                                    </LinearGradient>
+                                ) : (
+                                    <JobsIcon />
                                 )}
                             </Animated.View>
                         );
@@ -70,11 +110,13 @@ export default function TabsLayout() {
                 }}
             />
 
+           
+
             <Tabs.Screen
-                name="order"
+                name="profile"
                 options={{
-                    title: "Order",
-                    tabBarLabel: "Order",
+                    title: "Profile",
+                    tabBarLabel: "Profile",
                     tabBarIcon: ({ focused }) => {
                         const progress = useSharedValue(focused ? 1 : 0);
 
@@ -94,21 +136,22 @@ export default function TabsLayout() {
                             >
                                 {focused ? (
                                     <LinearGradient
-                                        colors={[Colors.BRAND_PRIMARY,Colors.BRAND_PRIMARY_LIGHT]}
+                                        colors={[Colors.BRAND_PRIMARY, Colors.BRAND_PRIMARY_LIGHT]}
                                         start={{ x: -0.5, y: 1 }}
                                         end={{ x: 1, y: -0.5 }}
                                         style={{ borderRadius: 25, padding: 12 }}
                                     >
-                                        <OrderTabIcon />
+                                        <ProfileIcon />
                                     </LinearGradient>
                                 ) : (
-                                    <OrderTabIcon />
+                                    <ProfileIcon />
                                 )}
                             </Animated.View>
                         );
                     },
                 }}
             />
+
         </Tabs>
     );
 }

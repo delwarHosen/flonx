@@ -1,8 +1,9 @@
-import { CloseEyeIcon, EyeIcon } from '@/assets/images/icon/icon';
+import { EyeIcon } from '@/assets/images/icon/icon';
 import { Colors } from '@/constants/theme';
 import { validateEmail, validatePassword } from '@/utils/validation';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
+import { EyeOff } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Body2, Caption1 } from '../typo/Typography';
@@ -61,7 +62,7 @@ export const FormInput: React.FC<FormInputProps> = ({
         if (!touched) return error;
 
         if (required && !value.trim()) {
-            return "this field is required";
+            return "This field is required";
         }
 
         if (type === "email" && value && !validateEmail(value)) {
@@ -104,7 +105,7 @@ export const FormInput: React.FC<FormInputProps> = ({
             <View style={styles.container}>
                 <View style={styles.labelContainer}>
                     <Body2 color={Colors.NEUTRAL0}>{label}</Body2>
-                    {required && <Text style={styles.required}>*</Text>}
+                    {/* {required && <Text style={styles.required}>*</Text>} */}
                 </View>
 
                 <TouchableOpacity
@@ -135,7 +136,7 @@ export const FormInput: React.FC<FormInputProps> = ({
         <View style={styles.container}>
             <View style={styles.labelContainer}>
                 <Body2 color={Colors.NEUTRAL0}>{label}</Body2>
-                {required && <Text style={styles.required}>*</Text>}
+                {/* {required && <Text style={styles.required}>*</Text>} */}
             </View>
             <View style={[styles.inputContainer, getError() && styles.inputError]}>
                 <TextInput
@@ -161,7 +162,7 @@ export const FormInput: React.FC<FormInputProps> = ({
                             showPassword ? (
                                 <EyeIcon />
                             ) : (
-                                <CloseEyeIcon />
+                                <EyeOff color={Colors.PLACEHOLLDER_TEXT} size={18}/>
                             )
                         }
                     </TouchableOpacity>

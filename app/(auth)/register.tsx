@@ -1,19 +1,18 @@
 import { AuthHeading } from '@/components/auth/AuthHeading';
-import { Checkbox } from '@/components/auth/Checkbox';
 import { CustomButton } from '@/components/CustomButton';
 import { FormInput } from '@/components/inputForm/InputForm';
-import { Body2, Body3 } from '@/components/typo/Typography';
+import { Body3 } from '@/components/typo/Typography';
 import { FORM_FIELDS, FORM_LABELS, FORM_PLACEHOLDERS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
-import { validateEmail, validatePassword } from '@/utils/validation';
-import { Link, useRouter } from 'expo-router';
+import { validateEmail, validateName, validatePassword } from '@/utils/validation';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { Dimensions, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, ToastAndroid, TouchableOpacity, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const router = useRouter();
   const [isRemembered, setIsRemembered] = React.useState(false);
 
@@ -27,13 +26,17 @@ export default function LoginScreen() {
     handleSubmit,
   } = useForm({
     initialValues: {
+      [FORM_FIELDS.FULL_NAME]: "",
       [FORM_FIELDS.EMAIL]: "",
       [FORM_FIELDS.PASSWORD]: "",
+      [FORM_FIELDS.CONFIRM_PASSWORD]: "",
     },
 
     validationRules: {
+      [FORM_FIELDS.FULL_NAME]: validateName,
       [FORM_FIELDS.EMAIL]: validateEmail,
       [FORM_FIELDS.PASSWORD]: validatePassword,
+      [FORM_FIELDS.CONFIRM_PASSWORD]: validatePassword,
     },
 
     onSubmit: async (values) => {
@@ -42,7 +45,7 @@ export default function LoginScreen() {
           email: values.email,
           password: values.password
         }
-        console.log("SignIn data from login Page", data)
+        console.log("SignIn data from signup Page", data)
         // router.push("/(tabs)/home")
       } catch (error: any) {
         const message = error?.data?.message || error?.message || "something eent wrong while signing!"
@@ -88,12 +91,24 @@ export default function LoginScreen() {
           <View style={{ width: '100%' }}>
 
             <AuthHeading
-              title="Welcome Back"
-              description="Sign in to continue exploring and managing your orders."
+              title="Create Your Account"
+              description="Sign up to track orders, explore bars, and access extra features."
             />
 
             {/* ---Form--- */}
             <View style={styles.form}>
+
+              <FormInput
+                label={FORM_LABELS[FORM_FIELDS.FULL_NAME]}
+                value={values[FORM_FIELDS.FULL_NAME]}
+                onChangeText={(text) => handleChange(FORM_FIELDS.FULL_NAME, text)}
+                type="email"
+                placeholder='Enter Your Email'
+                error={errors[FORM_FIELDS.FULL_NAME]}
+                touched={touched[FORM_FIELDS.FULL_NAME]}
+                required
+              />
+
               <FormInput
                 label={FORM_LABELS[FORM_FIELDS.EMAIL]}
                 value={values[FORM_FIELDS.EMAIL]}
@@ -117,35 +132,22 @@ export default function LoginScreen() {
                 required
               />
 
-              <View>
-                <Checkbox
-                  label="Remember me"
-                  checked={isRemembered}
-                  onChange={(val) => setIsRemembered(val)}
-                  required
-                />
+              <FormInput
+                label={FORM_LABELS[FORM_FIELDS.CONFIRM_PASSWORD]}
+                value={values[FORM_FIELDS.CONFIRM_PASSWORD]}
+                onChangeText={(text) => handleChange(FORM_FIELDS.CONFIRM_PASSWORD, text)}
+                placeholder={FORM_PLACEHOLDERS[FORM_FIELDS.CONFIRM_PASSWORD]}
+                // placeholder='Enter Your Password'
+                type="password"
+                error={errors[FORM_FIELDS.CONFIRM_PASSWORD]}
+                touched={touched[FORM_FIELDS.CONFIRM_PASSWORD]}
+                required
+              />
 
-                <View style={styles.forgotPasswordContainer}>
-                  <Link href={{
-                    pathname: "/(auth)/forgot-password",
-                    params: {
-                      email: FORM_FIELDS.EMAIL,
-                    },
-                  }}
-
-                    asChild>
-                    <TouchableOpacity>
-                      <Body2 color={Colors.BRAND_PRIMARY} style={styles.forgotPassword}>
-                        Forgot password?
-                      </Body2>
-                    </TouchableOpacity>
-                  </Link>
-                </View>
-
-              </View>
+            
               {/* ----Submit Button---- */}
               <CustomButton
-                title="Login"
+                title="Create Account"
                 onPress={handleSubmit}
                 width="100%"
                 height={44}
@@ -154,9 +156,9 @@ export default function LoginScreen() {
               />
             </View>
             <View style={{marginTop:16,alignItems:"center"}}>
-              <Body3 color={Colors.PLACEHOLLDER_TEXT}>No account yet?
-                <TouchableOpacity onPress={()=>router.push("/(auth)/register")}>
-                  <Body3 color={Colors.BRAND_PRIMARY}> Create an account</Body3>
+              <Body3 color={Colors.PLACEHOLLDER_TEXT}>Already have an account? 
+                <TouchableOpacity onPress={()=>router.push("/(auth)/login")}>
+                  <Body3 color={Colors.BRAND_PRIMARY}> Sign In</Body3>
                 </TouchableOpacity>
               </Body3>
             </View>

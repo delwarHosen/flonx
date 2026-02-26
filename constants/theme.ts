@@ -20,6 +20,7 @@ const colorOranger = "#FFB020";
 const borderColor = "#2A2448";
 const inputBackground = "#1D1733";
 const iconBgColor="#FFFFFF0D"
+const otpColor="#8C88A3"
 
 
 export const Colors = {
@@ -50,7 +51,8 @@ export const Colors = {
   COLOR_ORANGE: colorOranger,
   BORDER_COLOR: borderColor,
   INPUT_BACKGROUND: inputBackground,
-  ICON_BG_COLOR: iconBgColor
+  ICON_BG_COLOR: iconBgColor,
+  OTP_COLOR: otpColor,
 
 
 };

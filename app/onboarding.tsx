@@ -1,10 +1,10 @@
 import { ForwarDArrowIcon } from '@/assets/images/icon/icon';
 import { CustomButton } from '@/components/CustomButton';
-import { Body1, ButtonText, H1 } from '@/components/typo/Typography';
+import { Body1, H1 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Dimensions, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -91,11 +91,12 @@ export default function OnboardingScreen() {
 
       {/* Bottom navigation section */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          onPress={handleSkip} activeOpacity={0.7}
-          style={styles.skipButton}>
-          <ButtonText color={Colors.BRAND_PRIMARY}>Skip</ButtonText>
-        </TouchableOpacity>
+
+        <CustomButton title='Skip'
+          onPress={handleSkip}
+          backgroundColor='#1D1733'
+          color="#9D5BFF"
+        />
 
         <CustomButton
           title="Next"
@@ -125,16 +126,19 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     paddingBottom: 100
   },
+  // skipButtonContainer:{
+  //   flexDirection:"row",
+  //   justifyContent:"center",
+  //   alignItems:"center",
+  //   backgroundColor:"red",
+  //   paddingVertical:10,
+  //   paddingHorizontal:15
+  // },
   skipButton: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    width: 120,
-    height: 44,
-    borderRadius: 100,
-    // backgroundColor: "#00000005"
+
   },
 
 
