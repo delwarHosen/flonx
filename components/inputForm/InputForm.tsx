@@ -1,4 +1,4 @@
-import { EyeIcon } from '@/assets/images/icon/icon';
+import { EyeIcon } from '@/assets/images/icons/icon';
 import { Colors } from '@/constants/theme';
 import { validateEmail, validatePassword } from '@/utils/validation';
 import { Image } from 'expo-image';
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     },
     inputError: {
         borderColor: '#EF4444',
-        backgroundColor: '#FEF2F2',
+        // backgroundColor: Colors.,
     },
     placeholder: {
         color: Colors.PLACEHOLLDER_TEXT,

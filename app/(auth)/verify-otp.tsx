@@ -1,7 +1,7 @@
 import { AuthHeading } from '@/components/auth/AuthHeading';
 import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
-import { Body2, Body3, H2, H5 } from '@/components/typo/Typography';
+import { Body2, Body3, H2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -115,7 +115,7 @@ export default function VerifyOtp() {
                   <Body3 color={Colors.BRAND_PRIMARY} style={styles.resendText}>Resend Code</Body3>
                 </TouchableOpacity>
               ) : (
-                <H5 color={Colors.BRAND_PRIMARY} style={styles.timerText}>Resend in {timer}s</H5>
+                <Body3 color={Colors.BRAND_PRIMARY} style={styles.timerText}>Resend in {timer}s</Body3>
               )}
             </View>
 

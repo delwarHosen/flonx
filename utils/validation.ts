@@ -9,6 +9,19 @@ export const validateEmail = (email: string): string => {
   return '';
 };
 
+
+export const validatePhoneNumber = (phone: string): string => {
+  if (!phone.trim()) return 'Phone number is required';
+
+  const phoneRegex = /^[0-9]{10,15}$/;
+
+  if (!phoneRegex.test(phone)) {
+    return 'Please enter a valid phone number';
+  }
+
+  return '';
+};
+
 export const validatePassword = (password: string): string => {
   if (!password.trim()) return 'Password is required';
 

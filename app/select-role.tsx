@@ -1,24 +1,32 @@
-import { BartenderIcon, UserGuestIcon, UserIcon } from '@/assets/images/icon/icon'
+import { BartenderIcon, UserGuestIcon, UserIcon } from '@/assets/images/icons/icon'
 import { CustomButton } from '@/components/CustomButton'
 import { Caption1, Caption2, H3 } from '@/components/typo/Typography'
 import { Colors } from '@/constants/theme'
+import { setRole } from '@/redux/authSlice'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
 import React, { useState } from 'react'; // 1. Import useState
 import { Pressable, StyleSheet, View } from 'react-native'
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useDispatch } from 'react-redux'
 
 export default function SelectRole() {
     const router = useRouter();
     // 2. Track selected role
     const [selectedRole, setSelectedRole] = useState<'guest' | 'customer' | 'bartender' | null>(null);
 
+    const dispatch = useDispatch();
+
     const handleRole = () => {
-        if (selectedRole === 'guest') router.push("/guest/(tabs)/search");
-        if (selectedRole === 'customer') router.push("/(auth)/login");
-        if (selectedRole === 'bartender') router.push("/customer/(tabs)/home");
-    }
+        if (selectedRole === 'customer' || selectedRole === 'bartender') {
+            dispatch(setRole(selectedRole)); 
+            router.push("/(auth)/login");
+        }
+        else{
+            router.push("/guest/(tabs)/search")
+        }
+    };
 
     // Helper to render the border logic
     const RenderBorder = ({ children, isSelected }: { children: React.ReactNode, isSelected: boolean }) => {

@@ -5,16 +5,21 @@ import { Body3 } from '@/components/typo/Typography';
 import { FORM_FIELDS, FORM_LABELS, FORM_PLACEHOLDERS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
-import { validateEmail, validateName, validatePassword } from '@/utils/validation';
+import { RootState } from '@/redux/store';
+import { validateEmail, validateName, validatePassword, validatePhoneNumber } from '@/utils/validation';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Dimensions, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { useSelector } from 'react-redux';
 
 const { width, height } = Dimensions.get('window');
 
 export default function RegisterScreen() {
   const router = useRouter();
   const [isRemembered, setIsRemembered] = React.useState(false);
+
+  const userRole = useSelector((state: RootState) => state.auth.userRole);
+  const isBartender = userRole === "bartender";
 
   const {
     values,
@@ -28,6 +33,7 @@ export default function RegisterScreen() {
     initialValues: {
       [FORM_FIELDS.FULL_NAME]: "",
       [FORM_FIELDS.EMAIL]: "",
+      [FORM_FIELDS.CONTACT_NO]: "",
       [FORM_FIELDS.PASSWORD]: "",
       [FORM_FIELDS.CONFIRM_PASSWORD]: "",
     },
@@ -35,6 +41,7 @@ export default function RegisterScreen() {
     validationRules: {
       [FORM_FIELDS.FULL_NAME]: validateName,
       [FORM_FIELDS.EMAIL]: validateEmail,
+      [FORM_FIELDS.CONTACT_NO]: validatePhoneNumber,
       [FORM_FIELDS.PASSWORD]: validatePassword,
       [FORM_FIELDS.CONFIRM_PASSWORD]: validatePassword,
     },
@@ -91,8 +98,10 @@ export default function RegisterScreen() {
           <View style={{ width: '100%' }}>
 
             <AuthHeading
-              title="Create Your Account"
-              description="Sign up to track orders, explore bars, and access extra features."
+              title={isBartender ? "Join as a Bartender" : "Create Your Account"}
+              description={isBartender ?
+                "Create your profile to get discovered and apply for gigs."
+                : "Sign up to track orders, explore bars, and access extra features."}
             />
 
             {/* ---Form--- */}
@@ -119,6 +128,22 @@ export default function RegisterScreen() {
                 touched={touched[FORM_FIELDS.EMAIL]}
                 required
               />
+              
+              {
+                isBartender && (
+                  <FormInput
+                    label={FORM_LABELS[FORM_FIELDS.CONTACT_NO]}
+                    value={values[FORM_FIELDS.CONTACT_NO]}
+                    onChangeText={(number) => handleChange(FORM_FIELDS.CONTACT_NO, number)}
+                    type="number"
+                    placeholder='Enter Your Contact No'
+                    error={errors[FORM_FIELDS.CONTACT_NO]}
+                    touched={touched[FORM_FIELDS.CONTACT_NO]}
+                    required
+                  />
+                )
+              }
+
 
               <FormInput
                 label={FORM_LABELS[FORM_FIELDS.PASSWORD]}
@@ -144,7 +169,7 @@ export default function RegisterScreen() {
                 required
               />
 
-            
+
               {/* ----Submit Button---- */}
               <CustomButton
                 title="Create Account"
@@ -155,9 +180,9 @@ export default function RegisterScreen() {
               // icon={<DoubleRightArrowIcon />}
               />
             </View>
-            <View style={{marginTop:16,alignItems:"center"}}>
-              <Body3 color={Colors.PLACEHOLLDER_TEXT}>Already have an account? 
-                <TouchableOpacity onPress={()=>router.push("/(auth)/login")}>
+            <View style={{ marginTop: 16, alignItems: "center" }}>
+              <Body3 color={Colors.PLACEHOLLDER_TEXT}>Already have an account?
+                <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
                   <Body3 color={Colors.BRAND_PRIMARY}> Sign In</Body3>
                 </TouchableOpacity>
               </Body3>

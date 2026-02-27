@@ -1,4 +1,4 @@
-import { OrderTabIcon, SearchBarIcon } from "@/assets/images/icon/icon";
+import { OrderTabIcon, SearchBarIcon } from "@/assets/images/icons/icon";
 import { Colors } from "@/constants/theme";
 import { LinearGradient } from "expo-linear-gradient";
 import { Tabs } from "expo-router";

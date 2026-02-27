@@ -6,16 +6,19 @@ import { Body2, Body3 } from '@/components/typo/Typography';
 import { FORM_FIELDS, FORM_LABELS, FORM_PLACEHOLDERS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
+import { RootState } from '@/redux/store';
 import { validateEmail, validatePassword } from '@/utils/validation';
 import { Link, useRouter } from 'expo-router';
 import React from 'react';
 import { Dimensions, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { useSelector } from 'react-redux';
 
 const { width, height } = Dimensions.get('window');
 
 export default function LoginScreen() {
   const router = useRouter();
   const [isRemembered, setIsRemembered] = React.useState(false);
+  const userRole = useSelector((state: RootState) => (state.auth.userRole))
 
   const {
     values,
@@ -42,6 +45,13 @@ export default function LoginScreen() {
           email: values.email,
           password: values.password
         }
+
+        if (userRole === 'bartender') {
+          router.replace("/bartender/(tabs)/browse");
+        } else {
+          router.replace("/customer/(tabs)/home");
+        }
+        
         console.log("SignIn data from login Page", data)
         // router.push("/(tabs)/home")
       } catch (error: any) {
@@ -153,9 +163,9 @@ export default function LoginScreen() {
               // icon={<DoubleRightArrowIcon />}
               />
             </View>
-            <View style={{marginTop:16,alignItems:"center"}}>
+            <View style={{ marginTop: 16, alignItems: "center" }}>
               <Body3 color={Colors.PLACEHOLLDER_TEXT}>No account yet?
-                <TouchableOpacity onPress={()=>router.push("/(auth)/register")}>
+                <TouchableOpacity onPress={() => router.push("/(auth)/register")}>
                   <Body3 color={Colors.BRAND_PRIMARY}> Create an account</Body3>
                 </TouchableOpacity>
               </Body3>

@@ -1,4 +1,4 @@
-import { ForwarDArrowIcon } from '@/assets/images/icon/icon';
+import { ForwarDArrowIcon } from '@/assets/images/icons/icon';
 import { CustomButton } from '@/components/CustomButton';
 import { Body1, H1 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
@@ -6,9 +6,9 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
