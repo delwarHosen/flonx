@@ -421,7 +421,7 @@ export const BriefcaseIcon = () => {
 
 export const WarningIcon = () => {
     return (
-        <Svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <Svg width="20" height="20" viewBox="0 0 28 28" fill="none">
             <Path d="M2.91699 13.9998C2.91699 8.77511 2.91699 6.16274 4.54011 4.53962C6.16323 2.9165 8.7756 2.9165 14.0003 2.9165C19.225 2.9165 21.8374 2.9165 23.4606 4.53962C25.0837 6.16274 25.0837 8.77511 25.0837 13.9998C25.0837 19.2245 25.0837 21.8369 23.4606 23.4601C21.8374 25.0832 19.225 25.0832 14.0003 25.0832C8.7756 25.0832 6.16323 25.0832 4.54011 23.4601C2.91699 21.8369 2.91699 19.2245 2.91699 13.9998Z" stroke="#FE4C5D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             <Path d="M14 9.3335V14.5835" stroke="#FE4C5D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             <Path d="M14 18.6528V18.6645" stroke="#FE4C5D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />

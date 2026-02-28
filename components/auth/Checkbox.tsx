@@ -47,6 +47,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
 const styles = StyleSheet.create({
     container: {
         marginBottom: -16,
+        marginTop:16
     },
     checkboxContainer: {
         flexDirection: 'row',

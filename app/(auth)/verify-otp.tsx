@@ -131,7 +131,7 @@ export default function VerifyOtp() {
                   onPress={handleVerify}
                   width="100%"
                   height={44}
-                  borderRadius={10}
+                  borderRadius={100}
                 />
               )}
             </View>
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   form: {
-    // marginTop: 16,
+    marginTop: "8%",
   },
   otpContainer: {
     flexDirection: 'row',

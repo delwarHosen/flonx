@@ -98,7 +98,7 @@ export default function ForgotPassword() {
                 onPress={handleSubmit}
                 width="100%"
                 height={44}
-                borderRadius={10}
+                borderRadius={100}
               />
             </View>
           </View>

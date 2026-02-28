@@ -8,14 +8,14 @@ import { validateEmail } from '@/utils/validation';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import {
-  Dimensions,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  ToastAndroid,
-  TouchableWithoutFeedback,
-  View
+    Dimensions,
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    ToastAndroid,
+    TouchableWithoutFeedback,
+    View
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -82,7 +82,7 @@ export default function ForgotPassword() {
                                     onPress={handleSubmit}
                                     width="100%"
                                     height={44}
-                                    borderRadius={10}
+                                    borderRadius={100}
                                 />
                             </View>
                         </View>

@@ -60,11 +60,11 @@ const styles = StyleSheet.create({
     },
     iconContainer: {
         position: "absolute",
-        bottom: 0,
-        right: 0,
+        bottom: 8,
+        right: 8,
         backgroundColor: Colors.BRAND_PRIMARY,
-        padding: 6,
-        borderRadius: 20,
+        padding: 3,
+        borderRadius: 4,
         elevation: 3,
     },
     title: {

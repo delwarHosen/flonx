@@ -48,7 +48,7 @@ export default function CustomLoader({
                         height: size,
                         borderRadius: size / 2,
                         borderWidth: strokeWidth,
-                        borderColor: '#E5E5E5',
+                        borderColor: '#d4b0ff',
                         borderTopColor: color,
                         transform: [{ rotate }],
                     },

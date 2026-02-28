@@ -35,7 +35,7 @@ export const FORM_PLACEHOLDERS = {
     [FORM_FIELDS.NEW_PASSWORD]: "Enter your New Password",
     [FORM_FIELDS.CONFIRM_PASSWORD]: "Enter your Confirm Password",
     [FORM_FIELDS.CONFIRM_NEW_PASSWORD]: "Confirm New Password",
-    [FORM_FIELDS.OLD_PASSWORD]: ".......",
+    [FORM_FIELDS.OLD_PASSWORD]: "Enter Your Old Password",
     [FORM_FIELDS.FULL_NAME]: 'Enter your full name',
     [FORM_FIELDS.USER_NAME]: 'Enter your username',
     [FORM_FIELDS.CONTACT_NO]: "Enter your contact phone number",

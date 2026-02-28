@@ -183,7 +183,7 @@ export const FormInput: React.FC<FormInputProps> = ({
 
 const styles = StyleSheet.create({
     container: {
-        marginBottom: 20
+        marginTop: 16
     },
     labelContainer: {
         flexDirection: "row",
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: Colors.INPUT_BACKGROUND,
-        borderRadius: 10,
+        borderRadius: 100,
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
         paddingHorizontal: 16,

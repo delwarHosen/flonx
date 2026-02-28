@@ -176,7 +176,7 @@ export default function RegisterScreen() {
                 onPress={handleSubmit}
                 width="100%"
                 height={44}
-                borderRadius={10}
+                borderRadius={100}
               // icon={<DoubleRightArrowIcon />}
               />
             </View>

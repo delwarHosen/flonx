@@ -42,9 +42,8 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent:"space-between",
-        marginTop:"5%",
-        marginBottom:"4%",
-        gap: 10,
+        // gap: 10,
+        // paddingVertical:"5%"
     },
     backIconContainer: {
         backgroundColor: Colors.INPUT_BACKGROUND,
@@ -54,10 +53,12 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
         padding: 10,
+        marginLeft:"5%"
     },
     headerTitle: {
         flex: 1,
-        marginLeft:"25%"
-        // textAlign:"center",
+        // marginLeft:"25%"
+        textAlign:"center",
+        paddingRight:"10%"
     },
 });

@@ -30,7 +30,7 @@ export const AuthHeading: React.FC<TitleSectionProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 24,
+    // marginBottom: 24,
   },
   description: {
     marginTop: 16,
