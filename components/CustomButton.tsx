@@ -6,7 +6,7 @@ import { ButtonText } from './typo/Typography';
 
 interface CustomButtonProps {
     onPress: () => void;
-    title: string;
+    title?: string;
     icon?: React.ReactNode;
     style?: ViewStyle;
     secondaryColor?: string;
@@ -55,7 +55,7 @@ export const CustomButton = ({
                 } as any, style]}
             >
                 {/* 4. Pass the finalTextColor to ButtonText */}
-                <ButtonText color={finalTextColor}>{title}</ButtonText>
+                {title ? <ButtonText color={finalTextColor}>{title}</ButtonText> : null}
                 {icon && icon}
             </LinearGradient>
         </TouchableOpacity>
@@ -69,6 +69,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         gap: 10,
-        marginTop: 16
+        marginTop: 16,
+
+        // Add this
+        padding: 0,
     },
 });

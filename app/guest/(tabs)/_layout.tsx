@@ -54,7 +54,7 @@ export default function TabsLayout() {
                             >
                                 {focused ? (
                                     <LinearGradient
-                                        colors={[ Colors.BRAND_PRIMARY,Colors.BRAND_PRIMARY_LIGHT]}
+                                        colors={[Colors.BRAND_PRIMARY, Colors.BRAND_PRIMARY_LIGHT]}
                                         start={{ x: -0.5, y: 1 }}
                                         end={{ x: 1, y: -0.5 }}
                                         style={{ borderRadius: 25, padding: 12 }}
@@ -94,7 +94,7 @@ export default function TabsLayout() {
                             >
                                 {focused ? (
                                     <LinearGradient
-                                        colors={[Colors.BRAND_PRIMARY,Colors.BRAND_PRIMARY_LIGHT]}
+                                        colors={[Colors.BRAND_PRIMARY, Colors.BRAND_PRIMARY_LIGHT]}
                                         start={{ x: -0.5, y: 1 }}
                                         end={{ x: 1, y: -0.5 }}
                                         style={{ borderRadius: 25, padding: 12 }}
