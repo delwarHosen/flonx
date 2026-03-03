@@ -113,7 +113,7 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: "5%",
+    paddingHorizontal: 20,
     backgroundColor: Colors.APP_BACKGROUND
   },
   onBoadingContent: {

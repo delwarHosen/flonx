@@ -112,14 +112,20 @@ const ShopItems = () => {
                                 <OrderTabIcon />
                             </View>
                             <View>
-                                <Body1 color="#FFF" style={{ fontWeight: '600', marginBottom: 10 }}>{totalItems} Items</Body1>
+                                <Body1 color="#FFF" style={{ fontWeight: '800', marginBottom: 10 }}>{totalItems} Items</Body1>
                                 <Caption1 color="#1D1733" style={styles.priceText}>${totalPrice}</Caption1>
                             </View>
                         </View>
 
                         <TouchableOpacity
                             style={styles.checkoutBtn}
-                            onPress={() => console.log("Checkout")}
+                            onPress={() => router.push({
+                                pathname: "/guest/checkout",
+                                params: {
+                                    cartData: JSON.stringify(cart),
+                                    barId: barId
+                                }
+                            })}
                         >
                             <Body1 color="#1D1733" style={{ fontWeight: '700' }}>Checkout</Body1>
                         </TouchableOpacity>
@@ -190,19 +196,19 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 10,
-        borderWidth:.8,
-        borderColor:Colors.NEUTRAL0,
+        borderWidth: .8,
+        borderColor: Colors.NEUTRAL0,
         justifyContent: 'center',
         alignItems: 'center',
     },
     checkoutBtn: {
         backgroundColor: Colors.NEUTRAL0,
         paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 12,
+        paddingVertical: 12,
+        borderRadius: 20,
     },
     priceText: {
-        fontSize: 20,
-        fontWeight: 700
+        fontSize: 16,
+        fontWeight: 800
     }
 });

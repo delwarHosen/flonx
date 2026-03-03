@@ -59,6 +59,6 @@ const styles = StyleSheet.create({
         flex: 1,
         // marginLeft:"25%"
         textAlign:"center",
-        paddingRight:"10%"
+        paddingRight:"15%"
     },
 });

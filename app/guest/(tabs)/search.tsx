@@ -1,5 +1,5 @@
 import BarCardComponents from '@/components/cardComponents/BarCardComponents'
-import SearchBar from '@/components/ui/SearchBar'
+import SearchBar from '@/components/CommonComponents/SearchBar'
 import { bars } from '@/constants/data/barData'
 import { Colors } from '@/constants/theme'
 import { useRouter } from 'expo-router'

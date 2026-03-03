@@ -79,7 +79,7 @@ const ItemDetails = () => {
                             borderRadius={100}
                         />
 
-                        <H6 color={Colors.NEUTRAL0} style={styles.qtyText}>{quantity}</H6>
+                        <H6 color={Colors.NEUTRAL0} italic style={styles.qtyText}>{quantity}</H6>
 
                         <CustomButton
                             onPress={handleRemove}

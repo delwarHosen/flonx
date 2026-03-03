@@ -12,5 +12,5 @@ export const IMAGE_COMPONENTS = {
     item4: require("../assets/images/item4.png"),
     item5: require("../assets/images/item5.png"),
     item6: require("../assets/images/item7.png"),
-
+    successImg: require("../assets/images/succeccImg.png"),
 } as const;
