@@ -101,7 +101,7 @@ export default function SelectRole() {
                         <RenderBorder isSelected={selectedRole === 'bartender'}>
                             <View style={[styles.innerContent, { paddingHorizontal: 12 }]}>
                                 <View style={styles.iconStyle}>
-                                    <BartenderIcon />
+                                    <BartenderIcon  />
                                 </View>
                                 <Caption2 italic style={{ marginTop: 16, textAlign: 'center' }} color={Colors.PLACEHOLLDER_TEXT}>
                                     Continue as Bartender

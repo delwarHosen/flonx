@@ -20,7 +20,7 @@ export default function AccountSetting() {
             </View>
             <View style={{ paddingHorizontal: "5%", marginTop:10 }}>
                 <ProfileCard
-                    icon={<NotificationIcon />}
+                    icon={<NotificationIcon size={16} />}
                     label="Push Notification"
                     onPress={() => router.push("/customer/push-notification")}
                 />

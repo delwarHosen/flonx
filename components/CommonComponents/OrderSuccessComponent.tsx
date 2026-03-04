@@ -39,7 +39,7 @@ export default function OrderSuccessComponent() {
                 <View style={styles.buttonContainer}>
                     <CustomButton
                         title="Tip Bartender"
-                        onPress={() => router.push("/guest/(tabs)/order")}
+                        onPress={() => router.push("/guest/tip-select")}
                         width="100%"
                         height={55}
                         borderRadius={100}
@@ -47,7 +47,7 @@ export default function OrderSuccessComponent() {
                     />
                     <CustomButton
                         title="Order Again"
-                        onPress={() => router.push("/guest/(tabs)/order")}
+                        onPress={() => router.push("/guest/shop-item")}
                         width="100%"
                         height={55}
                         borderRadius={100}

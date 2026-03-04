@@ -6,7 +6,7 @@ import { StyleProp, StyleSheet, TouchableOpacity, View, ViewStyle } from "react-
 import { Body1 } from "./typo/Typography";
 
 interface SectionTitleProps {
-    title: string;
+    title?: string;
     containerStyle?: StyleProp<ViewStyle>;
     showBackButton?: boolean;
 }
