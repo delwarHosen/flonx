@@ -15,7 +15,6 @@ SplashScreen.preventAutoHideAsync();
 
 
 
-
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
@@ -34,6 +33,7 @@ export default function RootLayout() {
           }}>
             <Stack.Screen name="index" />
             <Stack.Screen name="onboarding" />
+            
           </Stack>
           <StatusBar style="light" />
         </ThemeProvider>

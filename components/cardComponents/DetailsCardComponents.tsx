@@ -30,7 +30,7 @@ export const DetailsCardComponents: React.FC<DetailsItemProps> = ({
             <View style={{
             }}>
                 <Caption2 style={{ marginBottom: 12 }} color={Colors.PLACEHOLLDER_TEXT}>{topLabel}</Caption2>
-                <Body3 color={textColor ? textColor : Colors.NEUTRAL0} >{bottomLabel}</Body3>
+                <Body3 style={{lineHeight:20}} color={textColor ? textColor : Colors.NEUTRAL0} >{bottomLabel}</Body3>
             </View>
 
         </TouchableOpacity>

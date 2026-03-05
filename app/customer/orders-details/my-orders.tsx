@@ -159,7 +159,7 @@ const OrderDetailsScreen = () => {
 
           <CustomButton
             title="Back to orders"
-            onPress={() => router.push("/customer/(tabs)/orders")}
+            onPress={() => router.back()}
             width="100%"
             height={44}
             borderRadius={100}

@@ -14,4 +14,7 @@ export const IMAGE_COMPONENTS = {
     item6: require("../assets/images/item7.png"),
     successImg: require("../assets/images/succeccImg.png"),
     emptyImg: require("../assets/images/emptyImg.png"),
+    profile1: require("../assets/images/pp1.png"),
+    profile2: require("../assets/images/pp2.png"),
+    profile3: require("../assets/images/pp3.png"),
 } as const;

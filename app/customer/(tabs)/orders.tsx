@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 // Types & Data (Apnar provided file theke) 
 import { RightAngleIcon } from '@/assets/images/icons/ProfileInfoIcons/RightAngleIcon';
 import { CustomButton } from '@/components/CustomButton';
+import EmptyStateCard from '@/components/EmptyStateCardProps';
 import SectionTitle from '@/components/SectionTitle';
 import { Body1, Body3, Caption1, H6 } from '@/components/typo/Typography';
 import { OrderItem, orders } from '@/constants/data/orderData';
@@ -16,22 +17,18 @@ const OrderScreen = () => {
   const [selectedTab, setSelectedTab] = useState<"Current Orders" | "Past Orders">("Current Orders");
   const router = useRouter();
 
-  // Tab onujayi data filter
   const currentData = orders.find(cat => cat.categoryName === selectedTab)?.items || [];
 
-  // renderOrderItem function er bhetore eita update korun
   const renderOrderItem = ({ item }: { item: OrderItem }) => {
     const isPastOrder = selectedTab === "Past Orders";
 
     return (
       <TouchableOpacity
-        // Shudhu Past Order holei details page e jabe
         onPress={() => {
           if (isPastOrder) {
             router.push({
               pathname: "/customer/orders-details/my-orders",
               params: {
-                
                 id: item.id,
                 name: item.name,
                 price: item.price,
@@ -41,10 +38,20 @@ const OrderScreen = () => {
                 subOrders: item.orders ? JSON.stringify(item.orders) : ""
               }
             });
+          } else {
+            // Navigation for Current Orders
+            router.push({
+              pathname: "/customer/orders-details/current-order",
+              params: {
+                id: item.id,
+                status: item.status,
+                // Add any other params you need for the current order page
+              }
+            });
           }
         }}
         style={styles.orderCard}
-        activeOpacity={isPastOrder ? 0.8 : 1} // Current order hole click feedback off
+        activeOpacity={0.8} // Changed to 0.8 so both tabs feel interactive
       >
         <View style={styles.cardContent}>
           <Image source={item.img} style={styles.itemImage} contentFit="contain" />
@@ -65,12 +72,13 @@ const OrderScreen = () => {
             <H6 color={Colors.NEUTRAL0} style={{ marginTop: 4, fontWeight: 800 }}>${item.price}</H6>
           </View>
 
-          {/* Shudhu Past Order holei arrow icon ta dekhabe */}
-          {isPastOrder && <RightAngleIcon />}
+          {/* Icon is now visible for both since both are clickable */}
+          <RightAngleIcon />
         </View>
       </TouchableOpacity>
     );
   };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -105,13 +113,22 @@ const OrderScreen = () => {
         </View>
       </View>
       {/* Orders List */}
-      <FlatList
-        data={currentData}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderOrderItem}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-      />
+      {currentData.length > 0 ? (
+        <FlatList
+          data={currentData}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderOrderItem}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+        />
+      ) : (
+        <View style={{ padding: 20 }}>
+          <EmptyStateCard
+            message={selectedTab === "Current Orders" ? "No order found " : "No Past Orders"}
+          // description="It looks like you haven't placed any orders yet."
+          />
+        </View>
+      )}
     </SafeAreaView>
   );
 };
