@@ -97,7 +97,8 @@ const HomeScreen: React.FC = () => {
 
             <CustomButton
               title="View Order Details"
-              onPress={() => router.push("/customer/orders-details/my-orders")}
+              onPress={() => router.push("/customer/(tabs)/orders")}
+              // onPress={() => router.push("/customer/orders-details/my-orders")}
               width="100%"
               height={44}
               borderRadius={100}

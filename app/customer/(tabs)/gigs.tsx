@@ -10,12 +10,13 @@ import { CustomButton } from '@/components/CustomButton';
 import EmptyStateCard from '@/components/EmptyStateCardProps';
 import SectionTitle from '@/components/SectionTitle';
 import { jobPosts } from '@/constants/data/jobPosts';
+import { useRouter } from 'expo-router';
 
 const TABS = ["Active", "Assigned", "Completed", "Cancelled"];
 
 const GigsScreen = () => {
   const [activeTab, setActiveTab] = useState("Active");
-
+  
   // const filteredData = jobPosts.filter(job => job.status === activeTab);
 
   const filteredData = jobPosts.filter(job => {
@@ -77,7 +78,8 @@ const GigsScreen = () => {
 };
 
 
-const CreatGig = () => {
+const CreatGig = () => { 
+  const router = useRouter();
   return (
     <View style={styles.createCard}>
       <View style={""}>
@@ -91,7 +93,7 @@ const CreatGig = () => {
       // style={{ marginTop:-10 }}
       >
         <CustomButton
-          onPress={() => console.log("")}
+          onPress={()=>router.push('/customer/gigs-related/add-gig')}
           icon={<PlusWithBorderIcon />}
           width={36}
           height={36}

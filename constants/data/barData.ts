@@ -43,7 +43,7 @@ export interface Bar {
 
 export const bars: Bar[] = [
     {
-        id: 1,
+        id: 1257,
         name: "Midnight Lounge",
         logo: IMAGE_COMPONENTS.copperAlleyBar,
         status: "open",
@@ -56,11 +56,11 @@ export const bars: Bar[] = [
         },
         categories: [
             {
-                id: 1,
+                id: 12101,
                 name: "Cocktails",
                 items: [
                     {
-                        id: 1,
+                        id: 208741,
                         name: "Mojito",
                         img: IMAGE_COMPONENTS.item1,
                         price: 12,
@@ -69,7 +69,7 @@ export const bars: Bar[] = [
                         description: "Refreshing Cuban cocktail with mint and lime.",
                     },
                     {
-                        id: 2,
+                        id: 20242,
                         name: "Black Russian",
                         img: IMAGE_COMPONENTS.item3,
                         price: 14,
@@ -80,11 +80,11 @@ export const bars: Bar[] = [
                 ],
             },
             {
-                id: 2,
+                id: 108742,
                 name: "Beers",
                 items: [
                     {
-                        id: 3,
+                        id: 301365,
                         name: "Heineken",
                         img:IMAGE_COMPONENTS.item1,
                         price: 8,
@@ -93,7 +93,7 @@ export const bars: Bar[] = [
                         description: "Imported smooth lager beer.",
                     },
                     {
-                        id: 4,
+                        id: 48601,
                         name: "Heineken",
                         img: IMAGE_COMPONENTS.item5,
                         price: 8,
@@ -104,11 +104,11 @@ export const bars: Bar[] = [
                 ],
             },
             {
-                id: 4,
+                id: 501451,
                 name: "Wine",
                 items: [
                     {
-                        id: 3,
+                        id: 608741,
                         name: "Heineken",
                         img:IMAGE_COMPONENTS.item3,
                         price: 8,
@@ -117,7 +117,7 @@ export const bars: Bar[] = [
                         description: "Imported smooth lager beer.",
                     },
                     {
-                        id: 4,
+                        id: 604562,
                         name: "Heineken",
                         img: IMAGE_COMPONENTS.item1,
                         price: 8,
@@ -128,11 +128,11 @@ export const bars: Bar[] = [
                 ],
             },
             {
-                id: 3,
+                id: 357545,
                 name: "Wine",
                 items: [
                     {
-                        id: 3,
+                        id: 78553,
                         name: "Heineken",
                         img:IMAGE_COMPONENTS.item5,
                         price: 8,
@@ -141,7 +141,7 @@ export const bars: Bar[] = [
                         description: "Imported smooth lager beer.",
                     },
                     {
-                        id: 4,
+                        id: 45454,
                         name: "Heineken",
                         img: IMAGE_COMPONENTS.item2,
                         price: 8,
@@ -155,7 +155,7 @@ export const bars: Bar[] = [
     },
 
     {
-        id: 2,
+        id: 100781,
         name: "Sky Lounge Bar",
         logo: IMAGE_COMPONENTS.copperAlleyBar1,
         status: "close",
@@ -168,11 +168,11 @@ export const bars: Bar[] = [
         },
         categories: [
             {
-                id: 1,
+                id: 17855,
                 name: "Wine",
                 items: [
                     {
-                        id: 4,
+                        id: 4874,
                         name: "Blue Lagoon",
                         img: IMAGE_COMPONENTS.item4,
                         price: 10,
@@ -183,11 +183,11 @@ export const bars: Bar[] = [
                 ],
             },
             {
-                id: 2,
+                id: 28755,
                 name: "Mocktails",
                 items: [
                     {
-                        id: 5,
+                        id: 584587,
                         name: "Virgin Mojito",
                         img: IMAGE_COMPONENTS.item5,
                         price: 6,
@@ -200,7 +200,7 @@ export const bars: Bar[] = [
         ],
     },
     {
-        id: 3,
+        id: 145002,
         name: "Ocean Breeze Bar",
         logo: IMAGE_COMPONENTS.copperAlleyBar,
         status: "open",
@@ -217,7 +217,7 @@ export const bars: Bar[] = [
                 name: "Tropical Cocktails",
                 items: [
                     {
-                        id: 6,
+                        id: 67655468,
                         name: "Pina Colada",
                         img: IMAGE_COMPONENTS.item1,
                         price: 15,
@@ -228,11 +228,11 @@ export const bars: Bar[] = [
                 ],
             },
             {
-                id: 2,
+                id: 2645785,
                 name: "Wines",
                 items: [
                     {
-                        id: 7,
+                        id: 77854,
                         name: "Chardonnay",
                         img: IMAGE_COMPONENTS.item2,
                         price: 18,
@@ -245,7 +245,7 @@ export const bars: Bar[] = [
         ],
     },
     {
-        id: 4,
+        id: 1003,
         name: "Royal Velvet Lounge",
         logo: IMAGE_COMPONENTS.copperAlleyBar1,
         status: "close",
@@ -258,11 +258,11 @@ export const bars: Bar[] = [
         },
         categories: [
             {
-                id: 1,
+                id: 14516,
                 name: "Premium Spirits",
                 items: [
                     {
-                        id: 8,
+                        id: 84578,
                         name: "Macallan 18",
                         img: IMAGE_COMPONENTS.item5,
                         price: 40,
@@ -273,11 +273,11 @@ export const bars: Bar[] = [
                 ],
             },
             {
-                id: 2,
+                id: 4542,
                 name: "Classic Cocktails",
                 items: [
                     {
-                        id: 9,
+                        id: 94545,
                         name: "Old Fashioned",
                         img: IMAGE_COMPONENTS.item2,
                         price: 16,
@@ -290,7 +290,7 @@ export const bars: Bar[] = [
         ],
     },
     {
-        id: 5,
+        id: 1004,
         name: "Sunset Paradise Bar",
         logo: IMAGE_COMPONENTS.copperAlleyBar,
         status: "open",
@@ -303,11 +303,11 @@ export const bars: Bar[] = [
         },
         categories: [
             {
-                id: 1,
+                id: 1754556,
                 name: "Island Specials",
                 items: [
                     {
-                        id: 10,
+                        id: 108754,
                         name: "Mai Tai",
                         img: IMAGE_COMPONENTS.item3,
                         price: 13,
@@ -318,11 +318,11 @@ export const bars: Bar[] = [
                 ],
             },
             {
-                id: 2,
+                id: 23445,
                 name: "Fresh Juices",
                 items: [
                     {
-                        id: 11,
+                        id: 1741,
                         name: "Mango Smoothie",
                         img: IMAGE_COMPONENTS.item4,
                         price: 7,
@@ -335,7 +335,7 @@ export const bars: Bar[] = [
         ],
     },
     {
-        id: 6,
+        id: 1005,
         name: "Sunset Paradise Bar",
         logo: IMAGE_COMPONENTS.copperAlleyBar,
         status: "open",
@@ -348,11 +348,11 @@ export const bars: Bar[] = [
         },
         categories: [
             {
-                id: 1,
+                id: 14555,
                 name: "Island Specials",
                 items: [
                     {
-                        id: 10,
+                        id: 14540,
                         name: "Mai Tai",
                         img: IMAGE_COMPONENTS.item3,
                         price: 13,
@@ -363,11 +363,11 @@ export const bars: Bar[] = [
                 ],
             },
             {
-                id: 2,
+                id: 2845,
                 name: "Fresh Juices",
                 items: [
                     {
-                        id: 11,
+                        id: 1123,
                         name: "Mango Smoothie",
                         img: IMAGE_COMPONENTS.item4,
                         price: 7,
@@ -380,7 +380,7 @@ export const bars: Bar[] = [
         ],
     },
     {
-        id: 7,
+        id: 77,
         name: "Sunset Paradise Bar",
         logo: IMAGE_COMPONENTS.copperAlleyBar,
         status: "open",
@@ -393,7 +393,7 @@ export const bars: Bar[] = [
         },
         categories: [
             {
-                id: 1,
+                id: 1112,
                 name: "Island Specials",
                 items: [
                     {
@@ -408,7 +408,7 @@ export const bars: Bar[] = [
                 ],
             },
             {
-                id: 2,
+                id: 70,
                 name: "Fresh Juices",
                 items: [
                     {
@@ -438,7 +438,7 @@ export const bars: Bar[] = [
         },
         categories: [
             {
-                id: 1,
+                id: 203,
                 name: "Island Specials",
                 items: [
                     {
@@ -453,7 +453,7 @@ export const bars: Bar[] = [
                 ],
             },
             {
-                id: 2,
+                id: 2002,
                 name: "Fresh Juices",
                 items: [
                     {

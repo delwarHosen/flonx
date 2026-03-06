@@ -51,7 +51,7 @@ export default function LoginScreen() {
         } else {
           router.replace("/customer/(tabs)/home");
         }
-        
+
         console.log("SignIn data from login Page", data)
         // router.push("/(tabs)/home")
       } catch (error: any) {
@@ -156,7 +156,12 @@ export default function LoginScreen() {
               {/* ----Submit Button---- */}
               <CustomButton
                 title="Login"
-                onPress={handleSubmit}
+                // onPress={handleSubmit}
+                onPress={() =>
+                  userRole === "bartender"
+                    ? router.replace("/bartender/(tabs)/browse")
+                    : router.replace("/customer/(tabs)/home")
+                }
                 width="100%"
                 height={44}
                 borderRadius={100}
@@ -164,11 +169,17 @@ export default function LoginScreen() {
               />
             </View>
             <View style={{ marginTop: 16, alignItems: "center" }}>
-              <Body3 color={Colors.PLACEHOLLDER_TEXT}>No account yet?
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Body3 color={Colors.PLACEHOLLDER_TEXT}>
+                  No account yet?
+                </Body3>
+
                 <TouchableOpacity onPress={() => router.push("/(auth)/register")}>
-                  <Body3 color={Colors.BRAND_PRIMARY}> Create an account</Body3>
+                  <Body3 color={Colors.BRAND_PRIMARY}>
+                    {" "}Create an account
+                  </Body3>
                 </TouchableOpacity>
-              </Body3>
+              </View>
             </View>
 
           </View>

@@ -1,17 +1,26 @@
 import { JobsBagIcon } from '@/assets/images/icons/BarRelatedIcon/JobsBagIcon';
 import { ViewDetailsIcon } from '@/assets/images/icons/BarRelatedIcon/ViewDetailsIcon';
+import { WarningIcon } from '@/assets/images/icons/ProfileInfoIcons/WarningIcon';
+
 import { DetailsCardComponents } from '@/components/cardComponents/DetailsCardComponents';
+import { ConfirmationModal } from '@/components/ConfirmationModalProps';
 import { CustomButton } from '@/components/CustomButton';
+import CustomLoader from '@/components/CustomLoader';
 import SectionTitle from '@/components/SectionTitle';
 import { Body1, Body2, Caption1, Caption2, Caption3 } from '@/components/typo/Typography';
 import { jobPosts } from '@/constants/data/jobPosts';
 import { Colors } from '@/constants/theme';
 import { router, useLocalSearchParams } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const GigDetails = () => {
+    const [showCompleteModal, setShowCompleteModal] = useState(false);
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [loading, setLoading] = useState(false);
+
     const { id, initialTab } = useLocalSearchParams<{ id: string; initialTab: string }>();
     const item = jobPosts.find(j => j.id === id);
 
@@ -32,10 +41,56 @@ const GigDetails = () => {
 
     const statusColors = getStatusColors(item.status);
 
+    // ১. Mark As Completed হ্যান্ডলার
+    const confirmComplete = () => {
+        setShowCompleteModal(false);
+        setTimeout(async () => {
+            setLoading(true);
+            try {
+                // API Call logic here
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                router.back();
+            } catch (error) {
+                setLoading(false);
+            }
+        }, 300);
+    };
+
+    // ২. Cancel Assignment হ্যান্ডলার
+    const confirmCancelAssignment = () => {
+        setShowCancelModal(false);
+        setTimeout(async () => {
+            setLoading(true);
+            try {
+                // API Call logic here
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                router.back();
+            } catch (error) {
+                setLoading(false);
+            }
+        }, 300);
+    };
+    // delete modal
+    const confirmDelete = () => {
+        setShowDeleteModal(false);
+
+        setTimeout(async () => {
+            setLoading(true);
+            try {
+
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                router.back();
+            } catch (error) {
+                setLoading(false);
+                console.error("Delete failed", error);
+            }
+        }, 300);
+    };
+
     const renderBottomSection = () => {
         switch (initialTab) {
 
-            // ─── 1st Page: Open ───────────────────────────────────────────
+            // ─── 1st Page: Open ──────────
             case 'open':
                 return (
                     <>
@@ -48,7 +103,10 @@ const GigDetails = () => {
                             </View>
                             <TouchableOpacity
                                 style={styles.applicantIconBtn}
-                                onPress={() => router.push('/customer/gigs-related/applicant-profile')}
+                                onPress={() => router.push({
+                                    pathname: '/customer/gigs-related/applicants-list',
+                                    params: { jobId: item.id }
+                                })}
                             >
                                 <ViewDetailsIcon />
                             </TouchableOpacity>
@@ -58,7 +116,7 @@ const GigDetails = () => {
                         <View style={styles.actionRow}>
                             <View style={styles.buttonWrapper}>
                                 <CustomButton
-                                    onPress={() => console.log('Update Listing')}
+                                    onPress={() => router.push("/customer/gigs-related/update-gig")}
                                     title='Update Listing'
                                     width="100%"
                                     height={44}
@@ -67,7 +125,10 @@ const GigDetails = () => {
                             </View>
                             <View style={styles.buttonWrapper}>
                                 <CustomButton
-                                    onPress={() => router.push('/customer/gigs-related/applicant-profile')}
+                                    onPress={() => router.push({
+                                        pathname: '/customer/gigs-related/applicant-details',
+                                        params: { applicantId: item.id, jobId: id }
+                                    })}
                                     title='View Applicants'
                                     width="100%"
                                     height={44}
@@ -78,7 +139,7 @@ const GigDetails = () => {
                         </View>
 
                         <CustomButton
-                            onPress={() => console.log('Delete listing')}
+                            onPress={() => setShowDeleteModal(true)}
                             title='Delete listing'
                             width={'100%'}
                             height={44}
@@ -95,7 +156,7 @@ const GigDetails = () => {
                     <>
                         <TouchableOpacity
                             style={styles.assignedRow}
-                            onPress={() => router.push('/customer/gigs-related/applicant-profile')}
+                            onPress={() => router.push("/")}
                             activeOpacity={0.8}
                         >
                             <View style={styles.assignedLeft}>
@@ -118,7 +179,7 @@ const GigDetails = () => {
 
                         <View style={{ marginBottom: 24 }}>
                             <CustomButton
-                                onPress={() => console.log('Mark As Completed')}
+                                onPress={() => setShowCompleteModal(true)}
                                 title='Mark As Completed'
                                 width={'100%'}
                                 height={44}
@@ -127,7 +188,7 @@ const GigDetails = () => {
                                 style={{ marginTop: 16 }}
                             />
                             <CustomButton
-                                onPress={() => console.log('Cancel Assignment')}
+                                onPress={() => setShowCancelModal(true)}
                                 title='Cancel Assignment'
                                 width={'100%'}
                                 height={44}
@@ -145,7 +206,10 @@ const GigDetails = () => {
                     <>
                         <TouchableOpacity
                             style={styles.assignedRow}
-                            onPress={() => router.push('/customer/gigs-related/applicant-profile')}
+                            onPress={() => router.push({
+                                pathname: '/customer/gigs-related/applicant-profile-details',
+                                params: { applicantId: item.assignedTo?.id, jobId: item.id }
+                            })}
                             activeOpacity={0.8}
                         >
                             <View style={styles.assignedLeft}>
@@ -179,9 +243,9 @@ const GigDetails = () => {
             case 'cancelled':
                 return (
                     <>
-                        
 
-                        <View style={{marginBottom: 12,marginTop: 16,}}>
+
+                        <View style={{ marginBottom: 12, marginTop: 16, }}>
                             <DetailsCardComponents
                                 topLabel="Cancelled By"
                                 bottomLabel={item.cancelledBy ?? '—'}
@@ -193,7 +257,7 @@ const GigDetails = () => {
                             />
                         </View>
 
-                       
+
                     </>
                 );
 
@@ -204,6 +268,32 @@ const GigDetails = () => {
 
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+
+            {/* Loader */}
+            {loading && (
+                <View style={[StyleSheet.absoluteFill, {
+                    backgroundColor: 'rgba(0,0,0,0.6)',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 999
+                }]}>
+                    <CustomLoader size={55} />
+                </View>
+            )}
+
+
+            <ConfirmationModal
+                visible={showDeleteModal}
+                title="Delete Listing?"
+                description="Are you sure you want to delete this listing? This action cannot be undone."
+                confirmText="Confirm"
+                onCancel={() => setShowDeleteModal(false)}
+                onConfirm={confirmDelete}
+                icon={<WarningIcon size={28} />}
+                confirmColor={Colors.BRAND_PRIMARY}
+                confirmSecondaryColor="#A855F7"
+            />
+
             {/* Back Header */}
             <SectionTitle title='Gig Details' />
 
@@ -215,63 +305,109 @@ const GigDetails = () => {
                     <Caption1 color={statusColors.text}>{item.status}</Caption1>
                 </View>
 
-                <DetailsCardComponents
-                    topLabel="Location"
-                    bottomLabel={item.location}
-                />
-                <DetailsCardComponents
-                    topLabel="Date"
-                    bottomLabel={item.date}
-                />
-                <DetailsCardComponents
-                    topLabel="Time"
-                    bottomLabel={item.time}
-                />
+                <GigBasicDetails item={item} />
 
-                <DetailsCardComponents
-                    topLabel="Contact Number"
-                    bottomLabel={item.contactNumber}
-                />
-
-                <DetailsCardComponents
-                    topLabel="Details"
-                    bottomLabel={item.details}
-                />
-
-
-
-                <View style={styles.paymentCard}>
-                    <View style={styles.paymentTextcon}>
-                        <View style={styles.iconContainer}>
-                            <JobsBagIcon />
-                        </View>
-                        <Body2 italic color={Colors.NEUTRAL0}> Payment Info</Body2>
-                    </View>
-
-                    <View style={styles.payRow}>
-                        <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Pay Rate (Per Hour)</Caption2>
-                        <Body2 color={Colors.NEUTRAL0}>${item.payRate?.toFixed(2)}</Body2>
-                    </View>
-                    <View style={styles.payRow}>
-                        <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Total Duration</Caption2>
-                        <Body2 color={Colors.NEUTRAL0}>{item.totalDuration ?? '15 hours'}</Body2>
-                    </View>
-
-                    <View style={{ height: 1.5, backgroundColor: Colors.BORDER_COLOR, marginVertical: 16, }} />
-
-                    <View style={styles.payRow}>
-                        <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Total Amount</Caption2>
-                        <Body2 color={Colors.NEUTRAL0}>$ {item.totalAmount ?? '375'}</Body2>
-                    </View>
-
-                </View>
+                <PaymentInfoCard item={item} />
 
                 {renderBottomSection()}
 
             </ScrollView>
+            {/* Loader */}
+            {loading && (
+                <View style={[StyleSheet.absoluteFill, {
+                    backgroundColor: 'rgba(0,0,0,0.6)',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 999
+                }]}>
+                    <CustomLoader size={55} />
+                </View>
+            )}
+
+
+            <ConfirmationModal
+                visible={showDeleteModal}
+                title="Delete Listing?"
+                description="Are you sure you want to delete this listing? This action cannot be undone."
+                confirmText="Confirm"
+                onCancel={() => setShowDeleteModal(false)}
+                onConfirm={confirmDelete}
+                icon={<WarningIcon size={28} />}
+                confirmColor={Colors.BRAND_PRIMARY}
+                confirmSecondaryColor="#A855F7"
+            />
+            {/* Mark Job as Complete Modal */}
+            <ConfirmationModal
+                visible={showCompleteModal}
+                title="Mark Job as Complete?"
+                description="Are you sure you want to mark this job as completed?"
+                confirmText="Confirm"
+                onCancel={() => setShowCompleteModal(false)}
+                onConfirm={confirmComplete}
+                icon={<WarningIcon size={28} />}
+                confirmColor="#8B5CF6"
+                confirmSecondaryColor="#A78BFA"
+            />
+
+            {/* Cancel Assignment Modal */}
+            <ConfirmationModal
+                visible={showCancelModal}
+                title="Cancel Assignment?"
+                description="Are you sure you want to cancel this assignment? This action will remove you from the job."
+                confirmText="Confirm"
+                onCancel={() => setShowCancelModal(false)}
+                onConfirm={confirmCancelAssignment}
+                icon={<WarningIcon size={28} />}
+                confirmColor="#8B5CF6"
+                confirmSecondaryColor="#A78BFA"
+            />
         </SafeAreaView>
     );
 };
+
+
+
+// ---- Gig details----->
+const GigBasicDetails = ({ item }: { item: any }) => (
+    <>
+        <DetailsCardComponents topLabel="Location" bottomLabel={item.location} />
+        <DetailsCardComponents topLabel="Date" bottomLabel={item.date} />
+        <DetailsCardComponents topLabel="Time" bottomLabel={item.time} />
+        <DetailsCardComponents topLabel="Contact Number" bottomLabel={item.contactNumber} />
+        <DetailsCardComponents topLabel="Details" bottomLabel={item.details} />
+    </>
+);
+
+
+// <----------Payment Card-------->
+
+const PaymentInfoCard = ({ item }: { item: any }) => (
+    <View style={styles.paymentCard}>
+        <View style={styles.paymentTextcon}>
+            <View style={styles.iconContainer}>
+                <JobsBagIcon />
+            </View>
+            <Body2 italic color={Colors.NEUTRAL0}> Payment Info</Body2>
+        </View>
+
+        <View style={styles.payRow}>
+            <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Pay Rate (Per Hour)</Caption2>
+            <Body2 color={Colors.NEUTRAL0}>${item.payRate?.toFixed(2)}</Body2>
+        </View>
+        <View style={styles.payRow}>
+            <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Total Duration</Caption2>
+            <Body2 color={Colors.NEUTRAL0}>{item.totalDuration ?? '15 hours'}</Body2>
+        </View>
+
+        <View style={{ height: 1.5, backgroundColor: Colors.BORDER_COLOR, marginVertical: 16 }} />
+
+        <View style={styles.payRow}>
+            <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Total Amount</Caption2>
+            <Body2 color={Colors.NEUTRAL0}>$ {item.totalAmount ?? '375'}</Body2>
+        </View>
+    </View>
+);
+
 
 const styles = StyleSheet.create({
     container: {

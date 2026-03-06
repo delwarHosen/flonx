@@ -105,7 +105,6 @@ export const FormInput: React.FC<FormInputProps> = ({
             <View style={styles.container}>
                 <View style={styles.labelContainer}>
                     <Body2 color={Colors.NEUTRAL0}>{label}</Body2>
-                    {/* {required && <Text style={styles.required}>*</Text>} */}
                 </View>
 
                 <TouchableOpacity
@@ -136,7 +135,6 @@ export const FormInput: React.FC<FormInputProps> = ({
         <View style={styles.container}>
             <View style={styles.labelContainer}>
                 <Body2 color={Colors.NEUTRAL0}>{label}</Body2>
-                {/* {required && <Text style={styles.required}>*</Text>} */}
             </View>
             <View style={[styles.inputContainer, getError() && styles.inputError]}>
                 <TextInput
@@ -217,7 +215,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     inputError: {
-        borderColor: '#EF4444',
+        // borderColor: '#EF4444',
         // backgroundColor: Colors.,
     },
     placeholder: {
