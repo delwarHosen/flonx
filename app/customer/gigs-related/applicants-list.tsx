@@ -26,7 +26,7 @@ const ApplicantsList = () => {
             <View style={styles.cardLeft}>
                 <Image source={item.profileImg} style={styles.avatar} />
                 <View style={styles.info}>
-                    <Body2 color={Colors.NEUTRAL0} style={{ fontWeight: '500' }}>{item.name}</Body2>
+                    <Body2 color={Colors.NEUTRAL0} >{item.name}</Body2>
                     <View style={styles.ratingRow}>
                         <StarIcon/>
                         <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginLeft: 4 }}>

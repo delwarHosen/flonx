@@ -61,7 +61,9 @@ const HomeScreen: React.FC = () => {
               <Body3 italic style={{ marginTop: 6 }} color={Colors.PLACEHOLLDER_TEXT}>Welcome to FLÖNX</Body3>
             </View>
           </View>
-          <TouchableOpacity style={styles.notificationBtn}>
+          <TouchableOpacity
+          onPress={()=>router.push("/customer/notification")}
+          style={styles.notificationBtn}>
             <NotificationIcon size={24} />
           </TouchableOpacity>
         </View>
@@ -83,14 +85,14 @@ const HomeScreen: React.FC = () => {
             </View>
 
             <View style={styles.codeBanner}>
-              <H5 italic align="center" color={Colors.NEUTRAL0}>Order Code</H5>
-              <H2 italic align="center" color={Colors.NEUTRAL0} style={{ marginTop: 16 }}>A44</H2>
+              <H5 italic align="center" color={"#FFFFFFCC"}>Order Code</H5>
+              <H2 align="center" color={Colors.NEUTRAL0} style={{ marginTop: 16 }}>A44</H2>
             </View>
 
             <View style={styles.statusRow}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <QueuedIcon />
-                <Body3 color="#F97316" style={{ marginLeft: 6 }}>Queued</Body3>
+                <Body3 color="#F97316" italic style={{ marginLeft: 6 }}>Queued</Body3>
               </View>
               <Caption1 color={Colors.PLACEHOLLDER_TEXT}>2 items</Caption1>
             </View>

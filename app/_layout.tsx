@@ -1,7 +1,17 @@
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { store } from '@/redux/store';
+import {
+  Nunito_400Regular,
+  Nunito_400Regular_Italic,
+  Nunito_500Medium,
+  Nunito_600SemiBold,
+  Nunito_600SemiBold_Italic,
+  Nunito_700Bold,
+  Nunito_700Bold_Italic,
+  Nunito_800ExtraBold,
+  useFonts
+} from "@expo-google-fonts/nunito";
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import * as NavigationBar from 'expo-navigation-bar';
 import { Stack } from 'expo-router';
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from 'expo-status-bar';
@@ -17,10 +27,34 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+ const [fontsLoaded, fontError] = useFonts({
+  Nunito_400Regular,
+  Nunito_400Regular_Italic,
+  Nunito_500Medium,
+  Nunito_600SemiBold,
+  Nunito_600SemiBold_Italic,
+  Nunito_700Bold,
+  Nunito_700Bold_Italic,
+  Nunito_800ExtraBold,
+});
 
   useEffect(() => {
-    NavigationBar.setButtonStyleAsync('light');
-  }, []);
+  async function prepare() {
+    if (fontError) {
+      console.log('Font Error:', fontError); 
+    }
+    if (fontsLoaded) {
+      console.log('Fonts loaded successfully!'); // ← এটা missing ছিল
+    }
+    if (fontsLoaded || fontError) {
+      await SplashScreen.hideAsync();
+    }
+  }
+  prepare();
+}, [fontsLoaded, fontError]);
+
+
+  if (!fontsLoaded && !fontError) return null;
 
   return (
     <Provider store={store}>
@@ -33,7 +67,7 @@ export default function RootLayout() {
           }}>
             <Stack.Screen name="index" />
             <Stack.Screen name="onboarding" />
-            
+
           </Stack>
           <StatusBar style="light" />
         </ThemeProvider>

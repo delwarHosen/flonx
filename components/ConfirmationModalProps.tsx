@@ -30,6 +30,9 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     confirmColor = "#DC3545",
     confirmSecondaryColor = "#FE4C5D",
 }) => {
+
+    
+
     return (
         <AnimatedModal visible={visible}>
             <View style={styles.card}>
@@ -56,8 +59,8 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                             height={44}
                             borderRadius={100}
                             backgroundColor="transparent"
-                            borderColor={Colors.BRAND_PRIMARY}
-                            color={Colors.BRAND_PRIMARY}
+                            borderColor={Colors.COLOR_DANGER}
+                            color={Colors.COLOR_DANGER}
                         />
                     </View>
                     <View style={styles.flex1}>

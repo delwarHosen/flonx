@@ -93,7 +93,7 @@ const ApplicantProfileDetails = () => {
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <Body1 color={Colors.NEUTRAL0}>- Rate the Applicant</Body1>
-                        <Body2 color={Colors.NEUTRAL0} style={{ marginTop: 10, marginBottom: 20, fontWeight: 500 }}>
+                        <Body2 color={Colors.NEUTRAL0} style={{ marginTop: 10, marginBottom: 20 }}>
                             Select a star to provide rating
                         </Body2>
 

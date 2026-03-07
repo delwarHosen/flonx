@@ -230,7 +230,6 @@ const styles = StyleSheet.create({
         marginBottom: 16
     },
     title: {
-        fontWeight: '700',
         marginBottom: 10,
         textAlign: 'center',
     },
@@ -241,7 +240,6 @@ const styles = StyleSheet.create({
     },
     title2: {
         fontSize: 16,
-        fontWeight: '700',
         marginBottom: 20,
     },
     inputWrapper: {

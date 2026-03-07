@@ -20,10 +20,10 @@ export default function SelectRole() {
 
     const handleRole = () => {
         if (selectedRole === 'customer' || selectedRole === 'bartender') {
-            dispatch(setRole(selectedRole)); 
+            dispatch(setRole(selectedRole));
             router.push("/(auth)/login");
         }
-        else{
+        else {
             router.push("/guest/(tabs)/search")
         }
     };
@@ -50,7 +50,7 @@ export default function SelectRole() {
             <Animated.View entering={FadeIn.duration(600)} style={styles.container}>
 
                 <Animated.View entering={FadeInDown.delay(200).duration(500).springify()}>
-                    <H3 italic color={Colors.NEUTRAL0} style={{ lineHeight: 36 }}>
+                    <H3 italic color={Colors.NEUTRAL0} style={{ lineHeight: 36, }}>
                         How would you like to use FLŌNX?
                     </H3>
                 </Animated.View>
@@ -101,7 +101,7 @@ export default function SelectRole() {
                         <RenderBorder isSelected={selectedRole === 'bartender'}>
                             <View style={[styles.innerContent, { paddingHorizontal: 12 }]}>
                                 <View style={styles.iconStyle}>
-                                    <BartenderIcon  />
+                                    <BartenderIcon />
                                 </View>
                                 <Caption2 italic style={{ marginTop: 16, textAlign: 'center' }} color={Colors.PLACEHOLLDER_TEXT}>
                                     Continue as Bartender

@@ -57,7 +57,7 @@ const OrderScreen = () => {
           <Image source={item.img} style={styles.itemImage} contentFit="contain" />
 
           <View style={styles.itemInfo}>
-            <Body1 style={{ fontWeight: 400 }} color={Colors.NEUTRAL0}>{item.name}</Body1>
+            <Body1 color={Colors.NEUTRAL0}>{item.name}</Body1>
 
             {!isPastOrder ? (
               <Body3 color={Colors.COLOR_ORANGE} italic style={styles.metaText}>
@@ -69,7 +69,7 @@ const OrderScreen = () => {
               </Caption1>
             )}
 
-            <H6 color={Colors.NEUTRAL0} style={{ marginTop: 4, fontWeight: 800 }}>${item.price}</H6>
+            <H6 color={Colors.NEUTRAL0} style={{ marginTop: 4}}>${item.price}</H6>
           </View>
 
           {/* Icon is now visible for both since both are clickable */}
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEE2E2', // Placeholder bg for image highlight
   },
   itemInfo: { flex: 1, marginLeft: 15 },
-  metaText: { marginVertical: 6, fontWeight: 400 },
+  metaText: { marginVertical: 6 },
 });
 
 export default OrderScreen;

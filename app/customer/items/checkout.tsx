@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     itemName: {
-        fontWeight: '400'
+       
     },
     ingredients: {
         fontSize: 13,
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
         lineHeight: 18
     },
     price: {
-        fontWeight: '700'
+       
     },
     deleteBtn: {
         width: 36,

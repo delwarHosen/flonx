@@ -29,7 +29,7 @@ const onboardingData: OnboardingItem[] = [{
 },
 {
   id: 2,
-  title: "Built for Nights Out",
+  title: "Built for Nights Outl",
   description: "Track your order, pick it up using your unique color and code, and enjoy a smoother bar experience.",
 }
 ];
@@ -83,7 +83,7 @@ export default function OnboardingScreen() {
     <SafeAreaView style={styles.container}>
       <Animated.View style={[styles.onBoadingContent, animatedStyle]}>
         <H1 italic color={Colors.NEUTRAL0}>{currentStep.title}</H1>
-        <Body1 italic style={{ marginTop: 24 }} color={Colors.PLACEHOLLDER_TEXT}>{currentStep.description}</Body1>
+        <Body1 style={{ marginTop: 24 }} color={Colors.PLACEHOLLDER_TEXT}>{currentStep.description}</Body1>
       </Animated.View>
       {/* <View style={styles.onBoadingContent}>
         

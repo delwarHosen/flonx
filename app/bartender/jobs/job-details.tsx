@@ -1,28 +1,30 @@
 import { JobsBagIcon } from '@/assets/images/icons/BarRelatedIcon/JobsBagIcon';
-import { ViewDetailsIcon } from '@/assets/images/icons/BarRelatedIcon/ViewDetailsIcon';
+import { StarIcon } from '@/assets/images/icons/BarRelatedIcon/StarIcon';
 import { WarningIcon } from '@/assets/images/icons/ProfileInfoIcons/WarningIcon';
 
 import { DetailsCardComponents } from '@/components/cardComponents/DetailsCardComponents';
+import { StatusInfoCard } from '@/components/cardComponents/StatusInfoCard';
 import { ConfirmationModal } from '@/components/ConfirmationModalProps';
 import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
 import SectionTitle from '@/components/SectionTitle';
-import { Body1, Body2, Caption1, Caption2, Caption3 } from '@/components/typo/Typography';
-import { jobPosts } from '@/constants/data/jobPosts';
+import { Body1, Body2, Body3, Caption1, Caption2 } from '@/components/typo/Typography';
+import { getJobs } from '@/constants/data/getJobs';
+
 import { Colors } from '@/constants/theme';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
-import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const GigDetails = () => {
+const JobDetails = () => {
     const [showCompleteModal, setShowCompleteModal] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const { id, initialTab } = useLocalSearchParams<{ id: string; initialTab: string }>();
-    const item = jobPosts.find(j => j.id === id);
+    const item = getJobs.find(j => j.id === id);
 
     if (!item) return null;
 
@@ -41,14 +43,29 @@ const GigDetails = () => {
 
     const statusColors = getStatusColors(item.status);
 
-    
+
     const confirmComplete = () => {
         setShowCompleteModal(false);
         setTimeout(async () => {
             setLoading(true);
             try {
                 // API Call logic here
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                router.back();
+            } catch (error) {
+                setLoading(false);
+            }
+        }, 300);
+    };
+
+
+    const confirmCancelAssignment = () => {
+        setShowCancelModal(false);
+        setTimeout(async () => {
+            setLoading(true);
+            try {
+                // API Call logic here
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 router.back();
             } catch (error) {
                 setLoading(false);
@@ -57,35 +74,7 @@ const GigDetails = () => {
     };
 
     
-    const confirmCancelAssignment = () => {
-        setShowCancelModal(false);
-        setTimeout(async () => {
-            setLoading(true);
-            try {
-                // API Call logic here
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                router.back();
-            } catch (error) {
-                setLoading(false);
-            }
-        }, 300);
-    };
-    // delete modal
-    const confirmDelete = () => {
-        setShowDeleteModal(false);
 
-        setTimeout(async () => {
-            setLoading(true);
-            try {
-
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                router.back();
-            } catch (error) {
-                setLoading(false);
-                console.error("Delete failed", error);
-            }
-        }, 300);
-    };
 
     const renderBottomSection = () => {
         switch (initialTab) {
@@ -94,59 +83,26 @@ const GigDetails = () => {
             case 'open':
                 return (
                     <>
-                        <View style={styles.infoCard}>
-                            <View style={{ flex: 1 }}>
-                                <Body2 color={Colors.NEUTRAL0} >View Applicants</Body2>
-                                <Caption3 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: 8 }}>
-                                    See all candidates who applied for this job.
-                                </Caption3>
-                            </View>
-                            <TouchableOpacity
-                                style={styles.applicantIconBtn}
-                                onPress={() => router.push({
-                                    pathname: '/customer/gigs-related/applicants-list',
-                                    params: { jobId: item.id }
-                                })}
-                            >
-                                <ViewDetailsIcon />
-                            </TouchableOpacity>
-                        </View>
 
-
-                        <View style={styles.actionRow}>
-                            <View style={styles.buttonWrapper}>
-                                <CustomButton
-                                    onPress={() => router.push("/customer/gigs-related/update-gig")}
-                                    title='Update Listing'
-                                    width="100%"
-                                    height={44}
-                                    borderRadius={100}
-                                />
-                            </View>
-                            <View style={styles.buttonWrapper}>
-                                <CustomButton
-                                    onPress={() => router.push({
-                                        pathname: '/customer/gigs-related/applicant-details',
-                                        params: { applicantId: item.id, jobId: id }
-                                    })}
-                                    title='View Applicants'
-                                    width="100%"
-                                    height={44}
-                                    borderRadius={100}
-                                    backgroundColor={'#22C55E'}
-                                />
-                            </View>
-                        </View>
+                        <StatusInfoCard
+                            label="Applied on"
+                            value={item.appliedOn}
+                            statusText="Applied"
+                            // statusColors={statusColors}
+                            statusColor={"#FFB020"}
+                            statusBg={"#FFB02033"}
+                        />
 
                         <CustomButton
-                            onPress={() => setShowDeleteModal(true)}
-                            title='Delete listing'
+                            onPress={() => setShowCancelModal(true)}
+                            title='Cancel Application'
                             width={'100%'}
                             height={44}
                             borderRadius={100}
-                            backgroundColor={'#EF4444'}
                             style={{ marginTop: 12 }}
+                            backgroundColor={Colors.COLOR_DANGER}
                         />
+
                     </>
                 );
 
@@ -154,42 +110,20 @@ const GigDetails = () => {
             case 'assigned':
                 return (
                     <>
-                        <TouchableOpacity
-                            style={styles.assignedRow}
-                            onPress={() => router.push("/")}
-                            activeOpacity={0.8}
-                        >
-                            <View style={styles.assignedLeft}>
 
-                                <View style={styles.assigneeInfo}>
-                                    <Image
-                                        source={item.assignedTo?.profileImg}
-                                        style={styles.avatar}
-                                    />
-                                    <View style={{ flexDirection: "column", gap: 10, marginLeft: 10 }}>
-                                        <Caption3 color={Colors.PLACEHOLLDER_TEXT}>ASSIGNED TO</Caption3>
-                                        <Body2 color={Colors.NEUTRAL0}>
-                                            {item.assignedTo?.name ?? '—'}
-                                        </Body2>
-                                    </View>
-                                </View>
-                            </View>
-                            <Body2 color={Colors.NEUTRAL0}>›</Body2>
-                        </TouchableOpacity>
+                        <StatusInfoCard
+                            label="Assignment on"
+                            value={item.assignedOn}
+                            statusText="Assigned"
+                            // statusColors={statusColors}
+                            statusColor={"#22C55E"}
+                            statusBg={"#22C55E33"}
+                        />
 
                         <View style={{ marginBottom: 24 }}>
                             <CustomButton
-                                onPress={() => setShowCompleteModal(true)}
-                                title='Mark As Completed'
-                                width={'100%'}
-                                height={44}
-                                borderRadius={100}
-                                backgroundColor={'#22C55E'}
-                                style={{ marginTop: 16 }}
-                            />
-                            <CustomButton
                                 onPress={() => setShowCancelModal(true)}
-                                title='Cancel Assignment'
+                                title='Cancel Application'
                                 width={'100%'}
                                 height={44}
                                 borderRadius={100}
@@ -204,37 +138,35 @@ const GigDetails = () => {
             case 'completed':
                 return (
                     <>
-                        <TouchableOpacity
-                            style={styles.assignedRow}
-                            onPress={() => router.push({
-                                pathname: '/customer/gigs-related/applicant-profile-details',
-                                params: { applicantId: item.assignedTo?.id, jobId: item.id }
-                            })}
-                            activeOpacity={0.8}
-                        >
-                            <View style={styles.assignedLeft}>
-
-                                <View style={styles.assigneeInfo}>
-                                    <Image
-                                        source={item.assignedTo?.profileImg}
-                                        style={styles.avatar}
-                                    />
-                                    <View style={{ flexDirection: "column", gap: 10, marginLeft: 10 }}>
-                                        <Caption3 color={Colors.PLACEHOLLDER_TEXT}>ASSIGNED TO</Caption3>
-                                        <Body2 color={Colors.NEUTRAL0}>
-                                            {item.assignedTo?.name ?? '—'}
-                                        </Body2>
-                                    </View>
-                                </View>
-
-                            </View>
-                            <Body2 color={Colors.NEUTRAL0}>›</Body2>
-                        </TouchableOpacity>
-
-                        <DetailsCardComponents
-                            topLabel="Completed On"
-                            bottomLabel={item.completedOn ?? '—'}
+                        <StatusInfoCard
+                            label="Assignment on"
+                            value={item.completedOn}
+                            statusText="Assigned"
+                            // statusColors={statusColors}
+                            statusColor={"#3D8BFF"}
+                            statusBg={"#3D8BFF33"}
                         />
+
+
+                        <View style={[styles.buttonContainer]}>
+                            <View >
+                                <Caption2 style={{ marginBottom: 12 }} color={Colors.PLACEHOLLDER_TEXT}>Your Rating</Caption2>
+                                <View style={{ flexDirection: "row", gap: 5 }}>
+                                    {item?.applicants?.[0]?.rating ? (
+                                        <>
+                                            <StarIcon color="#FFB020" />
+                                            <Body3 color={Colors.NEUTRAL0} style={{ lineHeight: 20 }}>
+                                                {item.applicants[0].rating}/5
+                                            </Body3>
+                                        </>
+                                    ) : (
+                                        <Body3 color={Colors.NEUTRAL0} style={{ lineHeight: 20 }}>
+                                            Not Rated
+                                        </Body3>
+                                    )}
+                                </View>
+                            </View>
+                        </View>
 
                     </>
                 );
@@ -282,20 +214,8 @@ const GigDetails = () => {
             )}
 
 
-            <ConfirmationModal
-                visible={showDeleteModal}
-                title="Delete Listing?"
-                description="Are you sure you want to delete this listing? This action cannot be undone."
-                confirmText="Confirm"
-                onCancel={() => setShowDeleteModal(false)}
-                onConfirm={confirmDelete}
-                icon={<WarningIcon size={28} />}
-                confirmColor={Colors.BRAND_PRIMARY}
-                confirmSecondaryColor="#A855F7"
-            />
-
             {/* Back Header */}
-            <SectionTitle title='Gig Details' />
+            <SectionTitle title='Job Details' />
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
@@ -308,6 +228,7 @@ const GigDetails = () => {
                 <GigBasicDetails item={item} />
 
                 <PaymentInfoCard item={item} />
+
 
                 {renderBottomSection()}
 
@@ -325,17 +246,7 @@ const GigDetails = () => {
             )}
 
 
-            <ConfirmationModal
-                visible={showDeleteModal}
-                title="Delete Listing?"
-                description="Are you sure you want to delete this listing? This action cannot be undone."
-                confirmText="Confirm"
-                onCancel={() => setShowDeleteModal(false)}
-                onConfirm={confirmDelete}
-                icon={<WarningIcon size={28} />}
-                confirmColor={Colors.BRAND_PRIMARY}
-                confirmSecondaryColor="#A855F7"
-            />
+        
             {/* Mark Job as Complete Modal */}
             <ConfirmationModal
                 visible={showCompleteModal}
@@ -352,8 +263,8 @@ const GigDetails = () => {
             {/* Cancel Assignment Modal */}
             <ConfirmationModal
                 visible={showCancelModal}
-                title="Cancel Assignment?"
-                description="Are you sure you want to cancel this assignment? This action will remove you from the job."
+                title="Cancel Application?"
+                description="Are you sure you want to cancel your application? You will no longer be considered for this job."
                 confirmText="Confirm"
                 onCancel={() => setShowCancelModal(false)}
                 onConfirm={confirmCancelAssignment}
@@ -402,7 +313,7 @@ const PaymentInfoCard = ({ item }: { item: any }) => (
         <View style={{ height: 1.5, backgroundColor: Colors.BORDER_COLOR, marginVertical: 16 }} />
 
         <View style={styles.payRow}>
-            <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Total Amount</Caption2>
+            <Caption1 color={Colors.PLACEHOLLDER_TEXT}>Total Amount</Caption1>
             <Body2 color={Colors.NEUTRAL0}>$ {item.totalAmount ?? '375'}</Body2>
         </View>
     </View>
@@ -452,6 +363,16 @@ const styles = StyleSheet.create({
         borderRadius: 2,
         marginRight: 6,
     },
+    statusBadgeType: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: "center",
+        alignSelf: 'flex-start',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        marginTop: 10,
+        borderRadius: 100,
+    },
     infoCard: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         marginTop: 16,
@@ -473,7 +394,10 @@ const styles = StyleSheet.create({
         borderColor: Colors.BORDER_COLOR,
     },
     paymentTextcon: {
-        flexDirection: "row", alignItems: "center", gap: 5, marginBottom: 18
+        flexDirection:"row",
+        alignItems: "center",
+        gap: 5,
+        marginBottom: 18
     },
     iconContainer: {
         width: 24,
@@ -537,6 +461,16 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.BRAND_PRIMARY
     },
+    buttonContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: "space-between",
+        padding: 16,
+        backgroundColor: Colors.INPUT_BACKGROUND,
+        borderWidth: 1,
+        borderRadius: 10,
+        marginBottom: 10
+    }
 });
 
-export default GigDetails;
+export default JobDetails;

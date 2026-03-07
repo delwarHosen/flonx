@@ -2,7 +2,6 @@ import { JobsBagIcon } from '@/assets/images/icons/BarRelatedIcon/JobsBagIcon';
 import { LocationIcon } from '@/assets/images/icons/icon';
 import { RightAngleIcon } from '@/assets/images/icons/ProfileInfoIcons/RightAngleIcon';
 import { Colors } from '@/constants/theme';
-import { router } from 'expo-router';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CustomButton } from '../CustomButton';
@@ -35,20 +34,20 @@ const GigCard = ({ item, onPress }: GigCardProps) => {
         'Cancelled': 'cancelled',
     };
 
-    const handlePress = () => {
-        router.push({
-            pathname: '/customer/gigs-related/gig-details',
-            params: {
-                id: item.id,
-                initialTab: tabMap[item.status] ?? 'open',
-            },
-        });
-    };
+    // const handlePress = () => {
+    //     router.push({
+    //         pathname: '/customer/gigs-related/gig-details',
+    //         params: {
+    //             id: item.id,
+    //             initialTab: tabMap[item.status] ?? 'open',
+    //         },
+    //     });
+    // };
 
     const statusColors = getStatusColors(item.status);
 
     return (
-        <TouchableOpacity style={styles.card} onPress={handlePress} activeOpacity={0.9}>
+        <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.9}>
             <View style={styles.header}>
                 <View style={styles.iconContainer}>
                     <JobsBagIcon />
@@ -74,7 +73,7 @@ const GigCard = ({ item, onPress }: GigCardProps) => {
                 </View>
 
                 <CustomButton
-                    onPress={handlePress}
+                    onPress={onPress}
                     icon={<RightAngleIcon color={Colors.NEUTRAL0} />}
                     width={100}
                     height={44}

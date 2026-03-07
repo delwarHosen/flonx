@@ -46,6 +46,14 @@ export default function LoginScreen() {
           password: values.password
         }
 
+        // api call
+        // const res = await loginSubmit().unwrap()
+        // if (!res?.success) {
+        //   throw new Error(res?.message)
+        // }
+
+        // ToastAndroid.show()
+
         if (userRole === 'bartender') {
           router.replace("/bartender/(tabs)/browse");
         } else {

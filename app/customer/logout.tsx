@@ -35,9 +35,24 @@ export default function LogoutScreen() {
         }, 300);
     };
 
+
+    const handleCancle = (): void => {
+        setShowModal(false);
+        setTimeout(async () => {
+            setLoading(true);
+            try {
+                await new Promise(resolve => setTimeout(() => {
+                    router.back();
+                }, 500))
+            } catch (error) {
+                setLoading(false);
+            }
+        })
+    }
+
     return (
         <SafeAreaView style={styles.safeAreaContainer}>
-            
+
             {loading && (
                 <View style={styles.loaderOverlay}>
                     <CustomLoader size={55} />
@@ -49,7 +64,8 @@ export default function LogoutScreen() {
                 description="Are you sure you want to log out?"
                 confirmText="Log Out"
                 icon={<WarningIcon size={28} />}
-                onCancel={() => setShowModal(false)}
+                // onCancel={() => setShowModal(false)}
+                onCancel={handleCancle}
                 onConfirm={handleLogout}
             />
 

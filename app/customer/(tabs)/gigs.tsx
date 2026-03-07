@@ -16,7 +16,7 @@ const TABS = ["Active", "Assigned", "Completed", "Cancelled"];
 
 const GigsScreen = () => {
   const [activeTab, setActiveTab] = useState("Active");
-  
+  const router = useRouter();
   // const filteredData = jobPosts.filter(job => job.status === activeTab);
 
   const filteredData = jobPosts.filter(job => {
@@ -59,7 +59,23 @@ const GigsScreen = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
         renderItem={({ item }) => (
-          <GigCard item={item} onPress={() => { }} />
+          <GigCard item={item} onPress={() => {
+            const tabMap: Record<string, string> = {
+              'Active': 'open',
+              'Assigned': 'assigned',
+              'Completed': 'completed',
+              'Cancelled': 'cancelled',
+            };
+            router.push({
+              pathname: '/customer/gigs-related/gig-details',
+              params: {
+                id: item.id,
+                // initialTab: 'open'
+                initialTab: tabMap[activeTab]
+              },
+            });
+          }}
+          />
         )}
         ListEmptyComponent={
           <EmptyStateCard
@@ -78,7 +94,7 @@ const GigsScreen = () => {
 };
 
 
-const CreatGig = () => { 
+const CreatGig = () => {
   const router = useRouter();
   return (
     <View style={styles.createCard}>
@@ -93,7 +109,7 @@ const CreatGig = () => {
       // style={{ marginTop:-10 }}
       >
         <CustomButton
-          onPress={()=>router.push('/customer/gigs-related/add-gig')}
+          onPress={() => router.push('/customer/gigs-related/add-gig')}
           icon={<PlusWithBorderIcon />}
           width={36}
           height={36}

@@ -1,0 +1,206 @@
+import { JobsBagIcon } from '@/assets/images/icons/BarRelatedIcon/JobsBagIcon';
+import { WarningIcon } from '@/assets/images/icons/ProfileInfoIcons/WarningIcon';
+import { DetailsCardComponents } from '@/components/cardComponents/DetailsCardComponents';
+import { StatusInfoCard } from '@/components/cardComponents/StatusInfoCard';
+import { ConfirmationModal } from '@/components/ConfirmationModalProps';
+import { CustomButton } from '@/components/CustomButton';
+import CustomLoader from '@/components/CustomLoader';
+import SectionTitle from '@/components/SectionTitle';
+import { Body1, Body2, Caption1, Caption2 } from '@/components/typo/Typography';
+import { getJobs } from '@/constants/data/getJobs';
+import { Colors } from '@/constants/theme';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const JobDetails = () => {
+    const [showApplyModal, setShowApplyModal] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const { id } = useLocalSearchParams<{ id: string }>();
+    const item = getJobs.find(j => j.id === id);
+
+    if (!item) return null;
+
+    // Open status এর জন্য কালার ফিক্সড
+    const statusColors = { bg: '#FFB02033', text: Colors.COLOR_ORANGE };
+
+    const confirmApply = () => {
+        setShowApplyModal(false);
+        setTimeout(async () => {
+            setLoading(true);
+            try {
+                // API Call logic for applying to job
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                router.back();
+            } catch (error) {
+                setLoading(false);
+            }
+        }, 300);
+    };
+
+    return (
+        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+            {/* Loader */}
+            {loading && (
+                <View style={styles.loaderOverlay}>
+                    <CustomLoader size={55} />
+                </View>
+            )}
+
+            <SectionTitle title='Job Details' />
+
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                <Body1 color={Colors.NEUTRAL0} italic style={styles.title}>{item.title}</Body1>
+                
+                <View style={[styles.statusBadge, { backgroundColor: statusColors.bg }]}>
+                    <View style={[styles.dot, { backgroundColor: statusColors.text }]} />
+                    <Caption1 color={statusColors.text}>{item.status}</Caption1>
+                </View>
+
+                <GigBasicDetails item={item} />
+
+                <PaymentInfoCard item={item} />
+
+                {/* Open Job specific bottom section */}
+                <StatusInfoCard
+                    label="Applied on"
+                    value={item.appliedOn || "Not Applied yet"}
+                    statusText="Open"
+                    statusColor={"#FFB020"}
+                    statusBg={"#FFB02033"}
+                />
+
+                <CustomButton
+                    onPress={() => setShowApplyModal(true)}
+                    title='Apply for The jobs'
+                    width={'100%'}
+                    height={44}
+                    borderRadius={100}
+                    style={{ marginTop: 12 }}
+                />
+            </ScrollView>
+
+            {/* Application Confirmation Modal */}
+            <ConfirmationModal
+                visible={showApplyModal}
+                title="Apply for this Job?"
+                description="Are you sure you want to apply for this position? Your profile will be shared with the employer."
+                confirmText="Confirm"
+                onCancel={() => setShowApplyModal(false)}
+                onConfirm={confirmApply}
+                icon={<WarningIcon size={28} />}
+                confirmColor="#8B5CF6"
+                confirmSecondaryColor="#A78BFA"
+            />
+        </SafeAreaView>
+    );
+};
+
+// ---- Gig details Component ----->
+const GigBasicDetails = ({ item }: { item: any }) => (
+    <>
+        <DetailsCardComponents topLabel="Location" bottomLabel={item.location} />
+        <DetailsCardComponents topLabel="Date" bottomLabel={item.date} />
+        <DetailsCardComponents topLabel="Time" bottomLabel={item.time} />
+        <DetailsCardComponents topLabel="Contact Number" bottomLabel={item.contactNumber} />
+        <DetailsCardComponents topLabel="Details" bottomLabel={item.details} />
+    </>
+);
+
+// <----------Payment Card Component -------->
+const PaymentInfoCard = ({ item }: { item: any }) => (
+    <View style={styles.paymentCard}>
+        <View style={styles.paymentTextcon}>
+            <View style={styles.iconContainer}>
+                <JobsBagIcon />
+            </View>
+            <Body2 italic color={Colors.NEUTRAL0}> Payment Info</Body2>
+        </View>
+
+        <View style={styles.payRow}>
+            <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Pay Rate (Per Hour)</Caption2>
+            <Body2 color={Colors.NEUTRAL0}>${item.payRate?.toFixed(2)}</Body2>
+        </View>
+        <View style={styles.payRow}>
+            <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Total Duration</Caption2>
+            <Body2 color={Colors.NEUTRAL0}>{item.totalDuration ?? '15 hours'}</Body2>
+        </View>
+
+        <View style={{ height: 1.5, backgroundColor: Colors.BORDER_COLOR, marginVertical: 16 }} />
+
+        <View style={styles.payRow}>
+            <Caption1 color={Colors.PLACEHOLLDER_TEXT}>Total Amount</Caption1>
+            <Body2 color={Colors.NEUTRAL0}>$ {item.totalAmount ?? '375'}</Body2>
+        </View>
+    </View>
+);
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: Colors.APP_BACKGROUND,
+    },
+    loaderOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 999
+    },
+    scrollContent: {
+        paddingHorizontal: 20,
+        paddingVertical: 20,
+        paddingBottom: 40,
+    },
+    title: {
+        marginBottom: 10,
+    },
+    statusBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignSelf: 'flex-start',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 100,
+        marginBottom: 16,
+    },
+    dot: {
+        width: 4,
+        height: 4,
+        borderRadius: 2,
+        marginRight: 6,
+    },
+    paymentCard: {
+        backgroundColor: Colors.INPUT_BACKGROUND,
+        borderRadius: 12,
+        padding: 14,
+        marginTop: 16,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: Colors.BORDER_COLOR,
+    },
+    paymentTextcon: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 5,
+        marginBottom: 18
+    },
+    iconContainer: {
+        width: 24,
+        height: 24,
+        borderRadius: 6,
+        padding: 4,
+        backgroundColor: "#822CE733",
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    payRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 10,
+    },
+});
+
+export default JobDetails;
