@@ -26,7 +26,8 @@ export default function TabsLayout() {
                     borderTopColor: Colors.BORDER_COLOR,
                 },
                 tabBarLabelStyle: {
-                    fontSize: 14,
+                    fontSize: 11,
+                    fontWeight:"600"
                 },
             }}
         >
@@ -34,6 +35,7 @@ export default function TabsLayout() {
                 name="search"
                 options={{
                     title: "Search",
+                    tabBarLabelStyle: { fontWeight: '800', fontSize: 11 },
                     tabBarLabel: "Search",
                     tabBarIcon: ({ focused }) => {
                         const progress = useSharedValue(focused ? 0 : 1);
@@ -74,6 +76,7 @@ export default function TabsLayout() {
                 name="order"
                 options={{
                     title: "Order",
+                    tabBarLabelStyle: { fontWeight: '800', fontSize: 11 },
                     tabBarLabel: "Order",
                     tabBarIcon: ({ focused }) => {
                         const progress = useSharedValue(focused ? 1 : 0);

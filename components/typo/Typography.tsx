@@ -14,7 +14,7 @@ const fontFamily = {
 
 export type TypographyVariant =
     | "h1" | "h2" | "h3" | "h4" | "h5" | "h6"
-    | "body1" | "body2" | "body3"
+    | "body1" | "body2" | "body3"| "body4"
     | "caption1" | "caption2" | "caption3"
     | "button"
 
@@ -56,6 +56,7 @@ const Typography: React.FC<TypographyProps> = ({
             case "caption2": return 12;
             case "caption3": return 10;
             case 'button': return 14;
+            case "body4": return 16;
             default: return 16;
         }
     }
@@ -93,10 +94,11 @@ const Typography: React.FC<TypographyProps> = ({
             case "body1": return 24;
             case "body2": return 22;
             case "body3": return 20;
+            case "body4": return 20;
             case "caption1": return 18;
             case "caption2": return 18;
             case "caption3": return 14;
-            case 'button': return 20;
+            case 'button': return 24;
             default: return 24;
         }
     }
@@ -146,6 +148,9 @@ export const Body2: React.FC<Omit<TypographyProps, 'variant'>> = (props) => (
 );
 export const Body3: React.FC<Omit<TypographyProps, 'variant'>> = (props) => (
     <Typography variant="body3" weight="medium" {...props} />
+);
+export const Body4: React.FC<Omit<TypographyProps, 'variant'>> = (props) => (
+    <Typography variant="body4" weight="bold" {...props} />
 );
 export const Caption1: React.FC<Omit<TypographyProps, 'variant'>> = (props) => (
     <Typography variant="caption1" weight="regular" {...props} />

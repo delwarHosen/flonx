@@ -142,7 +142,7 @@ export const FormInput: React.FC<FormInputProps> = ({
                     value={value}
                     onChangeText={onChangeText}
                     placeholder={placeholder}
-                    placeholderTextColor={Colors.PLACEHOLLDER_TEXT}
+                    placeholderTextColor={"#8C88A3"}
                     secureTextEntry={type === "password" && !showPassword}
                     keyboardType={getKeyboardtype()}
                     autoCapitalize={type === "email" ? "none" : "sentences"}
@@ -160,7 +160,7 @@ export const FormInput: React.FC<FormInputProps> = ({
                             showPassword ? (
                                 <EyeIcon />
                             ) : (
-                                <EyeOff color={Colors.PLACEHOLLDER_TEXT} size={18}/>
+                                <EyeOff color={"#8C88A3"} size={18}/>
                             )
                         }
                     </TouchableOpacity>

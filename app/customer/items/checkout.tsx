@@ -3,7 +3,7 @@ import { MinusIcon } from '@/assets/images/icons/BarRelatedIcon/MinusIcon';
 import { PlusIcon } from '@/assets/images/icons/BarRelatedIcon/PlusIcon';
 import { CustomButton } from '@/components/CustomButton';
 import SectionTitle from '@/components/SectionTitle';
-import { Body1, Body2, Caption1, H5, H6 } from '@/components/typo/Typography';
+import { Body1, Body2, Body4, Caption1, H5, H6 } from '@/components/typo/Typography';
 import { bars } from '@/constants/data/barData';
 import { Colors } from '@/constants/theme';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -18,7 +18,7 @@ interface Item {
     ingredients: string[];
     price: number;
     img: any;
-    status: 'in_stock' | 'out_of_stock' | string; 
+    status: 'in_stock' | 'out_of_stock' | string;
     description?: string;
 }
 
@@ -101,6 +101,7 @@ const Checkout: React.FC = () => {
                         width={44}
                         height={44}
                         borderRadius={100}
+                        color={Colors.NEUTRAL0}
                     />
 
                     <H6 color={Colors.NEUTRAL0} italic style={styles.qtyText}>{item.quantity}</H6>
@@ -111,6 +112,7 @@ const Checkout: React.FC = () => {
                         width={44}
                         height={44}
                         borderRadius={100}
+                        color={Colors.NEUTRAL0}
                     />
 
                 </View>
@@ -154,13 +156,13 @@ const Checkout: React.FC = () => {
             {/* Bottom Section */}
             <View style={styles.footer}>
                 <View style={styles.totalRow}>
-                    <Body1 color={Colors.NEUTRAL0} style={styles.totalLabel}>Total</Body1>
-                    <H5 color={Colors.NEUTRAL0} style={styles.totalAmount}>${totalPrice}</H5>
+                    <Body4 color={Colors.NEUTRAL0}>Total</Body4>
+                    <H5 color="" style={styles.totalAmount}>${totalPrice}</H5>
                 </View>
 
                 <CustomButton
                     title=" Checkout"
-                    onPress={() =>router.push("/customer/items/payment-type")}
+                    onPress={() => router.push("/customer/items/payment-type")}
                     width="100%"
                     height={44}
                     borderRadius={100}
@@ -183,12 +185,13 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: Colors.APP_BACKGROUND,
-        
+
     },
 
-    listContent: { paddingHorizontal: 20, paddingBottom: 30,
-        marginTop:20
-     },
+    listContent: {
+        paddingHorizontal: 20,
+        paddingBottom: 30,
+    },
     card: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 14,
@@ -196,7 +199,7 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         borderWidth: 1,
         borderColor: '#2A2344',
-    
+
     },
     cardTop: {
         flexDirection: 'row',
@@ -213,7 +216,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     itemName: {
-       
+        fontWeight: '400'
     },
     ingredients: {
         fontSize: 13,
@@ -221,7 +224,7 @@ const styles = StyleSheet.create({
         lineHeight: 18
     },
     price: {
-       
+        fontWeight: '700'
     },
     deleteBtn: {
         width: 36,
@@ -239,30 +242,46 @@ const styles = StyleSheet.create({
         marginBottom: 14,
         marginTop: 6
     },
-    cardBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    cardBottom: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
     quantityContainer: {
         flexDirection: 'row',
         alignItems: 'center',
 
     },
     qtyText: {
-        marginHorizontal: 35,
+        marginHorizontal: 28,
         marginTop: 16
     },
-    statusBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
+    statusBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        alignSelf: 'center',
+    },
     statusDot: { width: 4, height: 4, borderRadius: 2, marginRight: 6 },
     footer: {
         backgroundColor: Colors.BRAND_PRIMARY,
         padding: 25,
     },
-    totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+    totalRow: { 
+        flexDirection: 'row',
+         justifyContent: 'space-between',
+          alignItems: 'center',
+        //    marginBottom: 20 
+        },
     totalLabel: {
 
-        fontWeight: '700'
+        // fontWeight: '700'
     },
     totalAmount: {
         fontWeight: '800'
     },
-   
+
     stripeText: { textAlign: 'center', marginTop: 15, opacity: 0.9 }
 });

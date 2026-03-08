@@ -77,6 +77,7 @@ const ItemDetails = () => {
                             width={56}
                             height={56}
                             borderRadius={100}
+                            color={Colors.NEUTRAL0}
                         />
 
                         <H6 color={Colors.NEUTRAL0} italic style={styles.qtyText}>{quantity}</H6>
@@ -87,11 +88,12 @@ const ItemDetails = () => {
                             width={56}
                             height={56}
                             borderRadius={100}
+                            color={Colors.NEUTRAL0}
                         />
                     </View>
 
                     {/* Add to Cart - Using your CustomButton as is */}
-                    <View style={{ width: "100%", marginTop: 32 }}>
+                    <View style={{ width: "100%", marginTop: 20 }}>
                         <CustomButton
                             title=""
                             onPress={() => { }}
@@ -142,10 +144,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingTop: "40%",
         paddingHorizontal: 20,
-        marginTop: -100,
+        marginTop: -120,
     },
     title: {
-        marginBottom: 12
+        marginBottom: 6
     },
     statusBadge: {
         flexDirection: 'row',
@@ -164,9 +166,12 @@ const styles = StyleSheet.create({
         , marginRight: 6
     },
     quantityRow: {
-        flexDirection: 'row', alignItems: 'center',
+        flexDirection: 'row',
+         alignItems: 'center',
+         marginTop:16
     },
-    qtyText: {marginHorizontal: 35,
+    qtyText: {
+        marginHorizontal: 29,
         marginTop:16
      },
 

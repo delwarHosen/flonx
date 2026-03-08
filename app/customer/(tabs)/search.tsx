@@ -31,7 +31,7 @@ const Search: React.FC = () => {
             <BarCardComponents
               item={item}
               onPress={() => router.push({
-                pathname: '/customer/items/shop-item',
+                pathname: '/customer/items/shop-items',
                 params: { barId: item.id }
               })}
             />

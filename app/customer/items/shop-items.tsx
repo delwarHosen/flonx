@@ -37,7 +37,7 @@ const ShopItems = () => {
     return (
         <SafeAreaView style={styles.container}>
             {/* 1. Header with Back Button */}
-            <View style={styles.header}>
+            <View>
                 <SectionTitle title='Shop Item' />
             </View>
 
@@ -112,7 +112,7 @@ const ShopItems = () => {
                                 <OrderTabIcon />
                             </View>
                             <View>
-                                <Body1 color="#FFF" style={{ fontWeight: '800', marginBottom: 10 }}>{totalItems} Items</Body1>
+                                <Body1 color="#FFF" style={{ fontWeight: '800', marginBottom: 2 }}>{totalItems} Items</Body1>
                                 <Caption1 color="#1D1733" style={styles.priceText}>${totalPrice}</Caption1>
                             </View>
                         </View>
@@ -143,7 +143,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: Colors.APP_BACKGROUND,
-        
     },
     header: {
         marginVertical: 16
@@ -160,7 +159,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     tab: {
-        paddingHorizontal: 24,
+        paddingHorizontal: 20,
         paddingVertical: 10,
         borderRadius: 100,
         backgroundColor: Colors.INPUT_BACKGROUND,
@@ -184,7 +183,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.BRAND_PRIMARY,
         borderRadius: 100,
         padding: 26,
-        borderWidth: 1,
+        borderWidth: 1.5,
         borderColor: Colors.NEUTRAL0,
         // elevation: 5,
     },
@@ -206,7 +205,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.NEUTRAL0,
         paddingHorizontal: 20,
         paddingVertical: 12,
-        borderRadius: 20,
+        borderRadius: 100,
     },
     priceText: {
         fontSize: 16,

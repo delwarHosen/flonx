@@ -2,7 +2,7 @@ import { Colors } from '@/constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
-import { ButtonText } from './typo/Typography';
+import { Body3 } from './typo/Typography';
 
 interface CustomButtonProps {
     onPress: () => void;
@@ -55,7 +55,7 @@ export const CustomButton = ({
                 } as any, style]}
             >
                 {/* 4. Pass the finalTextColor to ButtonText */}
-                {title ? <ButtonText color={finalTextColor}>{title}</ButtonText> : null}
+                {title ? <Body3 color={finalTextColor}>{title}</Body3> : null}
                 {icon && icon}
             </LinearGradient>
         </TouchableOpacity>

@@ -13,7 +13,7 @@ export default function OrderSuccessComponent() {
     return (
         <View style={styles.centerContainer}>
             {/* Top Logo */}
-            <View >
+            <View style={{marginTop:20}}>
                 <SectionTitle title='My Order' />
             </View>
             <View style={styles.container}>
@@ -27,7 +27,7 @@ export default function OrderSuccessComponent() {
                     </View>
 
                     <H4 color={Colors.NEUTRAL0} style={styles.title}>
-                        Success
+                       Order Completed
                     </H4>
 
                     <Caption1 color={Colors.NEUTRAL0} style={styles.subtitle}>
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     },
 
     title: {
-        marginTop: 24,
+        marginTop: 20,
         textAlign: "center",
     },
 
@@ -93,6 +93,6 @@ const styles = StyleSheet.create({
 
     buttonContainer: {
         marginBottom: 30,
-        marginTop: 16
+        marginTop: 8
     },
 });

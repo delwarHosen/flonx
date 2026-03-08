@@ -50,6 +50,12 @@ const PickupOrderScreen: React.FC = () => {
         })
     ).current;
 
+    const textOpacity = translateX.interpolate({
+        inputRange: [0, MAX_TRANSLATION / 2],
+        outputRange: [1, 0],
+        extrapolate: 'clamp',
+    });
+
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.content}>
@@ -70,9 +76,9 @@ const PickupOrderScreen: React.FC = () => {
 
                     <View style={styles.bottomSection}>
                         {status === PickupStatus.CONFIRMED ? (
-                            <TouchableOpacity 
-                            onPress={()=>router.push("/customer/items/order-success")}
-                            style={[styles.sliderTrack, styles.confirmedTrack]}>
+                            <TouchableOpacity
+                                onPress={() => router.push("/customer/items/order-success")}
+                                style={[styles.sliderTrack, styles.confirmedTrack]}>
                                 <Body2 color="white">Pickup Confirmed.</Body2>
                             </TouchableOpacity>
                         ) : (
@@ -83,9 +89,13 @@ const PickupOrderScreen: React.FC = () => {
                                 >
                                     <ButtonText color="white">Slide</ButtonText>
                                 </Animated.View>
-                                <Body1 color="#333" style={{ marginLeft: 16 }}>
-                                    Slide to confirm
-                                </Body1>
+
+                                {/* This View now fades away based on translateX */}
+                                <Animated.View style={{ opacity: textOpacity, marginLeft: 16 }}>
+                                    <Body1 color="#333">
+                                        Slide to confirm
+                                    </Body1>
+                                </Animated.View>
                             </View>
                         )}
 
@@ -145,7 +155,7 @@ const styles = StyleSheet.create({
     },
     confirmedTrack: {
         backgroundColor: 'transparent',
-        borderWidth: 1,
+        borderWidth: 1.5,
         borderColor: 'white',
         justifyContent: 'center',
         overflow: 'visible',

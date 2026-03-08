@@ -44,7 +44,7 @@ const OrderDetailsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.headerContainer}>
+      <View >
         <SectionTitle title="Order Details" />
       </View>
 
@@ -149,7 +149,7 @@ const OrderDetailsScreen = () => {
           {/* Tip Bartender Button - isTipped false thaklei shudhu dekhabe */}
           {!isTipped && (
             <CustomButton
-              title="Tip Bartender"
+              title="Tip BARTENDER"
               onPress={() => setIsTipped(true)}
               width="100%"
               height={44}

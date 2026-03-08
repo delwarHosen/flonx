@@ -94,7 +94,7 @@ export default function ForgotPassword() {
 
 
               <CustomButton
-                title="Send Verification Code"
+                title="Update Password"
                 onPress={handleSubmit}
                 width="100%"
                 height={44}

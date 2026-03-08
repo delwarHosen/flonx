@@ -163,7 +163,7 @@ export default function LoginScreen() {
               </View>
               {/* ----Submit Button---- */}
               <CustomButton
-                title="Login"
+                title="Log in"
                 // onPress={handleSubmit}
                 onPress={() =>
                   userRole === "bartender"

@@ -56,7 +56,7 @@ export default function SelectRole() {
                 </Animated.View>
 
                 <Animated.View entering={FadeInDown.delay(300).duration(500).springify()}>
-                    <Caption1 style={{ marginTop: 16 }} color={Colors.PLACEHOLLDER_TEXT}>
+                    <Caption1 style={{ marginTop: 16,marginBottom:32 }} color={Colors.PLACEHOLLDER_TEXT}>
                         Choose your role. You can switch roles later if needed.
                     </Caption1>
                 </Animated.View>
@@ -127,13 +127,13 @@ const styles = StyleSheet.create({
     safeArea: { flex: 1, backgroundColor: Colors.APP_BACKGROUND },
     container: { flex: 1, justifyContent: "center", paddingHorizontal: "5%" },
     gradientWrapper: {
-        marginTop: 16,
+        // marginTop: 32,
         borderRadius: 10,
         padding: 1.5, // This acts as the border thickness
     },
     innerContent: {
         backgroundColor: Colors.APP_BACKGROUND,
-        borderRadius: 9,
+        borderRadius: 10,
         paddingVertical: 16,
         alignItems: 'center',
         justifyContent: 'center',
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     role_select_container: {
         flexDirection: "row",
         width: "100%",
-        marginTop: 0,
-        gap: 10,
+        gap: 16,
+        marginTop:16
     }
 })

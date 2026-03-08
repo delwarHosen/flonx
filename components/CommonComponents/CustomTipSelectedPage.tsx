@@ -20,7 +20,7 @@ const CustomTipSelectedPage = () => {
             <StatusBar barStyle="light-content" />
 
             {/* Back Button / Header */}
-            <View style={styles.header}>
+            <View>
                 <SectionTitle />
             </View>
 
@@ -106,7 +106,7 @@ const CustomTipSelectedPage = () => {
                         height={44}
                         borderRadius={100}
                         backgroundColor={Colors.NEUTRAL0}
-                        color={Colors.BRAND_PRIMARY_LIGHT}
+                        color={Colors.BRAND_PRIMARY}
                     />
                 </View>
             </View>
@@ -119,13 +119,11 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.APP_BACKGROUND,
     },
-    header: {
-        paddingTop: 20,
-    },
+    
     content: {
         flex: 1,
         paddingHorizontal: 25,
-        paddingTop: 20,
+        // paddingTop: 20,
     },
     tipOption: {
         width: '100%',

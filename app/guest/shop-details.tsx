@@ -64,16 +64,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.APP_BACKGROUND,
     },
    
-    backButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: Colors.INPUT_BACKGROUND,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: Colors.BORDER_COLOR,
-    },
+    
     scrollContent: {
         alignItems: 'center',
         paddingBottom: 40,
@@ -86,7 +77,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         justifyContent: 'center',
         alignItems: 'center',
-        marginVertical: 30,
+        marginVertical: 20,
         overflow: 'hidden',
     },
     logo: {

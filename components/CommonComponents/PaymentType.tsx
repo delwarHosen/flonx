@@ -23,7 +23,9 @@ const PaymentType = () => {
             <StatusBar barStyle="dark-content" />
 
             {/* Header / Close Button */}
-            <TouchableOpacity style={styles.closeButton}>
+            <TouchableOpacity
+            onPress={()=>router.back()}
+            style={styles.closeButton}>
                 <CrossIcon />
             </TouchableOpacity>
 

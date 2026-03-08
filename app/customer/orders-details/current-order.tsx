@@ -23,7 +23,7 @@ const CurrentOrder: React.FC = () => {
         if (step === OrderStatus.QUEUED) {
             timer = setTimeout(() => setStep(OrderStatus.IN_PROGRESS), 5000);
         } else if (step === OrderStatus.IN_PROGRESS) {
-            timer = setTimeout(() => router.push('/guest/pickup-order'), 5000);
+            timer = setTimeout(() => router.push('/customer/items/pickup-order'), 5000);
         }
 
         return () => {

@@ -19,7 +19,7 @@ const TipSelectedComponents = () => {
             <StatusBar barStyle="light-content" />
 
             {/* Back Button */}
-            <View style={styles.header}>
+            <View >
                 <SectionTitle />
             </View>
 
@@ -56,7 +56,7 @@ const TipSelectedComponents = () => {
                     <View style={styles.buttonWrapper}>
                         <CustomButton
                             title="Custom"
-                            onPress={() => router.push("/guest/custom-tip-seleted")}
+                            onPress={() => router.push("/customer/items/custom-tip-seleted")}
                             width="100%"
                             height={44}
                             borderRadius={100}
@@ -65,7 +65,7 @@ const TipSelectedComponents = () => {
                     <View style={styles.buttonWrapper}>
                         <CustomButton
                             title="Continue"
-                            onPress={() => router.push('/guest/payment-type')}
+                            onPress={() => router.push('/customer/items/payment-type')}
                             width="100%"
                             height={44}
                             borderRadius={100}
@@ -76,12 +76,12 @@ const TipSelectedComponents = () => {
                 {/* Skip Button */}
                 <CustomButton
                     title="Skip"
-                    onPress={() => router.push('/guest/shop-item')}
+                    onPress={() => router.push('/customer/items/shop-item')}
                     width="100%"
                     height={44}
                     borderRadius={100}
                     backgroundColor={Colors.NEUTRAL0}
-                    color={Colors.BRAND_PRIMARY_LIGHT}
+                    color={Colors.BRAND_PRIMARY}
                 />
             </View>
         </SafeAreaView>
@@ -107,7 +107,6 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         paddingHorizontal: 25,
-        paddingTop: 20,
     },
     tipOption: {
         width: '100%',

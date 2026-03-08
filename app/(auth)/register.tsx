@@ -128,7 +128,7 @@ export default function RegisterScreen() {
                 touched={touched[FORM_FIELDS.EMAIL]}
                 required
               />
-              
+
               {
                 isBartender && (
                   <FormInput
@@ -180,12 +180,11 @@ export default function RegisterScreen() {
               // icon={<DoubleRightArrowIcon />}
               />
             </View>
-            <View style={{ marginTop: 16, alignItems: "center" }}>
-              <Body3 color={Colors.PLACEHOLLDER_TEXT}>Already have an account?
-                <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
-                  <Body3 color={Colors.BRAND_PRIMARY}> Sign In</Body3>
-                </TouchableOpacity>
-              </Body3>
+            <View style={{ marginTop: 16,flexDirection:"row", alignItems: "center",justifyContent:"center" }}>
+              <Body3 color={Colors.PLACEHOLLDER_TEXT}>Already have an account?</Body3>
+              <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
+                <Body3 color={Colors.BRAND_PRIMARY}> Sign In</Body3>
+              </TouchableOpacity>
             </View>
 
           </View>
@@ -208,7 +207,7 @@ const styles = StyleSheet.create({
     // minHeight: height,
   },
   form: {
-    marginTop: "8%"
+    marginTop: "4%"
   },
   forgotPasswordContainer: {
     alignItems: 'flex-end',

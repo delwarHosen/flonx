@@ -83,7 +83,7 @@ export default function OnboardingScreen() {
     <SafeAreaView style={styles.container}>
       <Animated.View style={[styles.onBoadingContent, animatedStyle]}>
         <H1 italic color={Colors.NEUTRAL0}>{currentStep.title}</H1>
-        <Body1 style={{ marginTop: 24 }} color={Colors.PLACEHOLLDER_TEXT}>{currentStep.description}</Body1>
+        <Body1 style={{ marginTop: 20 }} italic color={Colors.PLACEHOLLDER_TEXT}>{currentStep.description}</Body1>
       </Animated.View>
       {/* <View style={styles.onBoadingContent}>
         

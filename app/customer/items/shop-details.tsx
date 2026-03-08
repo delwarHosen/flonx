@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         alignItems: 'center',
-        paddingBottom: 40,
+        // paddingBottom: 40,
         paddingHorizontal: 20,
     },
     logoWrapper: {
@@ -86,7 +86,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         justifyContent: 'center',
         alignItems: 'center',
-        marginVertical: 30,
+        // marginVertical: 30,
+        marginBottom:16,
         overflow: 'hidden',
     },
     logo: {

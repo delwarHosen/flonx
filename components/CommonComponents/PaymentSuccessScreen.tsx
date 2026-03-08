@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     },
 
     title: {
-        // marginTop: 24,
+        marginTop: 16,
         textAlign: "center",
     },
 

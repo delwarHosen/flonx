@@ -60,7 +60,7 @@ const OrderScreen = () => {
             <Body1 color={Colors.NEUTRAL0}>{item.name}</Body1>
 
             {!isPastOrder ? (
-              <Body3 color={Colors.COLOR_ORANGE} italic style={styles.metaText}>
+              <Body3 color={"#F97316"} italic style={styles.metaText}>
                 {item.status}
               </Body3>
             ) : (
@@ -82,7 +82,7 @@ const OrderScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <View style={{ marginTop: 10 }}>
+      <View>
         <SectionTitle title='My Orders' />
       </View>
 
@@ -147,7 +147,10 @@ const styles = StyleSheet.create({
     width: '48%',
   },
 
-  listContent: { paddingHorizontal: 20, paddingTop: 25 },
+  listContent: {
+     paddingHorizontal: 20,
+     paddingTop: 25 
+    },
   orderCard: {
     backgroundColor: Colors.INPUT_BACKGROUND,
     borderRadius: 14,
@@ -167,7 +170,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEE2E2', // Placeholder bg for image highlight
   },
   itemInfo: { flex: 1, marginLeft: 15 },
-  metaText: { marginVertical: 6 },
+  metaText: {
+     marginVertical: 6 
+    },
 });
 
 export default OrderScreen;
