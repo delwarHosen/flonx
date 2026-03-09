@@ -82,7 +82,7 @@ const OrderScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <View>
+      <View style={{paddingTop:20}}>
         <SectionTitle title='My Orders' />
       </View>
 

@@ -1,34 +1,45 @@
-import { BartenderIcon, UserGuestIcon, UserIcon } from '@/assets/images/icons/icon'
-import { CustomButton } from '@/components/CustomButton'
-import { Caption1, Caption2, H3 } from '@/components/typo/Typography'
-import { Colors } from '@/constants/theme'
-import { setRole } from '@/redux/authSlice'
-import { LinearGradient } from 'expo-linear-gradient'
-import { useRouter } from 'expo-router'
-import React, { useState } from 'react'; // 1. Import useState
-import { Pressable, StyleSheet, View } from 'react-native'
-import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useDispatch } from 'react-redux'
+import { BartenderIcon, UserGuestIcon, UserIcon } from '@/assets/images/icons/icon';
+import { CustomButton } from '@/components/CustomButton';
+import { Caption1, Caption2, H3 } from '@/components/typo/Typography';
+import { Colors } from '@/constants/theme';
+import { setRole } from '@/redux/authSlice';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch } from 'react-redux';
+// ConfirmationModal import
+import { ConfirmationModal } from "@/components/ConfirmationModalProps";
 
 export default function SelectRole() {
     const router = useRouter();
-    // 2. Track selected role
-    const [selectedRole, setSelectedRole] = useState<'guest' | 'customer' | 'bartender' | null>(null);
-
     const dispatch = useDispatch();
+    const [selectedRole, setSelectedRole] = useState<'guest' | 'customer' | 'bartender' | null>(null);
+    const [showAgeModal, setShowAgeModal] = useState<boolean>(false);
 
     const handleRole = () => {
-        if (selectedRole === 'customer' || selectedRole === 'bartender') {
+        if (!selectedRole) return;
+        setShowAgeModal(true);
+    };
+
+    const confirmAge = () => {
+        setShowAgeModal(false);
+
+        if (selectedRole === 'guest') {
+            router.push("/guest/(tabs)/search");
+        } else if (selectedRole === 'customer' || selectedRole === 'bartender') {
             dispatch(setRole(selectedRole));
-            router.push("/(auth)/login");
-        }
-        else {
-            router.push("/guest/(tabs)/search")
+            router.push("/(auth)/register");
         }
     };
 
-    // Helper to render the border logic
+    const rejectAge = () => {
+        setShowAgeModal(false);
+        router.replace("/(auth)/register");
+    };
+
     const RenderBorder = ({ children, isSelected }: { children: React.ReactNode, isSelected: boolean }) => {
         if (isSelected) {
             return (
@@ -56,7 +67,7 @@ export default function SelectRole() {
                 </Animated.View>
 
                 <Animated.View entering={FadeInDown.delay(300).duration(500).springify()}>
-                    <Caption1 style={{ marginTop: 16,marginBottom:32 }} color={Colors.PLACEHOLLDER_TEXT}>
+                    <Caption1 style={{ marginTop: 16, marginBottom: 32 }} color={Colors.PLACEHOLLDER_TEXT}>
                         Choose your role. You can switch roles later if needed.
                     </Caption1>
                 </Animated.View>
@@ -82,7 +93,6 @@ export default function SelectRole() {
                     entering={FadeInDown.delay(500).duration(500).springify()}
                     style={styles.role_select_container}
                 >
-                    {/* Customer Button */}
                     <Pressable style={{ flex: 1 }} onPress={() => setSelectedRole('customer')}>
                         <RenderBorder isSelected={selectedRole === 'customer'}>
                             <View style={[styles.innerContent, { paddingHorizontal: 12 }]}>
@@ -96,7 +106,6 @@ export default function SelectRole() {
                         </RenderBorder>
                     </Pressable>
 
-                    {/* Bartender Button */}
                     <Pressable style={{ flex: 1 }} onPress={() => setSelectedRole('bartender')}>
                         <RenderBorder isSelected={selectedRole === 'bartender'}>
                             <View style={[styles.innerContent, { paddingHorizontal: 12 }]}>
@@ -117,19 +126,31 @@ export default function SelectRole() {
                     width={"100%"}
                     backgroundColor={selectedRole ? undefined : '#1D1733'}
                     color={selectedRole ? undefined : Colors.PLACEHOLLDER_TEXT}
+                    style={{ marginTop: 32 }}
                 />
+
+                {/* Age Verification Modal */}
+                <ConfirmationModal
+                    visible={showAgeModal}
+                    title="Age Verification!"
+                    description="This e-commerce application sells alcoholic beverages. You must be 21+ years or older to browse and purchase products."
+                    confirmText="21+ Enter"
+                    cancelText="Exit"
+                    onCancel={rejectAge}
+                    onConfirm={confirmAge}
+                />
+
             </Animated.View>
         </SafeAreaView>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
     safeArea: { flex: 1, backgroundColor: Colors.APP_BACKGROUND },
     container: { flex: 1, justifyContent: "center", paddingHorizontal: "5%" },
     gradientWrapper: {
-        // marginTop: 32,
         borderRadius: 10,
-        padding: 1.5, // This acts as the border thickness
+        padding: 1.5,
     },
     innerContent: {
         backgroundColor: Colors.APP_BACKGROUND,
@@ -150,6 +171,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         width: "100%",
         gap: 16,
-        marginTop:16
+        marginTop: 16
     }
-})
+});

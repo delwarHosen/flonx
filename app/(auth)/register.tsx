@@ -173,7 +173,8 @@ export default function RegisterScreen() {
               {/* ----Submit Button---- */}
               <CustomButton
                 title="Create Account"
-                onPress={handleSubmit}
+                // onPress={handleSubmit}
+                onPress={()=>router.push("/email-verify")}
                 width="100%"
                 height={44}
                 borderRadius={100}

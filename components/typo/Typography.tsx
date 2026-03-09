@@ -24,7 +24,7 @@ export type TypographyWeight =
 interface TypographyProps extends TextProps {
     variant?: TypographyVariant;
     weight?: TypographyWeight;
-    color: string;
+    color?: string;
     align?: 'auto' | 'left' | 'right' | 'center' | 'justify';
     children: React.ReactNode;
     italic?: boolean;

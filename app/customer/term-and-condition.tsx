@@ -10,7 +10,7 @@ export default function TermCondition() {
         <SafeAreaView
             style={styles.safeAreaContainer}
         >
-            <View>
+            <View style={{paddingTop:20}}>
                 <SectionTitle
                     title='Terms & Condition'
                 />
@@ -173,7 +173,6 @@ const styles = StyleSheet.create({
     scrollContainer: {
         flexGrow: 1,
         // paddingHorizontal: "5%",
-        marginTop: 10,
         paddingBottom: 20
     },
     textContainer: {

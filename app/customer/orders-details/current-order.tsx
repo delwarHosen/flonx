@@ -33,7 +33,7 @@ const CurrentOrder: React.FC = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View>
+            <View style={{paddingTop:20}}>
                 <SectionTitle title="My Orders" />
             </View>
 

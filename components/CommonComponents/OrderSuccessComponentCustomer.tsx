@@ -13,7 +13,7 @@ export default function OrderSuccessComponent() {
     return (
         <View style={styles.centerContainer}>
             {/* Top Logo */}
-            <View >
+            <View style={{paddingTop:20}}>
                 <SectionTitle title='My Order' />
             </View>
             <View style={styles.container}>
@@ -47,7 +47,8 @@ export default function OrderSuccessComponent() {
                     />
                     <CustomButton
                         title="Order Again"
-                        onPress={() => router.push("/customer/items/shop-item")}
+                        // onPress={() => router.push("/customer/items/shop-item")}
+                        onPress={() => router.push("/customer/items/shop-items")}
                         width="100%"
                         height={55}
                         borderRadius={100}

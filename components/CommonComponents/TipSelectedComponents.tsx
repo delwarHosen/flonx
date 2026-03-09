@@ -65,7 +65,7 @@ const TipSelectedComponents = () => {
                     <View style={styles.buttonWrapper}>
                         <CustomButton
                             title="Continue"
-                            onPress={() => router.push('/customer/items/payment-type')}
+                            onPress={() => router.push('/guest/payment-type')}
                             width="100%"
                             height={44}
                             borderRadius={100}
@@ -76,7 +76,7 @@ const TipSelectedComponents = () => {
                 {/* Skip Button */}
                 <CustomButton
                     title="Skip"
-                    onPress={() => router.push('/customer/items/shop-item')}
+                    onPress={() => router.push('/guest/shop-item')}
                     width="100%"
                     height={44}
                     borderRadius={100}

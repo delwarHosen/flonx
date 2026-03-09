@@ -13,12 +13,12 @@ export default function AccountSetting() {
     const router = useRouter();
     return (
         <SafeAreaView style={styles.safeareContainer}>
-            <View>
+            <View style={{paddingTop:20}}>
                 <SectionTitle
                     title='Account Settings'
                 />
             </View>
-            <View style={{ paddingHorizontal: "5%", marginTop:10 }}>
+            <View style={{ paddingHorizontal: "5%", marginTop:20 }}>
                 <ProfileCard
                     icon={<NotificationIcon size={16} />}
                     label="Push Notification"

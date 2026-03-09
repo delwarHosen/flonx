@@ -53,7 +53,7 @@ export default function ChangePssword() {
 
                 await new Promise(resolve => setTimeout(resolve, 1000));
 
-                router.push("/customer/profile");
+                router.push("/bartender/(tabs)/profile");
             } catch (error: any) {
                 const message = error?.data?.message || error?.message || "something eent wrong while signing!"
 

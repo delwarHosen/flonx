@@ -48,7 +48,7 @@ const ApplicantDetails = () => {
 
                 await new Promise(resolve => setTimeout(resolve, 2000));
                 setLoading(false);
-                // router.push("/customer/gigs/")
+                router.push("/customer/(tabs)/gigs")
 
             } catch (error) {
                 setLoading(false);
@@ -96,7 +96,7 @@ const ApplicantDetails = () => {
                     <View style={styles.fieldBox}>
                         <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Overall Rating</Caption2>
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
-                            <StarIcon />
+                            <StarIcon color='#FFB020'/>
                             <Body2 color={Colors.NEUTRAL0} style={{ marginLeft: 6 }}>
                                 {applicant.rating} ({applicant.reviewCount})
                             </Body2>

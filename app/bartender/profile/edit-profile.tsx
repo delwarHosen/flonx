@@ -18,7 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 export default function EditProfile() {
     const router = useRouter();
     const handleEdit = () => {
-        router.push("/customer/profile")
+        router.push("/bartender/profile/my-profile")
     }
 
 
@@ -66,19 +66,20 @@ export default function EditProfile() {
 
     return (
         <SafeAreaView style={styles.container}>
+            <View style={{paddingVertical:10}}>
+                <SectionTitle
+                    title='Update profile '
+                />
+            </View>
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={{ paddingHorizontal: "5%" }}
             >
-                <View>
-                     <SectionTitle
-                        title='Update profile '
-                    />
-                </View>
-                <View style={{marginTop:10}}>
+
+                <View style={{ marginTop: 10 }}>
                     <ProfileImageComponent
                         image={IMAGE_COMPONENTS.profileImg}
-                        icon={<CameraIcon/>}
+                        icon={<CameraIcon />}
                     />
 
                     <FormInput
@@ -102,7 +103,7 @@ export default function EditProfile() {
                     />
                     <View style={styles.warningContainer}>
                         <View style={styles.iconContainer}>
-                            <WarningIcon size={18}/>
+                            <WarningIcon size={18} />
                         </View>
                         <View style={{ flex: 1 }}>
                             <Caption3 color={Colors.PLACEHOLLDER_TEXT}>

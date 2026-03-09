@@ -30,6 +30,7 @@ interface FormInputProps {
     maxLength?: number;
     minLength?: number;
     editable?: boolean;
+    rightIcon?: React.ReactNode; // Nuton prop add kora hoyeche
 }
 
 export const FormInput: React.FC<FormInputProps> = ({
@@ -43,6 +44,7 @@ export const FormInput: React.FC<FormInputProps> = ({
     required = false,
     maxLength,
     minLength,
+    rightIcon, // Prop destructure kora hoyeche
     // editable
 }) => {
 
@@ -111,7 +113,6 @@ export const FormInput: React.FC<FormInputProps> = ({
                     style={[styles.imageButton, getError() && styles.inputError]}
                     onPress={pickImage}
                 >
-                    {/* <Upload size={20} color="#B08D59" /> */}
                     <Text style={styles.imageButtonText}>
                         {imageUri ? 'Change Image' : 'Upload Image'}
                     </Text>
@@ -150,20 +151,17 @@ export const FormInput: React.FC<FormInputProps> = ({
                     maxLength={maxLength}
                 />
 
-                {type === "password" && (
+                {/* Jodi password field hoy tobe eye icon dekhabe, na hole rightIcon dekhabe */}
+                {type === "password" ? (
                     <TouchableOpacity
                         style={styles.iconButton}
                         onPress={() => setShowPassword(!showPassword)}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
-                        {
-                            showPassword ? (
-                                <EyeIcon />
-                            ) : (
-                                <EyeOff color={"#8C88A3"} size={18}/>
-                            )
-                        }
+                        {showPassword ? <EyeIcon /> : <EyeOff color={"#8C88A3"} size={18}/>}
                     </TouchableOpacity>
+                ) : (
+                    rightIcon && <View style={styles.iconButton}>{rightIcon}</View>
                 )}
             </View>
 
@@ -177,6 +175,8 @@ export const FormInput: React.FC<FormInputProps> = ({
         </View>
     )
 }
+
+// ... styles thakbe ager motoi
 
 
 const styles = StyleSheet.create({

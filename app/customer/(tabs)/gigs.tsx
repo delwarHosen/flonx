@@ -29,7 +29,7 @@ const GigsScreen = () => {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Header */}
-      <View>
+      <View style={{paddingTop:20}}>
         <SectionTitle title='Gigs' />
       </View>
 

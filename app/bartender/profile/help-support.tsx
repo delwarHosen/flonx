@@ -110,7 +110,8 @@ const FAQRow: React.FC<FAQRowProps> = ({ item, isOpen, onToggle }) => {
     );
 };
 
-// ─── Main Screen ──────────────────────────────────────────────────────────────
+
+
 export default function HelpSupport() {
     const [openId, setOpenId] = useState<string | null>(null);
 
@@ -130,6 +131,13 @@ export default function HelpSupport() {
 
     return (
         <SafeAreaView style={styles.safeAreaContainer}>
+            <View style={{ paddingTop: '5%', paddingHorizontal: '5%' }}>
+                <SectionTitle title="Help & Support" />
+                <Body1 italic color={Colors.NEUTRAL0} style={{ marginVertical: 16 }}>
+                    — Frequently Asked Questions
+                </Body1>
+            </View>
+
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={{ flex: 1 }}
@@ -139,17 +147,8 @@ export default function HelpSupport() {
                     keyExtractor={item => item.id}
                     renderItem={renderItem}
                     
-                    // Header Section
-                    ListHeaderComponent={
-                        <View style={{ paddingHorizontal: '5%' }}>
-                            <SectionTitle title="Help & Support" />
-                            <Body1 italic color={Colors.NEUTRAL0} style={{ marginVertical: 16 }}>
-                                — Frequently Asked Questions
-                            </Body1>
-                        </View>
-                    }
+                    ListHeaderComponent={<View style={{ height: 10 }} />}
 
-                    // Footer Section (Contact Form)
                     ListFooterComponent={
                         <View style={{ paddingHorizontal: '5%', marginTop: 20, paddingBottom: 40 }}>
                             <ContactForm />

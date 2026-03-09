@@ -123,7 +123,7 @@ const JobDetails = () => {
                         <View style={{ marginBottom: 24 }}>
                             <CustomButton
                                 onPress={() => setShowCancelModal(true)}
-                                title='Cancel Application'
+                                title='Cancel Assignment'
                                 width={'100%'}
                                 height={44}
                                 borderRadius={100}
@@ -215,7 +215,9 @@ const JobDetails = () => {
 
 
             {/* Back Header */}
-            <SectionTitle title='Job Details' />
+            <View style={{paddingTop:20}}>
+                <SectionTitle title='Job Details' />
+            </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
@@ -343,7 +345,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingHorizontal: 20,
-        paddingVertical: 20,
+        paddingBottom: "20%",
     },
     title: {
         marginBottom: 10,

@@ -28,7 +28,7 @@ const ItemDetails = () => {
     return (
         <SafeAreaView style={styles.container}>
             {/* Header - No changes to SectionTitle */}
-            <View >
+            <View style={{paddingTop:20}}>
                 <SectionTitle title='Item Details' />
             </View>
 

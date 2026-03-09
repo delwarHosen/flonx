@@ -10,7 +10,7 @@ export default function  LegalCompanyInfo() {
         <SafeAreaView
             style={styles.safeAreaContainer}
         >
-            <View>
+            <View style={{paddingTop:20}}>
                 <SectionTitle
                     title='Legal & Company Info'
                 />

@@ -1,8 +1,7 @@
 import { Colors } from '@/constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
-import { Body3 } from './typo/Typography';
+import { StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
 
 interface CustomButtonProps {
     onPress: () => void;
@@ -27,7 +26,7 @@ export const CustomButton = ({
     secondaryColor = Colors.BRAND_PRIMARY_LIGHT,
     primaryColor = Colors.BRAND_PRIMARY,
     backgroundColor,
-    color, // 2. Destructure it here
+    color="white", // 2. Destructure it here
     width = 120,
     height = 44,
     borderRadius = 100,
@@ -55,7 +54,7 @@ export const CustomButton = ({
                 } as any, style]}
             >
                 {/* 4. Pass the finalTextColor to ButtonText */}
-                {title ? <Body3 color={finalTextColor}>{title}</Body3> : null}
+                {title ? <Text style={{fontFamily:"Nunito_400Regular",color}} >{title}</Text> : null}
                 {icon && icon}
             </LinearGradient>
         </TouchableOpacity>

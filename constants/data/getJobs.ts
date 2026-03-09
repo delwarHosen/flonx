@@ -217,7 +217,7 @@ export const getJobs: GetJobs[] = [
             phone: "+1 (702) 000-1111",
             experience: "8 Years",
             totalJobs: 950,
-            rating: 5.0,
+            // rating: ,
             reviewCount: 500,
             profileImg: IMAGE_COMPONENTS.profile1,
         },
@@ -245,7 +245,7 @@ export const getJobs: GetJobs[] = [
                 phone: "+1 (206) 444-5555",
                 experience: "6 Years",
                 totalJobs: 520,
-                rating: 4.9,
+                // rating: 4.9,
                 reviewCount: 310,
                 profileImg: IMAGE_COMPONENTS.profile2,
             }

@@ -3,23 +3,26 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState } from 'react';
-import { Animated, StyleSheet, View } from 'react-native';
+import { Animated, Dimensions, StyleSheet, View } from 'react-native';
+
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const LOGO_SIZE = SCREEN_WIDTH * 0.5; 
 
 export default function Splash() {
   const router = useRouter();
   const [showLogo, setShowLogo] = useState(false);
-  const fadeAnim = new Animated.Value(0); 
+  const fadeAnim = React.useRef(new Animated.Value(0)).current; 
 
   useEffect(() => {
     const init = async () => {
       await SplashScreen.hideAsync();
       
-      
       setTimeout(() => {
         setShowLogo(true);
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 800,
+          duration: 500,
           useNativeDriver: true,
         }).start();
       }, 500);
@@ -27,11 +30,10 @@ export default function Splash() {
       setTimeout(() => {
         Animated.timing(fadeAnim, {
           toValue: 0,
-          duration: 1000, 
+          duration: 500, 
           useNativeDriver: true,
         }).start(() => {
-          
-          router.replace('/onboarding');
+          router.replace('/(auth)/login');
         });
       }, 3000); 
     };
@@ -42,10 +44,15 @@ export default function Splash() {
   return (
     <View style={styles.container}>
       {showLogo && (
-        <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: fadeAnim.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0.95, 1] 
-        }) }] }}>
+        <Animated.View style={{ 
+          opacity: fadeAnim, 
+          transform: [{ 
+            scale: fadeAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0.95, 1] 
+            }) 
+          }] 
+        }}>
           <Image
             source={require('../assets/images/logo.png')}
             style={styles.logo}
@@ -65,7 +72,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: 200,
-    height: 200,
+    width: LOGO_SIZE, 
+    height: LOGO_SIZE,
+    maxWidth: 250,
+    maxHeight: 250,
   },
 });

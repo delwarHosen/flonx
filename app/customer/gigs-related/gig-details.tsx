@@ -1,5 +1,4 @@
 import { JobsBagIcon } from '@/assets/images/icons/BarRelatedIcon/JobsBagIcon';
-import { ViewDetailsIcon } from '@/assets/images/icons/BarRelatedIcon/ViewDetailsIcon';
 import { WarningIcon } from '@/assets/images/icons/ProfileInfoIcons/WarningIcon';
 
 import { DetailsCardComponents } from '@/components/cardComponents/DetailsCardComponents';
@@ -41,7 +40,7 @@ const GigDetails = () => {
 
     const statusColors = getStatusColors(item.status);
 
-    
+
     const confirmComplete = () => {
         setShowCompleteModal(false);
         setTimeout(async () => {
@@ -56,7 +55,7 @@ const GigDetails = () => {
         }, 300);
     };
 
-    
+
     const confirmCancelAssignment = () => {
         setShowCancelModal(false);
         setTimeout(async () => {
@@ -94,7 +93,7 @@ const GigDetails = () => {
             case 'open':
                 return (
                     <>
-                        <View style={styles.infoCard}>
+                        {/* <View style={styles.infoCard}>
                             <View style={{ flex: 1 }}>
                                 <Body2 color={Colors.NEUTRAL0} >View Applicants</Body2>
                                 <Caption3 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: 8 }}>
@@ -110,7 +109,7 @@ const GigDetails = () => {
                             >
                                 <ViewDetailsIcon />
                             </TouchableOpacity>
-                        </View>
+                        </View> */}
 
 
                         <View style={styles.actionRow}>
@@ -126,8 +125,8 @@ const GigDetails = () => {
                             <View style={styles.buttonWrapper}>
                                 <CustomButton
                                     onPress={() => router.push({
-                                        pathname: '/customer/gigs-related/applicant-details',
-                                        params: { applicantId: item.id, jobId: id }
+                                        pathname: '/customer/gigs-related/applicants-list',
+                                        params: { jobId: item.id }
                                     })}
                                     title='View Applicants'
                                     width="100%"
@@ -156,7 +155,8 @@ const GigDetails = () => {
                     <>
                         <TouchableOpacity
                             style={styles.assignedRow}
-                            onPress={() => router.push("/")}
+                            // pathname: '/customer/gigs-related/applicant-details',
+                            onPress={() => console.log("")}
                             activeOpacity={0.8}
                         >
                             <View style={styles.assignedLeft}>
@@ -295,7 +295,9 @@ const GigDetails = () => {
             />
 
             {/* Back Header */}
-            <SectionTitle title='Gig Details' />
+           <View style={{marginTop:20}}>
+             <SectionTitle title='Gig Details' />
+           </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
@@ -413,7 +415,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: Colors.APP_BACKGROUND,
-        marginBottom: 20
+        marginBottom: "20%"
     },
     headerRow: {
         flexDirection: 'row',

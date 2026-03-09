@@ -76,7 +76,7 @@ const TipSelectedComponents = () => {
                 {/* Skip Button */}
                 <CustomButton
                     title="Skip"
-                    onPress={() => router.push('/customer/items/shop-item')}
+                    onPress={() => router.push('/customer/items/shop-items')}
                     width="100%"
                     height={44}
                     borderRadius={100}

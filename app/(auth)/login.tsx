@@ -20,6 +20,8 @@ export default function LoginScreen() {
   const [isRemembered, setIsRemembered] = React.useState(false);
   const userRole = useSelector((state: RootState) => (state.auth.userRole))
 
+  
+
   const {
     values,
     errors,
@@ -83,6 +85,7 @@ export default function LoginScreen() {
     values[FORM_FIELDS.PASSWORD] &&
     !errors[FORM_FIELDS.EMAIL] &&
     !errors[FORM_FIELDS.PASSWORD]
+
 
 
   return (
@@ -182,14 +185,15 @@ export default function LoginScreen() {
                   No account yet?
                 </Body3>
 
-                <TouchableOpacity onPress={() => router.push("/(auth)/register")}>
+                <TouchableOpacity onPress={() => router.push("/select-role")}>
                   <Body3 color={Colors.BRAND_PRIMARY}>
                     {" "}Create an account
                   </Body3>
                 </TouchableOpacity>
               </View>
             </View>
-
+            {/* Age Verification Modal */}
+            
           </View>
         </View>
       </ScrollView>

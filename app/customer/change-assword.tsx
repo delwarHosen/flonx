@@ -76,9 +76,11 @@ export default function ChangePssword() {
     return (
         <SafeAreaView style={styles.safeareContainer}>
             <View>
-                <SectionTitle
+                <View style={{paddingTop:20}}>
+                    <SectionTitle
                     title='Change Password'
                 />
+                </View>
                 <View style={styles.form}>
 
                     <FormInput

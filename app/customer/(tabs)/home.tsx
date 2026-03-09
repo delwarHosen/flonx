@@ -58,7 +58,7 @@ const HomeScreen: React.FC = () => {
             />
             <View style={{ marginLeft: 12 }}>
               <Body1 italic color={Colors.NEUTRAL0} weight="bold">Hello Florian</Body1>
-              <Body3 italic style={{ marginTop: 6 }} color={Colors.PLACEHOLLDER_TEXT}>Welcome to FLÖNX</Body3>
+              <Body3 italic color={Colors.PLACEHOLLDER_TEXT}>Welcome to FLÖNX</Body3>
             </View>
           </View>
           <TouchableOpacity

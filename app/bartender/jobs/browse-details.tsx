@@ -1,7 +1,6 @@
 import { JobsBagIcon } from '@/assets/images/icons/BarRelatedIcon/JobsBagIcon';
 import { WarningIcon } from '@/assets/images/icons/ProfileInfoIcons/WarningIcon';
 import { DetailsCardComponents } from '@/components/cardComponents/DetailsCardComponents';
-import { StatusInfoCard } from '@/components/cardComponents/StatusInfoCard';
 import { ConfirmationModal } from '@/components/ConfirmationModalProps';
 import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
@@ -23,7 +22,7 @@ const JobDetails = () => {
 
     if (!item) return null;
 
-    // Open status এর জন্য কালার ফিক্সড
+    
     const statusColors = { bg: '#FFB02033', text: Colors.COLOR_ORANGE };
 
     const confirmApply = () => {
@@ -49,7 +48,9 @@ const JobDetails = () => {
                 </View>
             )}
 
-            <SectionTitle title='Job Details' />
+            <View style={{marginTop:20}}>
+                <SectionTitle title='Job Details' />
+            </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 <Body1 color={Colors.NEUTRAL0} italic style={styles.title}>{item.title}</Body1>
@@ -64,13 +65,13 @@ const JobDetails = () => {
                 <PaymentInfoCard item={item} />
 
                 {/* Open Job specific bottom section */}
-                <StatusInfoCard
+                {/* <StatusInfoCard
                     label="Applied on"
                     value={item.appliedOn || "Not Applied yet"}
                     statusText="Open"
                     statusColor={"#FFB020"}
                     statusBg={"#FFB02033"}
-                />
+                /> */}
 
                 <CustomButton
                     onPress={() => setShowApplyModal(true)}
@@ -141,6 +142,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: Colors.APP_BACKGROUND,
+
     },
     loaderOverlay: {
         ...StyleSheet.absoluteFillObject,
@@ -152,7 +154,7 @@ const styles = StyleSheet.create({
     scrollContent: {
         paddingHorizontal: 20,
         paddingVertical: 20,
-        paddingBottom: 40,
+        paddingBottom: "20%",
     },
     title: {
         marginBottom: 10,

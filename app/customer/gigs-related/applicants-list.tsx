@@ -28,7 +28,7 @@ const ApplicantsList = () => {
                 <View style={styles.info}>
                     <Body2 color={Colors.NEUTRAL0} >{item.name}</Body2>
                     <View style={styles.ratingRow}>
-                        <StarIcon/>
+                        <StarIcon color='#FFB020'/>
                         <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginLeft: 4 }}>
                             {item.rating} ({item.reviewCount})
                         </Caption1>
@@ -41,7 +41,9 @@ const ApplicantsList = () => {
 
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-            <SectionTitle title="Applicants" />
+          <View style={{paddingTop:20}}>
+              <SectionTitle  title="Applicants" />
+          </View>
             
             <FlatList
                 data={applicants}

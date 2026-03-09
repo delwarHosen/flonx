@@ -136,7 +136,7 @@ const Checkout: React.FC = () => {
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
-            <View>
+            <View style={{paddingVertical:20}}>
                 <SectionTitle title='Checkout' />
             </View>
 

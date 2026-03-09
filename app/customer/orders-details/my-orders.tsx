@@ -17,7 +17,7 @@ import { Colors } from '@/constants/theme';
 const OrderDetailsScreen = () => {
   const params = useLocalSearchParams();
   const router = useRouter();
-  const [isTipped, setIsTipped] = useState(false); // Tip logic handle korar jonno state
+  const [isTipped, setIsTipped] = useState(false); 
 
   // Params theke data receive
   const { id, name, price, date, time, quantity, subOrders } = params;
@@ -44,8 +44,8 @@ const OrderDetailsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View >
-        <SectionTitle title="Order Details" />
+      <View style={{paddingTop:20}}>
+        <SectionTitle title="My Order" />
       </View>
 
       <ScrollView
@@ -145,14 +145,15 @@ const OrderDetailsScreen = () => {
           </View>
         )}
 
-        <View style={{ gap: 12, marginTop: 12 }}>
+        <View >
           {/* Tip Bartender Button - isTipped false thaklei shudhu dekhabe */}
           {!isTipped && (
             <CustomButton
-              title="Tip BARTENDER"
+              title="Tip Bartender"
               onPress={() => setIsTipped(true)}
               width="100%"
               height={44}
+              color={Colors.NEUTRAL0}
               borderRadius={100}
             />
           )}
@@ -223,7 +224,7 @@ const styles = StyleSheet.create({
   itemsCard: {
     backgroundColor: Colors.INPUT_BACKGROUND,
     borderRadius: 16,
-    marginBottom: 12,
+    // marginBottom: 12,
     borderWidth: 1,
     borderColor: Colors.BORDER_COLOR,
     overflow: 'hidden',
@@ -261,7 +262,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderWidth: 1,
     borderColor: Colors.BORDER_COLOR,
-    marginBottom: 12,
+    // marginBottom: 12,
   },
 
   footerRow: {

@@ -12,15 +12,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 import GigCard from '@/components/cardComponents/GigCard';
-import SectionTitle from '@/components/SectionTitle';
+import SearchBar from '@/components/CommonComponents/SearchBar';
 import { getJobs } from '@/constants/data/getJobs';
+
+// ... imports exactly same as yours
 
 const BrowseScreen: React.FC = () => {
     const [isScannerOpen, setIsScannerOpen] = useState<boolean>(false);
+    const [query, setQuery] = useState<string>('')
     const { checkPermission } = useCameraScanner();
     const router = useRouter();
 
-    
     const openJobs = getJobs.filter(job => job.status === "Open");
 
     const handleOpenScanner = async () => {
@@ -35,9 +37,9 @@ const BrowseScreen: React.FC = () => {
         Alert.alert("Success", `Venue QR Scanned: ${qrData}`);
     };
 
-    
-    const renderHeader = () => (
-        <View style={styles.headerContainer}>
+    // Header content exactly the same
+    const renderHeaderContent = () => (
+        <View style={[styles.headerContainer, { paddingHorizontal: 20 }]}>
             <View style={styles.header}>
                 <View style={styles.userInfo}>
                     <Image
@@ -56,9 +58,13 @@ const BrowseScreen: React.FC = () => {
                 </TouchableOpacity>
             </View>
 
-            {/* Section Title for Jobs */}
-            <View style={{ marginTop: 25, marginBottom: 10 }}>
-                <SectionTitle title="Available Jobs" />
+            <View style={{ marginTop: 20 }}>
+                <SearchBar
+                    placeholder="Search"
+                    value={query}
+                    onChangeText={setQuery}
+                    onScanPress={handleOpenScanner} // Scanner trigger link kora hoyeche
+                />
             </View>
         </View>
     );
@@ -73,10 +79,14 @@ const BrowseScreen: React.FC = () => {
                 onScan={onScanSuccess}
             />
 
+            {/* Header fixed thakbe tai FlatList er baire ana hoyeche */}
+            {renderHeaderContent()}
+
             <FlatList
                 data={openJobs}
                 keyExtractor={(item) => item.id}
-                ListHeaderComponent={renderHeader}
+                // ListHeaderComponent khati rakha hoyeche jate top e ektu gap thake
+                ListHeaderComponent={<View style={{ height: 10 }} />}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => (
@@ -94,6 +104,8 @@ const BrowseScreen: React.FC = () => {
         </SafeAreaView>
     );
 };
+
+
 
 const styles = StyleSheet.create({
     container: {

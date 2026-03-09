@@ -7,17 +7,17 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PushNotification = () => {
-    const [isEnabled, setIsEnabled] = useState(true);
+    const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
     return (
         <SafeAreaView style={styles.safeareContainer}>
-            <View>
+            <View style={{paddingVertical:20}}>
                 <SectionTitle
                     title='Push Notification'
                 />
             </View>
-            <View style={{ paddingHorizontal: "5%",marginTop:10 }}>
+            <View style={{ paddingHorizontal: "5%" }}>
                 
                 <View style={styles.card}>
                     <View style={styles.textContainer}>
@@ -61,17 +61,13 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     title: {
-        fontWeight: '600',
+        // fontWeight: '600',
     },
     description: {
         lineHeight: 15,
         maxWidth: "80%",
     },
-    // switch: {
-    //     borderWidth: 1,
-    //     borderColor: "white"
-    //     // switch styling would be specific to your platform and libraries
-    // },
+    
 });
 
 export default PushNotification;

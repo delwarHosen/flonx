@@ -19,6 +19,7 @@ const TRACK_HEIGHT = 30;
 const THUMB_SIZE = 20;
 const THUMB_PADDING = 3;
 
+
 const CustomToggleButton: React.FC<CustomToggleProps> = ({ value, onValueChange, style }) => {
     const animatedValue = useRef(new Animated.Value(value ? 1 : 0)).current;
 
@@ -33,6 +34,12 @@ const CustomToggleButton: React.FC<CustomToggleProps> = ({ value, onValueChange,
     const thumbTranslateX = animatedValue.interpolate({
         inputRange: [0, 1],
         outputRange: [THUMB_PADDING, TRACK_WIDTH - THUMB_SIZE - THUMB_PADDING],
+    });
+
+    
+    const thumbScale = animatedValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: [1, 0.85], 
     });
 
     const trackColor = animatedValue.interpolate({
@@ -51,13 +58,21 @@ const CustomToggleButton: React.FC<CustomToggleProps> = ({ value, onValueChange,
                 <Animated.View
                     style={[
                         styles.thumb,
-                        { transform: [{ translateX: thumbTranslateX }] },
+                        {
+                            transform: [
+                                { translateX: thumbTranslateX },
+                                { scale: thumbScale } 
+                            ]
+                        },
+                        
+                        value && { backgroundColor: Colors.NEUTRAL0 }
                     ]}
                 />
             </Animated.View>
         </Pressable>
     );
 };
+
 
 const styles = StyleSheet.create({
     track: {
