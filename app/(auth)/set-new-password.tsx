@@ -15,8 +15,9 @@ import {
   StyleSheet,
   ToastAndroid,
   TouchableWithoutFeedback,
-  View
+  View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -57,54 +58,60 @@ export default function ForgotPassword() {
   });
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-
-        <View style={styles.innerContainer}>
-          <View style={{ width: '100%' }}>
-            <AuthHeading
-              title="Set New Password"
-              description="Create a new password for your account to continue securely."
-            />
-
-            <View style={styles.form}>
-              <FormInput
-                label={FORM_LABELS[FORM_FIELDS.NEW_PASSWORD]}
-                value={values[FORM_FIELDS.NEW_PASSWORD]}
-                onChangeText={(text) => handleChange(FORM_FIELDS.NEW_PASSWORD, text)}
-                placeholder={FORM_PLACEHOLDERS[FORM_FIELDS.NEW_PASSWORD]}
-                type="password"
-                error={errors[FORM_FIELDS.NEW_PASSWORD]}
-                touched={touched[FORM_FIELDS.NEW_PASSWORD]}
-                required
-              />
-              <FormInput
-                label={FORM_LABELS[FORM_FIELDS.CONFIRM_PASSWORD]}
-                value={values[FORM_FIELDS.CONFIRM_PASSWORD]}
-                onChangeText={(text) => handleChange(FORM_FIELDS.CONFIRM_PASSWORD, text)}
-                placeholder={FORM_PLACEHOLDERS[FORM_FIELDS.CONFIRM_PASSWORD]}
-                type="password"
-                error={errors[FORM_FIELDS.CONFIRM_PASSWORD]}
-                touched={touched[FORM_FIELDS.CONFIRM_PASSWORD]}
-                required
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 0}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.innerContainer}>
+            <View style={{ width: '100%' }}>
+              <AuthHeading
+                title="Set New Password"
+                description="Create a new password for your account to continue securely."
               />
 
+              <View style={styles.form}>
+                <FormInput
+                  label={FORM_LABELS[FORM_FIELDS.NEW_PASSWORD]}
+                  value={values[FORM_FIELDS.NEW_PASSWORD]}
+                  onChangeText={(text) => handleChange(FORM_FIELDS.NEW_PASSWORD, text)}
+                  placeholder={FORM_PLACEHOLDERS[FORM_FIELDS.NEW_PASSWORD]}
+                  type="password"
+                  error={errors[FORM_FIELDS.NEW_PASSWORD]}
+                  touched={touched[FORM_FIELDS.NEW_PASSWORD]}
+                  required
+                />
+                
+                {/* <View style={{ height: 0 }} /> */}
 
-              <CustomButton
-                title="Update Password"
-                onPress={handleSubmit}
-                width="100%"
-                height={44}
-                borderRadius={100}
-              />
+                <FormInput
+                  label={FORM_LABELS[FORM_FIELDS.CONFIRM_PASSWORD]}
+                  value={values[FORM_FIELDS.CONFIRM_PASSWORD]}
+                  onChangeText={(text) => handleChange(FORM_FIELDS.CONFIRM_PASSWORD, text)}
+                  placeholder={FORM_PLACEHOLDERS[FORM_FIELDS.CONFIRM_PASSWORD]}
+                  type="password"
+                  error={errors[FORM_FIELDS.CONFIRM_PASSWORD]}
+                  touched={touched[FORM_FIELDS.CONFIRM_PASSWORD]}
+                  required
+                />
+
+                <View style={{ marginTop: 10 }}>
+                  <CustomButton
+                    title="Set New Password"
+                    onPress={() => router.push('/(auth)/login')}
+                    width="100%"
+                    height={48}
+                    borderRadius={100}
+                  />
+                </View>
+              </View>
             </View>
           </View>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   )
 }
 
@@ -113,19 +120,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.APP_BACKGROUND
   },
-  bgImage: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-  },
   innerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: "5%",
+    paddingHorizontal: "6%",
   },
   form: {
-    marginTop: 32,
+    marginTop: 0,
     width: '100%',
   },
 })

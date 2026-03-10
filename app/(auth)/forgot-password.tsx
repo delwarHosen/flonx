@@ -61,7 +61,7 @@ export default function ForgotPassword() {
                     <View style={styles.innerContainer}>
                         <View style={{ width: '100%' }}>
                             <AuthHeading
-                                title="Forgot Password"
+                                title="Forgot password"
                                 description="Enter your registered email address and we’ll send you a verification code to reset your password."
                             />
 
@@ -79,7 +79,8 @@ export default function ForgotPassword() {
 
                                 <CustomButton
                                     title="Send Verification Code"
-                                    onPress={handleSubmit}
+                                    // onPress={handleSubmit}
+                                    onPress={()=>router.push("/(auth)/verify-otp")}
                                     width="100%"
                                     height={44}
                                     borderRadius={100}

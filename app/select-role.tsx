@@ -6,12 +6,27 @@ import { setRole } from '@/redux/authSlice';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Dimensions, Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 // ConfirmationModal import
 import { ConfirmationModal } from "@/components/ConfirmationModalProps";
+
+const { width, height } = Dimensions.get('window');
+const isIOS = Platform.OS === 'ios';
+
+// iOS-specific responsive helpers
+const isSmallIOS = isIOS && height < 700;    // iPhone SE, iPhone 8
+const isMediumIOS = isIOS && height >= 700 && height < 844;  // iPhone 11, XR
+const isLargeIOS = isIOS && height >= 844;   // iPhone 12/13/14 Pro and above
+
+const iosSpacing = (small: number, medium: number, large: number) => {
+    if (!isIOS) return medium;
+    if (isSmallIOS) return small;
+    if (isMediumIOS) return medium;
+    return large;
+};
 
 export default function SelectRole() {
     const router = useRouter();
@@ -37,7 +52,7 @@ export default function SelectRole() {
 
     const rejectAge = () => {
         setShowAgeModal(false);
-        router.replace("/(auth)/register");
+        router.replace("/select-role");
     };
 
     const RenderBorder = ({ children, isSelected }: { children: React.ReactNode, isSelected: boolean }) => {
@@ -67,7 +82,7 @@ export default function SelectRole() {
                 </Animated.View>
 
                 <Animated.View entering={FadeInDown.delay(300).duration(500).springify()}>
-                    <Caption1 style={{ marginTop: 16, marginBottom: 32 }} color={Colors.PLACEHOLLDER_TEXT}>
+                    <Caption1 style={{ marginTop: iosSpacing(10, 16, 16), marginBottom: iosSpacing(20, 32, 32) }} color={Colors.PLACEHOLLDER_TEXT}>
                         Choose your role. You can switch roles later if needed.
                     </Caption1>
                 </Animated.View>
@@ -80,7 +95,7 @@ export default function SelectRole() {
                                 <View style={styles.iconStyle}>
                                     <UserGuestIcon />
                                 </View>
-                                <Caption2 italic style={{ marginTop: 16 }} color={Colors.PLACEHOLLDER_TEXT}>
+                                <Caption2 italic style={{ marginTop: iosSpacing(10, 16, 16) }} color={Colors.PLACEHOLLDER_TEXT}>
                                     Continue as Guest
                                 </Caption2>
                             </View>
@@ -99,7 +114,7 @@ export default function SelectRole() {
                                 <View style={styles.iconStyle}>
                                     <UserIcon />
                                 </View>
-                                <Caption2 italic style={{ marginTop: 16, textAlign: 'center' }} color={Colors.PLACEHOLLDER_TEXT}>
+                                <Caption2 italic style={{ marginTop: iosSpacing(10, 16, 16), textAlign: 'center' }} color={Colors.PLACEHOLLDER_TEXT}>
                                     Continue as Customer
                                 </Caption2>
                             </View>
@@ -112,7 +127,7 @@ export default function SelectRole() {
                                 <View style={styles.iconStyle}>
                                     <BartenderIcon />
                                 </View>
-                                <Caption2 italic style={{ marginTop: 16, textAlign: 'center' }} color={Colors.PLACEHOLLDER_TEXT}>
+                                <Caption2 italic style={{ marginTop: iosSpacing(10, 16, 16), textAlign: 'center' }} color={Colors.PLACEHOLLDER_TEXT}>
                                     Continue as Bartender
                                 </Caption2>
                             </View>
@@ -126,7 +141,7 @@ export default function SelectRole() {
                     width={"100%"}
                     backgroundColor={selectedRole ? undefined : '#1D1733'}
                     color={selectedRole ? undefined : Colors.PLACEHOLLDER_TEXT}
-                    style={{ marginTop: 32 }}
+                    style={{ marginTop: iosSpacing(20, 32, 32) }}
                 />
 
                 {/* Age Verification Modal */}
@@ -147,7 +162,12 @@ export default function SelectRole() {
 
 const styles = StyleSheet.create({
     safeArea: { flex: 1, backgroundColor: Colors.APP_BACKGROUND },
-    container: { flex: 1, justifyContent: "center", paddingHorizontal: "5%" },
+    container: {
+        flex: 1,
+        justifyContent: "center",
+        paddingHorizontal: "5%",
+        paddingVertical: iosSpacing(16, 0, 0),
+    },
     gradientWrapper: {
         borderRadius: 10,
         padding: 1.5,
@@ -155,7 +175,7 @@ const styles = StyleSheet.create({
     innerContent: {
         backgroundColor: Colors.APP_BACKGROUND,
         borderRadius: 10,
-        paddingVertical: 16,
+        paddingVertical: iosSpacing(12, 16, 16),
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -171,6 +191,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         width: "100%",
         gap: 16,
-        marginTop: 16
+        marginTop: iosSpacing(10, 16, 16),
     }
 });

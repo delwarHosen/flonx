@@ -15,6 +15,28 @@ import { useSelector } from 'react-redux';
 
 const { width, height } = Dimensions.get('window');
 
+// Responsive helpers
+const isSmallDevice = width < 375;
+const isMediumDevice = width >= 375 && width < 414;
+const isLargeDevice = width >= 414;
+
+const responsiveSize = (small: number, medium: number, large: number) => {
+  if (isSmallDevice) return small;
+  if (isMediumDevice) return medium;
+  return large;
+};
+
+const responsiveFontSize = (base: number) => {
+  const scale = width / 375;
+  const scaled = base * scale;
+  return Math.round(Math.min(scaled, base * 1.3));
+};
+
+const responsiveSpacing = (base: number) => {
+  const scale = width / 375;
+  return Math.round(base * Math.min(scale, 1.4));
+};
+
 export default function LoginScreen() {
   const router = useRouter();
   const [isRemembered, setIsRemembered] = React.useState(false);
@@ -103,10 +125,12 @@ export default function LoginScreen() {
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
-          paddingHorizontal: "5%",
+          paddingHorizontal: responsiveSize(16, 20, 24),
+          paddingVertical: responsiveSpacing(24),
+          minHeight: height,
         }}>
 
-          <View style={{ width: '100%' }}>
+          <View style={{ width: '100%', maxWidth: 500 }}>
 
             <AuthHeading
               title="Welcome Back"
@@ -155,7 +179,7 @@ export default function LoginScreen() {
                   }}
 
                     asChild>
-                    <TouchableOpacity>
+                    <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                       <Body2 color={Colors.BRAND_PRIMARY} style={styles.forgotPassword}>
                         Forgot password?
                       </Body2>
@@ -174,18 +198,21 @@ export default function LoginScreen() {
                     : router.replace("/customer/(tabs)/home")
                 }
                 width="100%"
-                height={44}
+                height={responsiveSize(44, 48, 52)}
                 borderRadius={100}
               // icon={<DoubleRightArrowIcon />}
               />
             </View>
-            <View style={{ marginTop: 16, alignItems: "center" }}>
+            <View style={{ marginTop: responsiveSpacing(16), alignItems: "center" }}>
               <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <Body3 color={Colors.PLACEHOLLDER_TEXT}>
                   No account yet?
                 </Body3>
 
-                <TouchableOpacity onPress={() => router.push("/select-role")}>
+                <TouchableOpacity
+                  onPress={() => router.push("/select-role")}
+                  hitSlop={{ top: 8, bottom: 8, left: 4, right: 8 }}
+                >
                   <Body3 color={Colors.BRAND_PRIMARY}>
                     {" "}Create an account
                   </Body3>
@@ -214,13 +241,16 @@ const styles = StyleSheet.create({
     // minHeight: height,
   },
   form: {
-    marginTop: "8%"
+    marginTop: responsiveSize(24, 32, 40),
+    gap: responsiveSpacing(4),
   },
   forgotPasswordContainer: {
     alignItems: 'flex-end',
+    marginTop: responsiveSpacing(-5),
     // marginBottom: 24,
   },
   forgotPassword: {
     fontWeight: '500',
+    fontSize: responsiveFontSize(14),
   },
 })

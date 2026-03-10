@@ -11,6 +11,7 @@ import {
 interface CustomToggleProps {
     value: boolean;
     onValueChange: (value: boolean) => void;
+    disabled?: boolean; // এই প্রপার্টিটি এখানে যোগ করা হয়েছে
     style?: StyleProp<ViewStyle>;
 }
 
@@ -19,8 +20,12 @@ const TRACK_HEIGHT = 30;
 const THUMB_SIZE = 20;
 const THUMB_PADDING = 3;
 
-
-const CustomToggleButton: React.FC<CustomToggleProps> = ({ value, onValueChange, style }) => {
+const CustomToggleButton: React.FC<CustomToggleProps> = ({ 
+    value, 
+    onValueChange, 
+    disabled = false, // ডিফল্ট ভ্যালু false
+    style 
+}) => {
     const animatedValue = useRef(new Animated.Value(value ? 1 : 0)).current;
 
     useEffect(() => {
@@ -33,10 +38,9 @@ const CustomToggleButton: React.FC<CustomToggleProps> = ({ value, onValueChange,
 
     const thumbTranslateX = animatedValue.interpolate({
         inputRange: [0, 1],
-        outputRange: [THUMB_PADDING, TRACK_WIDTH - THUMB_SIZE - THUMB_PADDING],
+        outputRange: [THUMB_PADDING, TRACK_WIDTH - THUMB_SIZE - THUMB_PADDING - 6], // বর্ডার অ্যাডজাস্টমেন্টের জন্য -৬
     });
 
-    
     const thumbScale = animatedValue.interpolate({
         inputRange: [0, 1],
         outputRange: [1, 0.85], 
@@ -48,7 +52,11 @@ const CustomToggleButton: React.FC<CustomToggleProps> = ({ value, onValueChange,
     });
 
     return (
-        <Pressable onPress={() => onValueChange(!value)} style={style}>
+        <Pressable 
+            onPress={() => !disabled && onValueChange(!value)} 
+            style={[style, disabled && { opacity: 0.5 }]} // ডিসেবল থাকলে ঝাপসা দেখাবে
+            disabled={disabled}
+        >
             <Animated.View
                 style={[
                     styles.track,
@@ -64,7 +72,6 @@ const CustomToggleButton: React.FC<CustomToggleProps> = ({ value, onValueChange,
                                 { scale: thumbScale } 
                             ]
                         },
-                        
                         value && { backgroundColor: Colors.NEUTRAL0 }
                     ]}
                 />
@@ -72,7 +79,6 @@ const CustomToggleButton: React.FC<CustomToggleProps> = ({ value, onValueChange,
         </Pressable>
     );
 };
-
 
 const styles = StyleSheet.create({
     track: {

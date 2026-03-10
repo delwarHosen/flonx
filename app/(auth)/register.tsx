@@ -14,6 +14,17 @@ import { useSelector } from 'react-redux';
 
 const { width, height } = Dimensions.get('window');
 
+// Responsive helpers
+const isIOS = Platform.OS === 'ios';
+const isSmallDevice = height < 700;
+const isMediumDevice = height >= 700 && height < 844;
+
+const rs = (small: number, medium: number, large: number) => {
+  if (isSmallDevice) return small;
+  if (isMediumDevice) return medium;
+  return large;
+};
+
 export default function RegisterScreen() {
   const router = useRouter();
   const [isRemembered, setIsRemembered] = React.useState(false);
@@ -92,10 +103,12 @@ export default function RegisterScreen() {
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
-          paddingHorizontal: "5%",
+          paddingHorizontal: rs(16, 20, 24),
+          paddingVertical: rs(16, 24, 32),
+          minHeight: height,
         }}>
 
-          <View style={{ width: '100%' }}>
+          <View style={{ width: '100%', maxWidth: 500 }}>
 
             <AuthHeading
               title={isBartender ? "Join as a Bartender" : "Create Your Account"}
@@ -176,14 +189,17 @@ export default function RegisterScreen() {
                 // onPress={handleSubmit}
                 onPress={()=>router.push("/email-verify")}
                 width="100%"
-                height={44}
+                height={rs(44, 48, 52)}
                 borderRadius={100}
               // icon={<DoubleRightArrowIcon />}
               />
             </View>
-            <View style={{ marginTop: 16,flexDirection:"row", alignItems: "center",justifyContent:"center" }}>
+            <View style={{ marginTop: rs(12, 16, 16), flexDirection:"row", alignItems: "center", justifyContent:"center" }}>
               <Body3 color={Colors.PLACEHOLLDER_TEXT}>Already have an account?</Body3>
-              <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
+              <TouchableOpacity
+                onPress={() => router.push("/(auth)/login")}
+                hitSlop={{ top: 8, bottom: 8, left: 4, right: 8 }}
+              >
                 <Body3 color={Colors.BRAND_PRIMARY}> Sign In</Body3>
               </TouchableOpacity>
             </View>
@@ -208,7 +224,8 @@ const styles = StyleSheet.create({
     // minHeight: height,
   },
   form: {
-    marginTop: "4%"
+    marginTop: rs(12, 16, 20),
+    gap: rs(2, 4, 4),
   },
   forgotPasswordContainer: {
     alignItems: 'flex-end',
