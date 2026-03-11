@@ -1,11 +1,13 @@
-import TipSelectedComponents from '@/components/CommonComponents/TipSelectedComponentsCustomer'
-import React from 'react'
-import { View } from 'react-native'
+import TipSelectionContent from '@/components/CommonComponents/TipSelectionContent';
+import { Colors } from '@/constants/theme';
 
-export default function TipSelect() {
+export default function CustomerTip() {
     return (
-        <View style={{ flexGrow: 1 }}>
-            <TipSelectedComponents />
-        </View>
-    )
+        <TipSelectionContent
+            customTipRoute="/customer/items/custom-tip-seleted"
+            continueRoute="/customer/items/payment-type"
+            skipRoute="/customer/items/shop-items"
+            primaryColor={Colors.BRAND_PRIMARY_LIGHT}
+        />
+    );
 }

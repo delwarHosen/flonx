@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     name: {
-        marginBottom: 6,
+        marginBottom: 4,
     },
     statusTag: {
         flexDirection: 'row',
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     locationText: {
-        fontWeight: 400,
+        // fontWeight: 400,
         marginLeft: 4,
     },
 });

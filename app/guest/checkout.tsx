@@ -3,15 +3,15 @@ import { MinusIcon } from '@/assets/images/icons/BarRelatedIcon/MinusIcon';
 import { PlusIcon } from '@/assets/images/icons/BarRelatedIcon/PlusIcon';
 import { CustomButton } from '@/components/CustomButton';
 import SectionTitle from '@/components/SectionTitle';
-import { Body1, Body2, Body4, Caption1, H5, H6 } from '@/components/typo/Typography';
+import { Body1, Body2, Body4, Caption1, Caption3, H5, H6 } from '@/components/typo/Typography';
 import { bars } from '@/constants/data/barData';
 import { Colors } from '@/constants/theme';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { FlatList, Image, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// --- Types aligned with your barData ---
+// --- Types ---
 interface Item {
     id: number;
     name: string;
@@ -28,6 +28,7 @@ interface CartItem extends Item {
 
 const Checkout: React.FC = () => {
     const router = useRouter();
+    const insets = useSafeAreaInsets(); // For iPhone Notch/Home bar responsiveness
     const { cartData, barId } = useLocalSearchParams<{ cartData: string; barId: string }>();
 
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -38,15 +39,13 @@ const Checkout: React.FC = () => {
                 const initialCart: { [key: string]: number } = JSON.parse(cartData);
                 const currentBar = bars.find(b => b.id.toString() === barId) || bars[0];
 
-                // Flattening all items from all categories of the bar
                 const allItemsInBar: Item[] = currentBar.categories.flatMap(cat => cat.items);
 
-                // Mapping items with their respective quantities
                 const matchedItems: CartItem[] = allItemsInBar
-                    .filter(item => initialCart[item.id])
+                    .filter(item => initialCart[item.id.toString()]) 
                     .map(item => ({
                         ...item,
-                        quantity: initialCart[item.id]
+                        quantity: initialCart[item.id.toString()]
                     }));
 
                 setCartItems(matchedItems);
@@ -78,8 +77,8 @@ const Checkout: React.FC = () => {
                     style={styles.itemImage}
                 />
                 <View style={styles.itemInfo}>
-                    <Body1 color={Colors.NEUTRAL0} style={styles.itemName}>{item.name}</Body1>
-                    <Caption1 color={Colors.PLACEHOLLDER_TEXT} italic style={styles.ingredients}>
+                    <Body1 color={Colors.NEUTRAL0}>{item.name}</Body1>
+                    <Caption1 color={Colors.PLACEHOLLDER_TEXT} italic style={styles.ingredients} numberOfLines={2}>
                         {item.ingredients.join(', ')}
                     </Caption1>
                     <Body2 color={Colors.NEUTRAL0} style={styles.price}>${item.price}</Body2>
@@ -94,12 +93,11 @@ const Checkout: React.FC = () => {
 
             <View style={styles.cardBottom}>
                 <View style={styles.quantityContainer}>
-
                     <CustomButton
                         onPress={() => updateQuantity(item.id, 1)}
                         icon={<PlusIcon />}
-                        width={44}
-                        height={44}
+                        width={40}
+                        height={40}
                         borderRadius={100}
                         color={Colors.NEUTRAL0}
                     />
@@ -109,12 +107,11 @@ const Checkout: React.FC = () => {
                     <CustomButton
                         onPress={() => updateQuantity(item.id, -1)}
                         icon={<MinusIcon />}
-                        width={44}
-                        height={44}
+                        width={40}
+                        height={40}
                         borderRadius={100}
                         color={Colors.NEUTRAL0}
                     />
-
                 </View>
 
                 <View style={[
@@ -125,18 +122,18 @@ const Checkout: React.FC = () => {
                         styles.statusDot,
                         { backgroundColor: item.status === 'in_stock' ? '#22C55E' : '#EF4444' }
                     ]} />
-                    <Caption1 color={item.status === 'in_stock' ? '#22C55E' : '#EF4444'}>
+                    <Caption3 color={item.status === 'in_stock' ? '#22C55E' : '#EF4444'}>
                         {item.status === 'in_stock' ? 'In Stock' : 'Out Of Stock'}
-                    </Caption1>
+                    </Caption3>
                 </View>
             </View>
         </View>
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
             {/* Header */}
-            <View style={{paddingVertical:20}}>
+            <View style={styles.headerWrapper}>
                 <SectionTitle title='Checkout' />
             </View>
 
@@ -147,24 +144,27 @@ const Checkout: React.FC = () => {
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
                 ListEmptyComponent={
-                    <View style={{ marginTop: 100, alignItems: 'center' }}>
+                    <View style={styles.emptyContainer}>
                         <Body1 color="#AAA">Your cart is empty</Body1>
                     </View>
                 }
             />
 
-            {/* Bottom Section */}
-            <View style={styles.footer}>
+            {/* Bottom Section - Responsive Footer */}
+            <View style={[
+                styles.footer,
+                { paddingBottom: Platform.OS === 'ios' ? insets.bottom + 15 : 40 }
+            ]}>
                 <View style={styles.totalRow}>
                     <Body4 color={Colors.NEUTRAL0}>Total</Body4>
-                    <H5 color="" style={styles.totalAmount}>${totalPrice}</H5>
+                    <H5 color={Colors.NEUTRAL0} style={styles.totalAmount}>${totalPrice}</H5>
                 </View>
 
                 <CustomButton
-                    title=" Checkout"
+                    title="Checkout"
                     onPress={() => router.push("/guest/payment-type")}
                     width="100%"
-                    height={44}
+                    height={48}
                     borderRadius={100}
                     backgroundColor={Colors.NEUTRAL0}
                     borderColor={Colors.BRAND_PRIMARY}
@@ -185,12 +185,18 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: Colors.APP_BACKGROUND,
-
     },
-
+    headerWrapper: {
+        paddingVertical: Platform.OS === 'ios' ? 10 : 10,
+        paddingBottom: 20
+    },
     listContent: {
         paddingHorizontal: 20,
         paddingBottom: 30,
+    },
+    emptyContainer: {
+        marginTop: 100,
+        alignItems: 'center'
     },
     card: {
         backgroundColor: Colors.INPUT_BACKGROUND,
@@ -199,7 +205,6 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         borderWidth: 1,
         borderColor: '#2A2344',
-
     },
     cardTop: {
         flexDirection: 'row',
@@ -212,34 +217,32 @@ const styles = StyleSheet.create({
         backgroundColor: '#FEE2E2'
     },
     itemInfo: {
-        flex: 1, marginLeft: 15,
+        flex: 1,
+        marginLeft: 15,
         justifyContent: 'center'
     },
-    itemName: {
-        fontWeight: '400'
-    },
+
     ingredients: {
-        fontSize: 13,
-        marginVertical: 6,
-        lineHeight: 18
+        fontSize: 12,
+        marginVertical: 4,
+        lineHeight: 16
     },
     price: {
-        fontWeight: '700'
+        // fontWeight: '700',
+        marginTop: 2
     },
     deleteBtn: {
         width: 36,
         height: 36,
         borderRadius: 18,
         backgroundColor: "#EF444433",
-        padding: 12,
         alignItems: "center",
         justifyContent: "center",
-        marginTop: -5
     },
     divider: {
-        height: 1.5,
+        height: 1,
         backgroundColor: "#2A2448",
-        marginBottom: 14,
+        // marginBottom: 14,
         marginTop: 6
     },
     cardBottom: {
@@ -250,38 +253,59 @@ const styles = StyleSheet.create({
     quantityContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-
     },
     qtyText: {
-        marginHorizontal: 28,
-        marginTop: 16
+        marginHorizontal: 15,
+        marginTop: 15,
+        minWidth: 20,
+        textAlign: 'center'
     },
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
         borderRadius: 20,
-        alignSelf: 'center',
+        marginTop: 15
     },
-    statusDot: { width: 4, height: 4, borderRadius: 2, marginRight: 6 },
+    statusDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        marginRight: 4
+    },
     footer: {
         backgroundColor: Colors.BRAND_PRIMARY,
-        padding: 25,
+        paddingHorizontal: 25,
+        paddingTop: 20,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        // Elevation for Android, Shadow for iOS
+        ...Platform.select({
+            ios: {
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: -3 },
+                shadowOpacity: 0.2,
+                shadowRadius: 5,
+            },
+            android: {
+                elevation: 10,
+            }
+        })
     },
-    totalRow: { 
+    totalRow: {
         flexDirection: 'row',
-         justifyContent: 'space-between',
-          alignItems: 'center',
-        //    marginBottom: 20 
-        },
-    totalLabel: {
-
-        // fontWeight: '700'
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        // marginBottom: 15
     },
     totalAmount: {
-        fontWeight: '800'
+        // fontWeight: '800'
     },
-
-    stripeText: { textAlign: 'center', marginTop: 15, opacity: 0.9 }
+    stripeText: {
+        textAlign: 'center',
+        marginTop: 15,
+        opacity: 0.7,
+        fontSize: 11
+    }
 });

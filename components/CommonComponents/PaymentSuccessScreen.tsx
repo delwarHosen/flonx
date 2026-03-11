@@ -4,13 +4,14 @@ import { Colors } from '@/constants/theme'
 import { useRouter } from 'expo-router'
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { CustomButton } from '../CustomButton'
 import { Caption1, H4 } from '../typo/Typography'
 
 export default function PaymentSuccessScreen() {
-    const router= useRouter();
+    const router = useRouter();
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
 
             {/* Top Logo */}
             <View style={styles.logoContainer}>
@@ -45,7 +46,7 @@ export default function PaymentSuccessScreen() {
                 />
             </View>
 
-        </View>
+        </SafeAreaView>
     )
 }
 
@@ -54,32 +55,28 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#F2F2F2",
         paddingHorizontal: 20,
+        justifyContent: "space-evenly",
+        marginTop: "-30%" 
     },
 
     logoContainer: {
         alignItems: "center",
-        marginTop: 40,
     },
 
     centerContainer: {
-        // flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        marginTop: 115
     },
 
     successLogo: {
         height: 64,
         width: 64,
         borderRadius: 32,
-        // backgroundColor: Colors.COLOR_ACTIVE,
         justifyContent: "center",
         alignItems: "center",
-
     },
 
     title: {
-        marginTop: 16,
         textAlign: "center",
     },
 
@@ -90,7 +87,6 @@ const styles = StyleSheet.create({
     },
 
     buttonContainer: {
-        marginBottom: 30,
-        marginTop: 115
+        paddingBottom: 10, 
     },
 });

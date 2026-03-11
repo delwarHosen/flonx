@@ -1,38 +1,15 @@
 import { LogoIcon } from '@/assets/images/icons/ProfileInfoIcons/LogoIcon';
-import SectionTitle from '@/components/SectionTitle';
 import { Body3, Caption3 } from '@/components/typo/Typography';
+import { NotificationItem } from '@/constants/notificationData';
 import { Colors } from '@/constants/theme';
 import React from 'react';
-import { Dimensions, FlatList, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { FlatList, StyleSheet, View } from 'react-native';
 
-const { height } = Dimensions.get('window');
-
-const NOTIFICATIONS = [
-    {
-        id: '1',
-        message: 'Your order is ready for pickup.',
-        date: '16 March 2026',
-    },
-    {
-        id: '2',
-        message: 'An item in your order is unavailable.',
-        date: '16 March 2026',
-    },
-    {
-        id: '3',
-        message: 'Your profile has been updated.',
-        date: '16 March 2026',
-    },
-];
-
-export default function NotificationScreen() {
-
-    const renderItem = ({ item }: { item: typeof NOTIFICATIONS[0] }) => (
-        // এখানে leftSection এর বদলে notificationCard নাম দিলাম এবং ডিজাইন ক্লিন করলাম
-        <View style={styles.notificationCard}>
+export const NotificationContent = ({ data }: { data: NotificationItem[] }) => {
+    const renderItem = ({ item }: { item: NotificationItem }) => (
+        <View style={styles.card}>
             <View style={styles.iconContainer}>
-                <LogoIcon size={24} />
+                <LogoIcon />
             </View>
 
             <View style={styles.textContainer}>
@@ -47,70 +24,42 @@ export default function NotificationScreen() {
     );
 
     return (
-        <SafeAreaView style={styles.safeArea}>
-            {/* Header Section */}
-            <View style={styles.header}>
-                <SectionTitle title='Notification' />
-            </View>
-
-            {/* FlatList Section */}
-            <FlatList
-                data={NOTIFICATIONS}
-                renderItem={renderItem}
-                keyExtractor={item => item.id}
-                contentContainerStyle={styles.listContent}
-                showsVerticalScrollIndicator={false}
-                // যদি ডাটা না থাকে তবে এই মেসেজটি দেখাবে
-                ListEmptyComponent={() => (
-                    <View style={styles.emptyContainer}>
-                        <Body3 color={Colors.PLACEHOLLDER_TEXT}>No new notifications</Body3>
-                    </View>
-                )}
-            />
-        </SafeAreaView>
-    )
-}
+        <FlatList
+            data={data}
+            renderItem={renderItem}
+            keyExtractor={item => item.id}
+            contentContainerStyle={styles.listPadding}
+            showsVerticalScrollIndicator={false}
+        />
+    );
+};
 
 const styles = StyleSheet.create({
-    safeArea: { 
-        flex: 1, 
-        backgroundColor: Colors.APP_BACKGROUND 
+    listPadding: {
+        padding: 20,
     },
-    header: {
-        marginBottom: 10,
-    },
-    listContent: {
-        paddingHorizontal: 20,
-        paddingBottom: 40, // নিচ থেকে একটু জায়গা রাখা হয়েছে
-    },
-    notificationCard: {
+    card: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
         borderWidth: 1,
-        borderColor: Colors.BORDER_COLOR,
+        borderColor: Colors.BRAND_PRIMARY,
         marginBottom: 16,
         borderRadius: 12,
         padding: 12,
-        backgroundColor: Colors.INPUT_BACKGROUND,
+        backgroundColor: 'transparent',
     },
     iconContainer: {
-        width: 48,
-        height: 48,
+        width: 44,
+        height: 44,
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
-        backgroundColor: Colors.APP_BACKGROUND,
+        backgroundColor: Colors.INPUT_BACKGROUND,
     },
     textContainer: {
         flex: 1,
-        justifyContent: 'center',
     },
-    emptyContainer: {
-        height: height * 0.6,
-        alignItems: 'center',
-        justifyContent: 'center',
-    }
-})
+});

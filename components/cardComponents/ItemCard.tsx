@@ -26,11 +26,11 @@ const ItemCard: React.FC<ItemCardProps & { onPress?: () => void }> = ({ item, on
             <Image source={item.img} style={styles.image} contentFit="cover" />
 
             <View style={styles.details}>
-                <Body1 color={Colors.NEUTRAL0} style={styles.itemHeading}>{item.name}</Body1>
+                <Body1 color={Colors.NEUTRAL0} >{item.name}</Body1>
                 <Caption1 italic color={Colors.OTP_COLOR} style={styles.itemDetails} numberOfLines={1}>
                     {item.ingredients.join(', ')}
                 </Caption1>
-                <H6 color={Colors.NEUTRAL0} style={{ marginTop: 4, fontWeight: '800' }}>${item.price}</H6>
+                <H6 color={Colors.NEUTRAL0} style={{marginTop:4}}>${item.price}</H6>
             </View>
 
             <View style={styles.addButton}>
@@ -69,11 +69,11 @@ const styles = StyleSheet.create({
     },
     itemHeading: {
         fontWeight: 400,
-        marginBottom: 6
+        // marginBottom: 6
     },
     itemDetails: {
         fontSize: 13,
-        marginBottom: 6
+        // marginBottom: 6
     },
     details: {
         flex: 1,

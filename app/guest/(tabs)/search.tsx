@@ -4,16 +4,21 @@ import { bars } from '@/constants/data/barData'
 import { Colors } from '@/constants/theme'
 import { useRouter } from 'expo-router'
 import React, { useState } from 'react'
-import { FlatList, StyleSheet, View } from 'react-native'
+import { FlatList, Platform, StyleSheet, View } from 'react-native'; // Added Platform
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-// Define a functional component type
 const Search: React.FC = () => {
   const router = useRouter();
   const [query, setQuery] = useState<string>('')
+
+  // Filter the bars based on the query for actual search functionality
+  const filteredBars = bars.filter(bar => 
+    bar.name.toLowerCase().includes(query.toLowerCase())
+  );
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <View style={styles.searchWrapper}>
         <SearchBar
           placeholder="Search"
           value={query}
@@ -22,39 +27,44 @@ const Search: React.FC = () => {
         />
       </View>
 
-
-      <View style={{ marginTop: 20 }}>
-        <FlatList
-          data={bars}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <BarCardComponents
-              item={item}
-              onPress={() => router.push({
-                pathname: '/guest/shop-item',
-                params: { barId: item.id }
-              })}
-            />
-          )}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
-
+      <FlatList
+        data={filteredBars} // Use filtered data
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <BarCardComponents
+            item={item}
+            onPress={() => router.push({
+              pathname: '/guest/shop-item',
+              params: { barId: item.id }
+            })}
+          />
+        )}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        // keyboardShouldPersistTaps="handled" // Better UX for search screens
+      />
     </SafeAreaView>
   )
 }
 
 export default Search;
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
     backgroundColor: Colors.APP_BACKGROUND,
-    marginTop: "5%"
   },
+  searchWrapper: {
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'ios' ? 10 : 10, // Adjusts specifically for iOS
+    marginBottom: 10,
+  },
+  listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 40, // Extra padding for the bottom of the screen
+    paddingTop: 10,
+  },
+  // Kept your original styles below in case you need them elsewhere
   scrollContainer: {
     marginTop: 10,
   },

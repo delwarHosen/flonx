@@ -1,49 +1,60 @@
-import React, { useState } from 'react';
-import { StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
-
 import { Colors } from '@/constants/theme';
 import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { StatusBar, StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CustomButton } from '../CustomButton';
 import SectionTitle from '../SectionTitle';
 import Typography, { Body3, H4 } from '../typo/Typography';
 
-const TipSelectedComponents = () => {
+interface TipSelectionProps {
+    customTipRoute: string;
+    continueRoute: string;
+    skipRoute: string;
+    primaryColor?: string;
+}
+
+const TipSelectionContent: React.FC<TipSelectionProps> = ({
+    customTipRoute,
+    continueRoute,
+    skipRoute,
+    primaryColor = Colors.BRAND_PRIMARY_LIGHT
+}) => {
     const router = useRouter();
     const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
-
     const tipOptions = [5, 10, 15, 20];
+
+    // Responsive measurements
+    const { width } = useWindowDimensions();
+    const dynamicPadding = width > 400 ? 30 : 25; 
 
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="light-content" />
 
-            {/* Back Button */}
-            <View >
+            <View style={{marginVertical:15}}>
                 <SectionTitle />
             </View>
 
-            <View style={styles.content}>
-                {/* Title Section */}
+            <View style={[styles.content, { paddingHorizontal: dynamicPadding }]}>
                 <H4 color={Colors.NEUTRAL0} align="center">Tip Your Bartender</H4>
                 <Body3 color={Colors.PLACEHOLLDER_TEXT} align="center" style={{ marginTop: 10, marginBottom: 24 }}>
                     Show Your Appreciation
                 </Body3>
 
-                {/* Tip Selection List */}
                 {tipOptions.map((amount) => (
                     <TouchableOpacity
                         key={amount}
                         onPress={() => setSelectedAmount(amount)}
                         style={[
                             styles.tipOption,
-                            selectedAmount === amount && styles.selectedTipOption
+                            selectedAmount === amount && { borderColor: primaryColor }
                         ]}
                     >
                         <Typography
                             variant="h5"
                             weight="bold"
-                            color={selectedAmount === amount ? Colors.BRAND_PRIMARY_LIGHT : Colors.BRAND_PRIMARY_LIGHT}
+                            color={primaryColor}
                             align="center"
                         >
                             ${amount}
@@ -51,12 +62,11 @@ const TipSelectedComponents = () => {
                     </TouchableOpacity>
                 ))}
 
-                {/* Action Buttons (Custom & Continue) */}
                 <View style={styles.actionRow}>
                     <View style={styles.buttonWrapper}>
                         <CustomButton
                             title="Custom"
-                            onPress={() => router.push("/customer/items/custom-tip-seleted")}
+                            onPress={() => router.push(customTipRoute as any)}
                             width="100%"
                             height={44}
                             borderRadius={100}
@@ -65,7 +75,7 @@ const TipSelectedComponents = () => {
                     <View style={styles.buttonWrapper}>
                         <CustomButton
                             title="Continue"
-                            onPress={() => router.push('/guest/payment-type')}
+                            onPress={() => router.push(continueRoute as any)}
                             width="100%"
                             height={44}
                             borderRadius={100}
@@ -73,15 +83,15 @@ const TipSelectedComponents = () => {
                     </View>
                 </View>
 
-                {/* Skip Button */}
                 <CustomButton
                     title="Skip"
-                    onPress={() => router.push('/guest/shop-item')}
+                    onPress={() => router.push(skipRoute as any)}
                     width="100%"
                     height={44}
                     borderRadius={100}
                     backgroundColor={Colors.NEUTRAL0}
-                    color={Colors.BRAND_PRIMARY}
+                    color={primaryColor}
+                    style={{ marginTop: 16 }}
                 />
             </View>
         </SafeAreaView>
@@ -91,22 +101,10 @@ const TipSelectedComponents = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: Colors.APP_BACKGROUND,
-    },
-    header: {
-        paddingTop: 20,
-    },
-    backButton: {
-        width: 45,
-        height: 45,
-        borderRadius: 23,
-        backgroundColor: Colors.ICON_BG_COLOR,
-        justifyContent: 'center',
-        alignItems: 'center',
+        backgroundColor: Colors.APP_BACKGROUND
     },
     content: {
         flex: 1,
-        paddingHorizontal: 25,
     },
     tipOption: {
         width: '100%',
@@ -117,36 +115,12 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.INPUT_BACKGROUND,
         marginBottom: 16,
     },
-    selectedTipOption: {
-        borderColor: Colors.BRAND_PRIMARY_LIGHT,
-        borderWidth: 1,
-    },
     actionRow: {
         flexDirection: 'row',
-        // marginTop: 20,
-        justifyContent: 'space-between',
-        gap:16
+        justifyContent: 'space-between', 
+        gap: 16
     },
-    flex1: {
-        flex: 1,
-    },
-    gradientButton: {
-        paddingVertical: 16,
-        borderRadius: 30,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    skipButton: {
-        width: '100%',
-        backgroundColor: Colors.NEUTRAL0,
-        paddingVertical: 16,
-        borderRadius: 30,
-        alignItems: 'center',
-        marginTop: 20,
-    },
-     buttonWrapper: {
-        flex: 1,
-    },
+    buttonWrapper: { flex: 1 },
 });
 
-export default TipSelectedComponents;
+export default TipSelectionContent;

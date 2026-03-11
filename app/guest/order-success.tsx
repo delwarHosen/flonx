@@ -1,21 +1,12 @@
-import OrderSuccessComponent from '@/components/CommonComponents/OrderSuccessComponent'
-import { Colors } from '@/constants/theme'
-import React from 'react'
-import { StyleSheet } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import OrderSuccessContent from "@/components/CommonComponents/OrderSuccessContent";
+
 
 export default function OrderSuccess() {
     return (
-        <SafeAreaView style={styles.safeContainer}>
-            <OrderSuccessComponent/>
-        </SafeAreaView>
-    )
+        <OrderSuccessContent
+            title="Order Completed"
+            tipRoute="/guest/tip-select"
+            orderAgainRoute="/guest/shop-item"
+        />
+    );
 }
-
-const styles = StyleSheet.create({
-    safeContainer: {
-        flex: 1,
-        backgroundColor: Colors.NEUTRAL0,
-
-    }
-})

@@ -54,7 +54,7 @@ export const CustomButton = ({
                 } as any, style]}
             >
                 {/* 4. Pass the finalTextColor to ButtonText */}
-                {title ? <Text style={{fontFamily:"Nunito_400Regular",color}} >{title}</Text> : null}
+                {title ? <Text style={{fontFamily:"Nunito_600SemiBold",color}} >{title}</Text> : null}
                 {icon && icon}
             </LinearGradient>
         </TouchableOpacity>

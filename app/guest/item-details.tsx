@@ -8,16 +8,18 @@ import { Colors } from '@/constants/theme';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ItemDetails = () => {
-    const { itemName, itemImg, itemIngredients, itemPrice, itemStatus } = useLocalSearchParams<{
+    const { itemName, itemImg, itemIngredients, itemPrice, itemStatus, barId, itemId } = useLocalSearchParams<{
         itemName: string;
         itemImg: string;
         itemIngredients: string;
         itemPrice: string;
         itemStatus: string;
+        barId: string; // Add this
+        itemId: string; // Add this
     }>();
     const router = useRouter();
     const [quantity, setQuantity] = useState(1);
@@ -25,15 +27,34 @@ const ItemDetails = () => {
     const handleAdd = () => setQuantity(prev => prev + 1);
     const handleRemove = () => quantity > 1 && setQuantity(prev => prev - 1);
 
+    // ItemDetails.tsx logic update
+    const handleAddToCart = () => {
+        if (!itemId) {
+            console.error("Item ID is missing!");
+            return;
+        }
+
+        // Checkout page expect korche object key (ID) : quantity (Value)
+        const cartObject = {
+            [itemId]: quantity
+        };
+
+        router.push({
+            pathname: "/guest/checkout",
+            params: {
+                cartData: JSON.stringify(cartObject),
+                barId: barId
+            }
+        });
+    };
+
     return (
-        <SafeAreaView style={styles.container}>
-            {/* Header - No changes to SectionTitle */}
-            <View >
+        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+            <View style={styles.headerPadding}>
                 <SectionTitle title='Item Details' />
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
-                {/* Image Section - Floating half outside the card */}
                 <View style={styles.imageWrapper}>
                     <Image
                         source={typeof itemImg === 'string' && !isNaN(Number(itemImg))
@@ -42,17 +63,11 @@ const ItemDetails = () => {
                         style={styles.mainImage}
                         contentFit="contain"
                     />
-                    {/* <Image
-                        source={ require('../../assets/images/Mojito.png')}
-                        style={styles.mainImage}
-                        contentFit="contain"
-                    /> */}
                 </View>
 
-                {/* Info Card - Pulling up with negative margin */}
                 <View style={styles.infoCard}>
                     <H5 color={Colors.NEUTRAL0} style={styles.title}>{itemName}</H5>
-                    <Caption1 italic color={Colors.OTP_COLOR} style={{ marginBottom: 6 }}>
+                    <Caption1 italic color={Colors.OTP_COLOR} style={{ marginBottom: 6, textAlign: 'center' }}>
                         {itemIngredients || "No ingredients listed"}
                     </Caption1>
 
@@ -69,7 +84,6 @@ const ItemDetails = () => {
                         </Caption1>
                     </View>
 
-                    {/* Quantity Row - Using your CustomButton as is */}
                     <View style={styles.quantityRow}>
                         <CustomButton
                             onPress={handleAdd}
@@ -79,9 +93,7 @@ const ItemDetails = () => {
                             borderRadius={100}
                             color={Colors.NEUTRAL0}
                         />
-
                         <H6 color={Colors.NEUTRAL0} italic style={styles.qtyText}>{quantity}</H6>
-
                         <CustomButton
                             onPress={handleRemove}
                             icon={<MinusIcon />}
@@ -92,13 +104,12 @@ const ItemDetails = () => {
                         />
                     </View>
 
-                    {/* Add to Cart - Using your CustomButton as is */}
-                    <View style={{ width: "100%", marginTop: 20 }}>
+                    <View style={styles.actionButtonContainer}>
                         <CustomButton
                             title=""
-                            onPress={() => { }}
+                            onPress={handleAddToCart}
                             width="100%"
-                            height={44}
+                            height={50}
                             borderRadius={100}
                             icon={
                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
@@ -121,8 +132,11 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.APP_BACKGROUND
     },
+    headerPadding: {
+        // paddingVertical: Platform.OS === 'ios' ? 10 : 
+    },
     imageWrapper: {
-        height: 250,
+        height: 280,
         width: '100%',
         justifyContent: 'center',
         alignItems: 'center',
@@ -131,10 +145,10 @@ const styles = StyleSheet.create({
     mainImage: {
         width: 220,
         height: 220,
-        marginTop: 50,
-        borderWidth:1,
-        borderColor:Colors.BORDER_COLOR,
-        borderRadius:20
+        marginTop: 30,
+        borderWidth: 1,
+        borderColor: Colors.BORDER_COLOR,
+        borderRadius: 20,
     },
     infoCard: {
         flex: 1,
@@ -142,17 +156,18 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 50,
         borderTopRightRadius: 50,
         alignItems: 'center',
-        paddingTop: "40%",
-        paddingHorizontal: 20,
-        marginTop: -120,
+        paddingTop: Platform.OS === 'ios' ? "35%" : "30%",
+        paddingHorizontal: 25,
+        marginTop: -100,
+        paddingBottom: 40
     },
     title: {
-        marginBottom: 6
+        marginBottom: 6,
+        textAlign: 'center'
     },
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#152C26',
         paddingHorizontal: 12,
         paddingVertical: 5,
         borderRadius: 20,
@@ -162,17 +177,20 @@ const styles = StyleSheet.create({
         width: 6,
         height: 6,
         borderRadius: 3,
-        backgroundColor: Colors.COLOR_ACTIVE
-        , marginRight: 6
+        marginRight: 6
     },
     quantityRow: {
         flexDirection: 'row',
-         alignItems: 'center',
-         marginTop:16
+        alignItems: 'center',
+        marginTop: 30
     },
     qtyText: {
-        marginHorizontal: 29,
-        marginTop:16
-     },
-
+        marginHorizontal: 20,
+        marginTop:20
+    },
+    actionButtonContainer: {
+        width: "100%",
+        marginTop: 40,
+        paddingBottom: Platform.OS === 'ios' ? 20 : 0
+    }
 });

@@ -1,12 +1,12 @@
+import CustomTipContent from '@/components/CommonComponents/CustomTipContent';
+import { Colors } from '@/constants/theme';
 
-import CustomTipSelectedPage from '@/components/CommonComponents/CustomTipSelectedPageCustomer'
-import React from 'react'
-import { View } from 'react-native'
-
-export default function customTipSeleted() {
-  return (
-    <View style={{ flexGrow: 1 }}>
-            <CustomTipSelectedPage />
-        </View>
-  )
+export default function CustomerCustomTip() {
+    return (
+        <CustomTipContent
+            continueRoute="/customer/items/payment-type"
+            skipRoute="/customer/(tabs)/search"
+            primaryColor={Colors.BRAND_PRIMARY_LIGHT}
+        />
+    );
 }
