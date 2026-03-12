@@ -54,22 +54,34 @@ export default function EmailVerifyOtp() {
     }
   };
 
+  // const handleVerify = () => {
+  //   if (code.length !== CODE_LENGTH) {
+  //     if (Platform.OS === 'android') {
+  //       ToastAndroid.show('Please enter full 6-digit code', ToastAndroid.SHORT);
+  //     }
+  //     return;
+  //   }
+  //   setLoading(true);
+  //   setTimeout(() => {
+  //     setLoading(false);
+  //     if (isBartender) {
+  //       router.push("/bartender-info")
+  //     } else {
+  //       router.push('/onboarding');
+  //     }
+
+  //   }, 1000);
+  // };
+
   const handleVerify = () => {
-    if (code.length !== CODE_LENGTH) {
-      if (Platform.OS === 'android') {
-        ToastAndroid.show('Please enter full 6-digit code', ToastAndroid.SHORT);
-      }
-      return;
-    }
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
       if (isBartender) {
-        router.push("/bartender-info")
+        router.push("/bartender-info");
       } else {
         router.push('/onboarding');
       }
-
     }, 1000);
   };
 

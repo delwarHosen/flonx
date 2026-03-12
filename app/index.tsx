@@ -7,35 +7,44 @@ import { Animated, Dimensions, StyleSheet, View } from 'react-native';
 
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const LOGO_SIZE = SCREEN_WIDTH * 0.5; 
+const LOGO_SIZE = SCREEN_WIDTH * 0.5;
 
 export default function Splash() {
   const router = useRouter();
   const [showLogo, setShowLogo] = useState(false);
-  const fadeAnim = React.useRef(new Animated.Value(0)).current; 
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const init = async () => {
-      await SplashScreen.hideAsync();
-      
-      setTimeout(() => {
+      try {
+       
         setShowLogo(true);
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }).start();
-      }, 500);
 
-      setTimeout(() => {
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 500, 
-          useNativeDriver: true,
-        }).start(() => {
-          router.replace('/(auth)/login');
-        });
-      }, 3000); 
+       
+        setTimeout(async () => {
+          await SplashScreen.hideAsync(); 
+
+        
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 800, 
+            useNativeDriver: true,
+          }).start();
+        }, 200);
+
+        
+        setTimeout(() => {
+          Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+          }).start(() => {
+            router.replace('/(auth)/login');
+          });
+        }, 3500);
+      } catch (e) {
+        console.warn(e);
+      }
     };
 
     init();
@@ -44,14 +53,14 @@ export default function Splash() {
   return (
     <View style={styles.container}>
       {showLogo && (
-        <Animated.View style={{ 
-          opacity: fadeAnim, 
-          transform: [{ 
+        <Animated.View style={{
+          opacity: fadeAnim,
+          transform: [{
             scale: fadeAnim.interpolate({
               inputRange: [0, 1],
-              outputRange: [0.95, 1] 
-            }) 
-          }] 
+              outputRange: [0.95, 1]
+            })
+          }]
         }}>
           <Image
             source={require('../assets/images/logo.png')}
@@ -72,7 +81,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: LOGO_SIZE, 
+    width: LOGO_SIZE,
     height: LOGO_SIZE,
     maxWidth: 250,
     maxHeight: 250,

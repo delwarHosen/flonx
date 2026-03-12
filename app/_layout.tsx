@@ -19,9 +19,10 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import 'react-native-reanimated';
 import { Provider } from 'react-redux';
+SplashScreen.preventAutoHideAsync();
 
 // Native splash screen-ke auto-hide hote badha dey
-SplashScreen.preventAutoHideAsync();
+
 
 
 
