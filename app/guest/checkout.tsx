@@ -8,7 +8,7 @@ import { bars } from '@/constants/data/barData';
 import { Colors } from '@/constants/theme';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, Image, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // --- Types ---
@@ -30,7 +30,7 @@ const Checkout: React.FC = () => {
     const router = useRouter();
     const insets = useSafeAreaInsets(); // For iPhone Notch/Home bar responsiveness
     const { cartData, barId } = useLocalSearchParams<{ cartData: string; barId: string }>();
-
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
     useEffect(() => {
@@ -42,7 +42,7 @@ const Checkout: React.FC = () => {
                 const allItemsInBar: Item[] = currentBar.categories.flatMap(cat => cat.items);
 
                 const matchedItems: CartItem[] = allItemsInBar
-                    .filter(item => initialCart[item.id.toString()]) 
+                    .filter(item => initialCart[item.id.toString()])
                     .map(item => ({
                         ...item,
                         quantity: initialCart[item.id.toString()]
@@ -53,6 +53,7 @@ const Checkout: React.FC = () => {
                 console.error("Failed to parse cart data", error);
             }
         }
+        setIsInitialLoading(false);
     }, [cartData, barId]);
 
     const updateQuantity = (id: number, delta: number) => {
@@ -137,18 +138,25 @@ const Checkout: React.FC = () => {
                 <SectionTitle title='Checkout' />
             </View>
 
-            <FlatList
-                data={cartItems}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={renderItem}
-                contentContainerStyle={styles.listContent}
-                showsVerticalScrollIndicator={false}
-                ListEmptyComponent={
-                    <View style={styles.emptyContainer}>
-                        <Body1 color="#AAA">Your cart is empty</Body1>
-                    </View>
-                }
-            />
+            {
+                isInitialLoading ? (
+                    <ActivityIndicator color={Colors.BRAND_PRIMARY} style={{ marginTop: 50 }} />
+                ) : (
+                    <FlatList
+                        data={cartItems}
+                        keyExtractor={(item) => item.id.toString()}
+                        renderItem={renderItem}
+                        contentContainerStyle={styles.listContent}
+                        showsVerticalScrollIndicator={false}
+                        ListEmptyComponent={
+                            <View style={styles.emptyContainer}>
+                                <Body1 color="#AAA">Your cart is empty</Body1>
+                            </View>
+                        }
+                    />
+                )
+            }
+
 
             {/* Bottom Section - Responsive Footer */}
             <View style={[

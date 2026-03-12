@@ -26,7 +26,7 @@ export default function JobsScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Header */}
-      <View>
+      <View style={{marginVertical:20}}>
         <SectionTitle title='My Jobs' />
       </View>
 

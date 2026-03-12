@@ -295,7 +295,7 @@ const GigDetails = () => {
             />
 
             {/* Back Header */}
-           <View style={{marginTop:20}}>
+           <View style={{marginVertical:10}}>
              <SectionTitle title='Gig Details' />
            </View>
 

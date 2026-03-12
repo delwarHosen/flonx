@@ -11,7 +11,9 @@ export const FORM_FIELDS = {
     CONTACT_NO: "phone",
     LOCATION: "location",
     TAX: "tax",
-    DOCUMENTATION: "documentation"
+    DOCUMENTATION: "documentation",
+    EXPERIENCE: "experience",
+    SKILL: "skill",
 } as const;
 
 export const FORM_LABELS = {
@@ -26,7 +28,9 @@ export const FORM_LABELS = {
     [FORM_FIELDS.CONTACT_NO]: "Contact Phone",
     [FORM_FIELDS.LOCATION]: "location",
     [FORM_FIELDS.TAX]: "Tax ID (Add your tax id for buying wholesaling products)",
-    [FORM_FIELDS.DOCUMENTATION]: "Tax ID (Add your tax id for buying wholesaling products)"
+    [FORM_FIELDS.DOCUMENTATION]: "Tax ID (Add your tax id for buying wholesaling products)",
+    [FORM_FIELDS.EXPERIENCE]: "Years of Experience",
+    [FORM_FIELDS.SKILL]: "Primary Bar Skills"
 } as const;
 
 export const FORM_PLACEHOLDERS = {
@@ -41,5 +45,7 @@ export const FORM_PLACEHOLDERS = {
     [FORM_FIELDS.CONTACT_NO]: "Enter your contact phone number",
     [FORM_FIELDS.LOCATION]: "New York, NY, USA .2 a...",
     [FORM_FIELDS.TAX]: "1485 482895632 86885938",
-    [FORM_FIELDS.DOCUMENTATION]: "1485 482895632 86885938"
+    [FORM_FIELDS.DOCUMENTATION]: "1485 482895632 86885938",
+    [FORM_FIELDS.EXPERIENCE]: "Enter your Years of Experience",
+    [FORM_FIELDS.SKILL]: "e.g., Mixology, Inventory, High-Volume",
 } as const;

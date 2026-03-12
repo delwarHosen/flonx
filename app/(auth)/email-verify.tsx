@@ -3,6 +3,7 @@ import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
 import { Body2, Body3, H2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
+import { RootState } from '@/redux/store';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -16,6 +17,7 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSelector } from 'react-redux';
 
 const { width } = Dimensions.get('window');
 const CODE_LENGTH = 6;
@@ -27,6 +29,9 @@ export default function EmailVerifyOtp() {
   const [canResend, setCanResend] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const inputRef = useRef<TextInput | null>(null);
+
+  const userRole = useSelector((state: RootState) => state.auth.userRole);
+  const isBartender = userRole === "bartender";
 
   useEffect(() => {
     if (timer <= 0) {
@@ -59,7 +64,12 @@ export default function EmailVerifyOtp() {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      router.push('/(auth)/login');
+      if (isBartender) {
+        router.push("/bartender-info")
+      } else {
+        router.push('/onboarding');
+      }
+
     }, 1000);
   };
 
@@ -96,7 +106,7 @@ export default function EmailVerifyOtp() {
                       ]}
                     >
                       <H2 color={Colors.OTP_COLOR} style={styles.otpText}>
-                        {code[index] ?  code[index] : ''}
+                        {code[index] ? code[index] : ''}
                       </H2>
                     </View>
                   ))}
@@ -131,7 +141,7 @@ export default function EmailVerifyOtp() {
                 ) : (
                   <CustomButton
                     title="Verif code"
-                    onPress={() => router.push("/onboarding")}
+                    onPress={handleVerify}
                     width="100%"
                     height={44}
                     borderRadius={100}
@@ -166,7 +176,7 @@ const styles = StyleSheet.create({
   },
   otpBox: {
     // Dynamic calculation ensures boxes fit all iOS screen widths perfectly
-    width: (width * 0.9 - 50) / 6, 
+    width: (width * 0.9 - 50) / 6,
     height: (width * 0.9 - 50) / 6,
     maxWidth: 54,
     maxHeight: 54,

@@ -1,26 +1,27 @@
 import { CameraIcon } from '@/assets/images/icons/ProfileInfoIcons/CameraIcon'
-import { WarningIcon } from '@/assets/images/icons/ProfileInfoIcons/WarningIcon'
 import { CustomButton } from '@/components/CustomButton'
 import { FormInput } from '@/components/inputForm/InputForm'
 import ProfileImageComponent from '@/components/ProfileImageComponents'
 import SectionTitle from '@/components/SectionTitle'
-import { Caption3 } from '@/components/typo/Typography'
 import { FORM_FIELDS, FORM_LABELS } from '@/constants/form'
 import { IMAGE_COMPONENTS } from '@/constants/image.index'
 import { Colors } from '@/constants/theme'
 import { useForm } from '@/hooks/useForm'
 import { RootState } from '@/redux/store'
-import { validateName } from '@/utils/validation'
-import { Href, useLocalSearchParams, useRouter } from 'expo-router'
+import { validateExperience, validateName, validatePhoneNumber } from '@/utils/validation'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import React from 'react'
-import { KeyboardAvoidingView, Platform, StyleSheet, ToastAndroid, View } from 'react-native'
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
 
+
 export default function EditProfileView() {
     const router = useRouter();
-    const params = useLocalSearchParams(); 
+    const params = useLocalSearchParams();
     const userRole = useSelector((state: RootState) => state.auth.userRole);
+    const isBartender = userRole === "bartender";
+
 
     const {
         values,
@@ -30,33 +31,30 @@ export default function EditProfileView() {
         handleSubmit,
     } = useForm({
         initialValues: {
-            [FORM_FIELDS.FULL_NAME]: (params.name as string) || "",
+            [FORM_FIELDS.FULL_NAME]: (params[FORM_FIELDS.FULL_NAME] as string) || "",
+            [FORM_FIELDS.CONTACT_NO]: (params[FORM_FIELDS.CONTACT_NO] as string) || "",
+            [FORM_FIELDS.EXPERIENCE]: (params[FORM_FIELDS.EXPERIENCE] as string) || "",
         },
         validationRules: {
             [FORM_FIELDS.FULL_NAME]: validateName,
+            [FORM_FIELDS.CONTACT_NO]: validatePhoneNumber,
+            [FORM_FIELDS.EXPERIENCE]: validateExperience,
+
         },
         onSubmit: async (formValues) => {
-            try {
-                const data = {
-                    fullName: formValues[FORM_FIELDS.FULL_NAME]
-                }
-                console.log("Updating Profile Data:", data);
-                
-                const backPath: Href = userRole === 'bartender' 
-                    ? "/bartender/profile/my-profile" 
-                    : "/customer/my-profile";
-                
-                router.push(backPath);
-            } catch (error: any) {
-                const message = error?.message || "Something went wrong!";
-                ToastAndroid.show(message, ToastAndroid.SHORT);
+            console.log("Updating Data:", formValues);
+            if (isBartender) {
+                router.push("/bartender/profile/my-profile");
+            } else {
+                router.push("/customer/my-profile")
             }
+
         },
     });
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{ paddingVertical: 10 }}>
+            <View style={{ paddingVertical: 20 }}>
                 <SectionTitle title='Update profile' />
             </View>
             <KeyboardAvoidingView
@@ -69,6 +67,7 @@ export default function EditProfileView() {
                         icon={<CameraIcon />}
                     />
 
+
                     <FormInput
                         label={FORM_LABELS[FORM_FIELDS.FULL_NAME]}
                         value={values[FORM_FIELDS.FULL_NAME]}
@@ -76,38 +75,62 @@ export default function EditProfileView() {
                         placeholder='Enter your name'
                         error={errors[FORM_FIELDS.FULL_NAME]}
                         touched={touched[FORM_FIELDS.FULL_NAME]}
-                        required
+                    // required
                     />
+
+
+                    {isBartender && (
+                        <>
+                            <FormInput
+                                label={FORM_LABELS[FORM_FIELDS.CONTACT_NO]}
+                                value={values[FORM_FIELDS.CONTACT_NO]}
+                                onChangeText={(text) => handleChange(FORM_FIELDS.CONTACT_NO, text)}
+                                placeholder='Enter your phone number'
+                                error={errors[FORM_FIELDS.CONTACT_NO]}
+                                touched={touched[FORM_FIELDS.CONTACT_NO]}
+                            />
+                            <FormInput
+                                label={FORM_LABELS[FORM_FIELDS.EXPERIENCE]}
+                                value={values[FORM_FIELDS.EXPERIENCE]}
+                                onChangeText={(text) => handleChange(FORM_FIELDS.EXPERIENCE, text)}
+                                placeholder='Enter your phone number'
+                                error={errors[FORM_FIELDS.EXPERIENCE]}
+                                touched={touched[FORM_FIELDS.EXPERIENCE]}
+                            />
+                        </>
+                    )}
 
                     <CustomButton
                         title="Save the changes"
-                        // onPress={handleSubmit} 
-                        onPress={()=>router.back()}
+                        // onPress={handleSubmit}
+                        onPress={
+                            () => isBartender ? router.push("/bartender/profile/my-profile") : router.push("/customer/my-profile")
+                        }
                         width="100%"
                         height={44}
                         borderRadius={100}
-                        style={{marginTop: 20}}
+                        style={{ marginTop: 20 }}
                     />
 
-                    <View style={styles.warningContainer}>
-                        <View style={styles.iconContainer}>
-                            <WarningIcon size={18} />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Caption3 color={Colors.PLACEHOLLDER_TEXT}>
-                                Email updates are restricted as it is linked to authentication and system records.
-                            </Caption3>
-                        </View>
-                    </View>
+                    {/* Warning Section ... */}
                 </View>
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
 }
 
+
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: Colors.APP_BACKGROUND },
-    warningContainer: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 16 },
+    container: {
+        flex: 1,
+        backgroundColor: Colors.APP_BACKGROUND
+    },
+    warningContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 5,
+        marginTop: 16
+    },
     iconContainer: {
         backgroundColor: "#EF44441A",
         alignItems: "center",

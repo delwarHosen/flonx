@@ -22,7 +22,7 @@ export default function ProfileScreen() {
   const router = useRouter();
   const userRole = useSelector((state: RootState) => state.auth.userRole);
 
- 
+
   const getPath = (screenName: string): Href => {
     if (userRole === 'bartender') {
       return `/bartender/profile/${screenName}` as Href;
@@ -32,7 +32,9 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <SectionTitle title='Profile' />
+      <View style={{ marginTop: 20 }}>
+        <SectionTitle title='Profile' />
+      </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}

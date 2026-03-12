@@ -22,6 +22,7 @@ export const validatePhoneNumber = (phone: string): string => {
   return '';
 };
 
+
 export const validatePassword = (password: string): string => {
   if (!password.trim()) return 'Password is required';
 
@@ -69,7 +70,25 @@ export const validateConfirmPassword = (
   return '';
 };
 
+export const validateSkills = (skills: string): string => {
+  if (!skills.trim()) return 'Skills are required';
 
+  if (skills.trim().length < 3) {
+    return 'Please enter at least one valid skill';
+  }
+
+  return '';
+};
+
+export const validateExperience = (experience: string): string => {
+  if (!experience.trim()) return 'Experience details are required';
+
+  if (experience.trim().length < 10) {
+    return 'Please provide a brief detail of your experience (min 10 chars)';
+  }
+
+  return '';
+};
 
 export const validateName = (name: string): string => {
   if (!name.trim()) return 'Full name is required';

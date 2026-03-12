@@ -51,7 +51,9 @@ const AddGig: React.FC = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <SectionTitle title="Add Gig" />
+            <View style={{marginVertical:20}}>
+                <SectionTitle title="Add Gig" />
+            </View>
 
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -169,7 +171,7 @@ const styles = StyleSheet.create({
         paddingBottom: 14,
         color: '#FFFFFF',
         fontSize: 14,
-        minHeight: 150,
+        height: 150,
     },
 });
 

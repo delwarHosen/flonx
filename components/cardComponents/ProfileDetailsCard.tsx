@@ -5,19 +5,21 @@ import { Body3, Caption3 } from '../typo/Typography';
 
 interface ProfileInfoItemProps {
     icon?: ReactNode;
+    valueIcon?: ReactNode;
     label: string;
-    value: string;
+    value: string | ReactNode;
     onPress?: () => void;
 }
 
 export const ProfileDetailsCard: React.FC<ProfileInfoItemProps> = ({
     icon,
+    valueIcon,
     label,
     value,
     onPress,
 }) => {
 
-   
+
     return (
         <TouchableOpacity
             activeOpacity={0.7}
@@ -36,9 +38,12 @@ export const ProfileDetailsCard: React.FC<ProfileInfoItemProps> = ({
                     <Caption3 italic color={Colors.PLACEHOLLDER_TEXT} style={{ marginBottom: 6 }}>
                         {label}
                     </Caption3>
-                    <Body3 color={Colors.NEUTRAL0}>
-                        {value}
-                    </Body3>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                        {valueIcon && valueIcon}
+                        <Body3 color={Colors.NEUTRAL0}>
+                            {value}
+                        </Body3>
+                    </View>
                 </View>
             </View>
         </TouchableOpacity>

@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingVertical: 13,
         fontSize: 14,
-        color: Colors.NEUTRAL0,
+        color: Colors.PLACEHOLLDER_TEXT,
     },
     inputText: {
         flex: 1,

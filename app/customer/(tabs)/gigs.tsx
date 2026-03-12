@@ -29,7 +29,7 @@ const GigsScreen = () => {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Header */}
-      <View style={{paddingTop:20}}>
+      <View style={{paddingVertical:10}}>
         <SectionTitle title='Gigs' />
       </View>
 
@@ -123,7 +123,10 @@ const CreatGig = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.APP_BACKGROUND },
 
-  tabList: { paddingHorizontal: 20, alignItems: 'center' },
+  tabList: { paddingHorizontal: 20, 
+    alignItems: 'center', 
+  // paddingTop:15
+  },
   tabItem: {
     paddingHorizontal: 24,
     paddingVertical: 10,
