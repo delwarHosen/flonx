@@ -24,7 +24,7 @@ export default function OrderSuccessContent({
     return (
         <View style={styles.centerContainer}>
             {/* iOS Status Bar spacing adjust */}
-            <View style={{ marginTop: Platform.OS === 'ios' ? 10 : 40 }}>
+            <View style={{ marginTop: Platform.OS === 'ios' ? "3%" : "10%" }}>
                 <SectionTitle title='My Order' />
             </View>
             <View style={styles.container}>

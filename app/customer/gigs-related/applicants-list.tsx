@@ -41,7 +41,7 @@ const ApplicantsList = () => {
 
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-          <View style={{paddingTop:20}}>
+          <View style={{paddingTop:"4%"}}>
               <SectionTitle  title="Applicants" />
           </View>
             

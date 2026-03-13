@@ -80,7 +80,7 @@ export default function ChangePasswordView() {
 
     return (
         <SafeAreaView style={styles.safeareContainer}>
-            <View style={{ paddingTop: 20 }}>
+            <View style={{ paddingTop: "4%" }}>
                 <SectionTitle title='Change Password' />
             </View>
             <View style={styles.form}>

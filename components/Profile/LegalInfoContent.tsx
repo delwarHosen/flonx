@@ -15,7 +15,7 @@ interface LegalInfoContentProps {
 export const LegalInfoContent: React.FC<LegalInfoContentProps> = ({ data }) => {
     return (
         <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={{ paddingTop: 20 }}>
+            <View style={{ paddingTop: "4%" }}>
                 <SectionTitle title='Legal & Company Info' />
             </View>
             <View style={styles.detailsContainer}>

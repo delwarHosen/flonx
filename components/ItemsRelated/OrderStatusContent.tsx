@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     },
     header: {
         width: '100%',
-        paddingVertical: "5%"
+        paddingVertical: "4%"
     },
     content: {
         flex: 1,

@@ -17,7 +17,7 @@ import { Colors } from '@/constants/theme';
 const OrderDetailsScreen = () => {
   const params = useLocalSearchParams();
   const router = useRouter();
-  const [isTipped, setIsTipped] = useState(false); 
+  const [isTipped, setIsTipped] = useState(false);
 
   // Params theke data receive
   const { id, name, price, date, time, quantity, subOrders } = params;
@@ -44,7 +44,7 @@ const OrderDetailsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={{paddingTop:20}}>
+      <View style={{ paddingTop: "4%" }}>
         <SectionTitle title="My Order" />
       </View>
 

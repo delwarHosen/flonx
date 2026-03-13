@@ -65,11 +65,12 @@ export const PickupOrderContent: React.FC<PickupOrderContentProps> = ({
     return (
         <View style={styles.fullScreenReady}>
             <View style={styles.headerSection}>
-                {status !== PickupStatus.CONFIRMED ? (
+                <H6 color="white" italic style={styles.readyTitle}>Ready for pickup</H6>
+                {/* {status !== PickupStatus.CONFIRMED ? (
                     <H6 color="white" italic style={styles.readyTitle}>Ready for pickup</H6>
                 ) : (
                     <View style={styles.readyTitlePlaceholder} />
-                )}
+                )} */}
             </View>
 
             <View style={styles.centerSection}>

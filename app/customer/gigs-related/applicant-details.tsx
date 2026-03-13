@@ -60,7 +60,9 @@ const ApplicantDetails = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <SectionTitle title='Applicant details ' />
+            <View style={{ marginVertical: "4%" }}>
+                <SectionTitle title='Applicant detail' />
+            </View>
             <ScrollView contentContainerStyle={{ padding: "5%", alignItems: 'center' }}>
                 <View style={styles.imgWrapper}>
                     <Image source={applicant.profileImg} style={styles.profileImg} />
@@ -96,7 +98,7 @@ const ApplicantDetails = () => {
                     <View style={styles.fieldBox}>
                         <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Overall Rating</Caption2>
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
-                            <StarIcon color='#FFB020'/>
+                            <StarIcon color='#FFB020' />
                             <Body2 color={Colors.NEUTRAL0} style={{ marginLeft: 6 }}>
                                 {applicant.rating} ({applicant.reviewCount})
                             </Body2>

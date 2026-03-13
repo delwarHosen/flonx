@@ -48,7 +48,7 @@ const JobDetails = () => {
                 </View>
             )}
 
-            <View style={{marginTop:20}}>
+            <View style={{marginTop:"4%"}}>
                 <SectionTitle title='Job Details' />
             </View>
 

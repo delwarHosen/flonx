@@ -87,10 +87,12 @@ const GigDetails = () => {
     };
 
     const renderBottomSection = () => {
-        switch (initialTab) {
+        console.log("Current initialTab:", initialTab);
+        switch (initialTab?.toLowerCase()) {
 
             // ─── 1st Page: Open ──────────
             case 'open':
+            case 'active':
                 return (
                     <>
                         {/* <View style={styles.infoCard}>
@@ -127,6 +129,7 @@ const GigDetails = () => {
                                     onPress={() => router.push({
                                         pathname: '/customer/gigs-related/applicants-list',
                                         params: { jobId: item.id }
+                                        
                                     })}
                                     title='View Applicants'
                                     width="100%"
@@ -295,9 +298,9 @@ const GigDetails = () => {
             />
 
             {/* Back Header */}
-           <View style={{marginVertical:10}}>
-             <SectionTitle title='Gig Details' />
-           </View>
+            <View style={{ marginVertical: "2%" }}>
+                <SectionTitle title='Gig Details' />
+            </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 

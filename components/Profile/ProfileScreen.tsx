@@ -32,7 +32,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <View style={{ marginTop: 20 }}>
+      <View style={{ marginTop: "4%" }}>
         <SectionTitle title='Profile' />
       </View>
 

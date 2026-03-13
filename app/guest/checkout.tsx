@@ -161,7 +161,7 @@ const Checkout: React.FC = () => {
             {/* Bottom Section - Responsive Footer */}
             <View style={[
                 styles.footer,
-                { paddingBottom: Platform.OS === 'ios' ? insets.bottom + 15 : 40 }
+                { paddingBottom: Platform.OS === 'ios' ? insets.bottom + 15 : "15%" }
             ]}>
                 <View style={styles.totalRow}>
                     <Body4 color={Colors.NEUTRAL0}>Total</Body4>
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.APP_BACKGROUND,
     },
     headerWrapper: {
-        paddingVertical: Platform.OS === 'ios' ? 10 : 10,
+        paddingVertical: Platform.OS === 'ios' ? 10 : "4%",
         paddingBottom: 20
     },
     listContent: {

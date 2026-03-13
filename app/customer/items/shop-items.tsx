@@ -106,7 +106,7 @@ const ShopItems = () => {
             {showModal && totalItems > 0 && (
                 <View style={[
                     styles.modalOverlay,
-                    { bottom: Platform.OS === 'ios' ? insets.bottom + 10 : 20 }
+                    { bottom: Platform.OS === 'ios' ? insets.bottom + 10 : "8%" }
                 ]}>
                     <View style={styles.modalContent}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.APP_BACKGROUND,
     },
     headerWrapper: {
-        paddingBottom: 20
+        paddingVertical: "4%"
     },
     tabList: {
         marginBottom: 16,

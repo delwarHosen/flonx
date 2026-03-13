@@ -18,12 +18,12 @@ export default function HelpSupport() {
 
     return (
         <SafeAreaView style={styles.safeAreaContainer}>
-            <View style={{paddingTop:"5%"}}>
+            <View style={{paddingTop:"4%"}}>
                 <SectionTitle title="Help & Support" />
             </View>
             <View style={{ paddingHorizontal: '5%' }}>
                 
-                <Body1 italic color={Colors.NEUTRAL0} style={{ marginVertical: 16 }}>
+                <Body1 italic color={Colors.NEUTRAL0} style={{ marginVertical: "3.5%" }}>
                     — Frequently Asked Questions 
                 </Body1>
             </View>

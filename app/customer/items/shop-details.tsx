@@ -18,7 +18,7 @@ const ShopDetails = () => {
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
-            <View style={{paddingVertical:20}}>
+            <View style={{paddingVertical:"4%"}}>
                 <SectionTitle title='Shop Details ' />
             </View>
 

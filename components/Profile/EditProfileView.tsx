@@ -54,7 +54,7 @@ export default function EditProfileView() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{ paddingVertical: 20 }}>
+            <View style={{ paddingVertical: "4%" }}>
                 <SectionTitle title='Update profile' />
             </View>
             <KeyboardAvoidingView

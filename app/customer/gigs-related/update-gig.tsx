@@ -51,7 +51,7 @@ const UpdateGig: React.FC = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{marginVertical:20}}>
+            <View style={{marginVertical:"4%"}}>
                 <SectionTitle title="Update Gig" />
             </View>
 

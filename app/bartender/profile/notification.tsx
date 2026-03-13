@@ -19,7 +19,7 @@ export default function NotificationScreen() {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: Colors.APP_BACKGROUND }}>
-            <View style={{ paddingTop: '5%' }}>
+            <View style={{ paddingTop: '4%' }}>
                 <SectionTitle title='Notification' />
             </View>
 

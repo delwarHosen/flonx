@@ -34,7 +34,9 @@ const ApplicantProfileDetails = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <SectionTitle title='Applicant details' />
+           <View style={{marginVertical:"4%"}}>
+             <SectionTitle title='Applicant detail' />
+           </View>
             <ScrollView contentContainerStyle={{ padding: "5%", alignItems: 'center' }}>
                 <View style={styles.imgWrapper}>
                     <Image source={applicant.profileImg} style={styles.profileImg} />

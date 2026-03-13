@@ -10,7 +10,7 @@ export default function PrivecyPolicy() {
         <SafeAreaView
             style={styles.safeAreaContainer}
         >
-            <View style={{paddingTop:20}}>
+            <View style={{paddingTop:"4%"}}>
                 <SectionTitle
                     title='Privacy policy'
                 />

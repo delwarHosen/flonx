@@ -44,7 +44,7 @@ export default function MyProfileView() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{ marginTop: 20 }}>
+            <View style={{ marginTop: "4%" }}>
                 <SectionTitle title='My Profile' />
             </View>
             <View style={{ paddingHorizontal: "5%", marginTop: 10 }}>

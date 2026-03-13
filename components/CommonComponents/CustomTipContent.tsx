@@ -136,7 +136,7 @@ const CustomTipContent: React.FC<CustomTipProps> = ({
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: Colors.APP_BACKGROUND },
-    header: { paddingTop: 20 },
+    header: { paddingTop: "4%" },
     content: { flex: 1, paddingTop: 20 },
     tipOption: {
         width: '100%',

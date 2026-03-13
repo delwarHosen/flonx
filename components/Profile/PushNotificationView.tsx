@@ -14,13 +14,13 @@ const PushNotificationView = () => {
         const previousState = isEnabled;
         const newValue = !isEnabled;
 
-        // Optimistic Update: সাথে সাথে UI চেঞ্জ করুন
+        
         setIsEnabled(newValue);
 
         try {
             setLoading(true);
             
-            // ফেক API কল (১ সেকেন্ড ওয়েট)
+            
             await new Promise(resolve => setTimeout(resolve, 1000));
 
             ToastAndroid.show(
@@ -28,7 +28,7 @@ const PushNotificationView = () => {
                 ToastAndroid.SHORT
             );
         } catch (error) {
-            // এরর হলে আগের অবস্থায় ফিরে যান
+            
             setIsEnabled(previousState);
             ToastAndroid.show("Failed to update settings", ToastAndroid.SHORT);
         } finally {
@@ -38,7 +38,7 @@ const PushNotificationView = () => {
 
     return (
         <SafeAreaView style={styles.safeareContainer}>
-            <View style={{ paddingVertical: 20 }}>
+            <View style={{ paddingVertical: "4%" }}>
                 <SectionTitle title='Push Notification' />
             </View>
             <View style={{ paddingHorizontal: "5%" }}>
@@ -55,7 +55,7 @@ const PushNotificationView = () => {
                     <CustomToggleButton
                         value={isEnabled}
                         onValueChange={toggleSwitch}
-                        disabled={loading} // এখন আর এরর দিবে না
+                        disabled={loading} 
                     />
                 </View>
             </View>

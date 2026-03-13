@@ -215,7 +215,7 @@ const JobDetails = () => {
 
 
             {/* Back Header */}
-            <View style={{paddingTop:20}}>
+            <View style={{paddingTop:"4%"}}>
                 <SectionTitle title='Job Details' />
             </View>
 

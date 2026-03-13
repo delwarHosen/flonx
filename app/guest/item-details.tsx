@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.APP_BACKGROUND
     },
     headerPadding: {
-        // paddingVertical: Platform.OS === 'ios' ? 10 : 
+        paddingVertical: Platform.OS === 'ios' ? "2%" :"4%"
     },
     imageWrapper: {
         height: 280,

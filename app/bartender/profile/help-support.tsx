@@ -18,7 +18,7 @@ export default function HelpSupport() {
 
     return (
         <SafeAreaView style={styles.safeAreaContainer}>
-           <View style={{paddingTop:"5%"}}>
+           <View style={{paddingTop:"4%"}}>
                 <SectionTitle title="Help & Support" />
             </View>
             <View style={{ paddingHorizontal: '5%' }}>

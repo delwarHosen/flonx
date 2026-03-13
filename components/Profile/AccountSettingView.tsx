@@ -27,7 +27,7 @@ export default function AccountSettingView() {
 
     return (
         <SafeAreaView style={styles.safeareContainer}>
-            <View style={{ paddingTop: 20 }}>
+            <View style={{ paddingTop: "4%" }}>
                 <SectionTitle title='Account Settings' />
             </View>
             <View style={{ paddingHorizontal: "5%", marginTop: 20 }}>
