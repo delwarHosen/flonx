@@ -10,7 +10,13 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 // Define a functional component type
 const Search: React.FC = () => {
   const router = useRouter();
-  const [query, setQuery] = useState<string>('')
+  const [query, setQuery] = useState<string>('');
+
+  const filteredBars = bars.filter(bar =>
+    bar.name.toLowerCase().includes(query.toLowerCase())
+  );
+
+
   return (
     <SafeAreaView style={styles.container}>
       <View>
@@ -23,9 +29,9 @@ const Search: React.FC = () => {
       </View>
 
 
-      <View style={{ marginTop: 20 }}>
+      <View style={{ marginTop: "4%" }}>
         <FlatList
-          data={bars}
+          data={filteredBars}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <BarCardComponents
@@ -40,7 +46,6 @@ const Search: React.FC = () => {
           showsVerticalScrollIndicator={false}
         />
       </View>
-
     </SafeAreaView>
   )
 }

@@ -21,39 +21,28 @@ import 'react-native-reanimated';
 import { Provider } from 'react-redux';
 SplashScreen.preventAutoHideAsync();
 
-// Native splash screen-ke auto-hide hote badha dey
-
-
-
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
- const [fontsLoaded, fontError] = useFonts({
-  Nunito_400Regular,
-  Nunito_400Regular_Italic,
-  Nunito_500Medium,
-  Nunito_600SemiBold,
-  Nunito_600SemiBold_Italic,
-  Nunito_700Bold,
-  Nunito_700Bold_Italic,
-  Nunito_800ExtraBold,
-});
+  const [fontsLoaded, fontError] = useFonts({
+    Nunito_400Regular,
+    Nunito_400Regular_Italic,
+    Nunito_500Medium,
+    Nunito_600SemiBold,
+    Nunito_600SemiBold_Italic,
+    Nunito_700Bold,
+    Nunito_700Bold_Italic,
+    Nunito_800ExtraBold,
+  });
 
   useEffect(() => {
-  async function prepare() {
-    if (fontError) {
-      console.log('Font Error:', fontError); 
+    async function prepare() {
+      if (fontsLoaded || fontError) {
+        await SplashScreen.hideAsync();
+      }
     }
-    if (fontsLoaded) {
-      console.log('Fonts loaded successfully!'); // ← এটা missing ছিল
-    }
-    if (fontsLoaded || fontError) {
-      await SplashScreen.hideAsync();
-    }
-  }
-  prepare();
-}, [fontsLoaded, fontError]);
-
+    prepare();
+  }, [fontsLoaded, fontError]);
 
   if (!fontsLoaded && !fontError) return null;
 
@@ -61,19 +50,20 @@ export default function RootLayout() {
     <Provider store={store}>
       <View style={{ flex: 1, backgroundColor: '#0D0D1A' }}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: '#0D0D1A' },
-            animation: 'none',
-          }}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: '#0D0D1A' },
+              animation: 'slide_from_right',
+              animationDuration: 300,
+            }}
+          >
             <Stack.Screen name="index" />
             <Stack.Screen name="onboarding" />
-
           </Stack>
           <StatusBar style="light" />
         </ThemeProvider>
       </View>
     </Provider>
-
   );
 }

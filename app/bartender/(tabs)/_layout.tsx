@@ -28,6 +28,7 @@ export default function TabsLayout() {
                 tabBarLabelStyle: {
                     fontSize: 14,
                 },
+                
             }}
         >
             <Tabs.Screen

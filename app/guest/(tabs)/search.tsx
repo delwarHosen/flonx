@@ -41,7 +41,7 @@ const Search: React.FC = () => {
         )}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
-        // keyboardShouldPersistTaps="handled" // Better UX for search screens
+        // keyboardShouldPersistTaps="handled" 
       />
     </SafeAreaView>
   )
@@ -56,12 +56,12 @@ const styles = StyleSheet.create({
   },
   searchWrapper: {
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 10 : 10, // Adjusts specifically for iOS
+    paddingTop: Platform.OS === 'ios' ? 10 : 10, 
     marginBottom: 10,
   },
   listContent: {
     paddingHorizontal: 20,
-    paddingBottom: 40, // Extra padding for the bottom of the screen
+    paddingBottom: 40, 
     paddingTop: 10,
   },
   // Kept your original styles below in case you need them elsewhere
