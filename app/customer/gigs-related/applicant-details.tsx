@@ -61,7 +61,7 @@ const ApplicantDetails = () => {
     return (
         <SafeAreaView style={styles.container}>
             <View style={{ marginVertical: "4%" }}>
-                <SectionTitle title='Applicant detail' />
+                <SectionTitle title='Applicant details' />
             </View>
             <ScrollView contentContainerStyle={{ padding: "5%", alignItems: 'center' }}>
                 <View style={styles.imgWrapper}>
@@ -90,10 +90,12 @@ const ApplicantDetails = () => {
                         bottomLabel={applicant.totalJobs.toString()}
                     />
 
-                    <DetailsCardComponents
+                    {/* <DetailsCardComponents
                         topLabel="Overall Rating"
                         bottomLabel={`${applicant.rating} (${applicant.reviewCount})`}
-                    />
+                    /> */}
+
+                     <DetailsCardComponents topLabel="Bio" bottomLabel={applicant.bio} />
 
                     <View style={styles.fieldBox}>
                         <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Overall Rating</Caption2>

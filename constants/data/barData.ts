@@ -129,7 +129,7 @@ export const bars: Bar[] = [
             },
             {
                 id: 357545,
-                name: "Wine",
+                name: "Juice",
                 items: [
                     {
                         id: 78553,
@@ -169,7 +169,7 @@ export const bars: Bar[] = [
         categories: [
             {
                 id: 17855,
-                name: "Wine",
+                name: "juice",
                 items: [
                     {
                         id: 4874,

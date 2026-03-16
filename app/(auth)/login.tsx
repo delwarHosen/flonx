@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     // marginBottom: 24,
   },
   forgotPassword: {
-    fontWeight: '500',
+    // fontWeight: '500',
     fontSize: responsiveFontSize(14),
   },
 })

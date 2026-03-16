@@ -1,3 +1,4 @@
+import { fp } from '@/utils/responsive';
 import React from 'react';
 import { Text, TextProps } from 'react-native';
 
@@ -43,22 +44,22 @@ const Typography: React.FC<TypographyProps> = ({
 
     const getFontSize = () => {
         switch (variant) {
-            case "h1": return 42;
-            case "h2": return 32;
-            case "h3": return 28;
-            case "h4": return 24;
-            case "h5": return 20;
-            case "h6": return 17;
-            case "body1": return 16;
-            case "body2": return 15;
-            case "body3": return 14;
-            case "caption1": return 14;
-            case "caption2": return 12;
-            case "caption3": return 10;
-            case "caption4": return 13;
-            case 'button': return 14;
-            case "body4": return 16;
-            default: return 16;
+            case "h1": return fp(42);
+            case "h2": return fp(32);
+            case "h3": return fp(28);
+            case "h4": return fp(24);
+            case "h5": return fp(20);
+            case "h6": return fp(17);
+            case "body1": return fp(16);
+            case "body2": return fp(15);
+            case "body3": return fp(14);
+            case "caption1": return fp(14);
+            case "caption2": return fp(12);
+            case "caption3": return fp(10);
+            case "caption4": return fp(13);
+            case 'button': return fp(14);
+            case "body4": return fp(16);
+            default: return fp(16);
         }
     }
 

@@ -128,8 +128,8 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     footer: {
-        marginTop: 'auto',
+        marginTop: '2.5%',
         marginBottom: 20,
-        width: '80%'
+        // width: '80%'
     }
 });

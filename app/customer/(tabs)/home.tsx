@@ -9,6 +9,7 @@ import { Body1, Body3, ButtonText, Caption1, H2, H5, H6 } from '@/components/typ
 import { IMAGE_COMPONENTS } from '@/constants/image.index';
 import { Colors } from '@/constants/theme';
 import { useCameraScanner } from '@/hooks/useCameraScanner';
+import { hp, wp } from '@/utils/responsive';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -156,8 +157,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.APP_BACKGROUND,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
+    // paddingHorizontal: 20,
+    paddingHorizontal:wp(20),
+    // paddingVertical: 20,
+    paddingVertical:hp(20),
   },
   header: {
     flexDirection: 'row',

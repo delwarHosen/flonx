@@ -20,6 +20,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const JobDetails = () => {
     const [showCompleteModal, setShowCompleteModal] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
+    // Added a separate state for Cancel Assignment Modal
+    const [showCancelAssignmentModal, setShowCancelAssignmentModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -60,7 +62,8 @@ const JobDetails = () => {
 
 
     const confirmCancelAssignment = () => {
-        setShowCancelModal(false);
+        setShowCancelAssignmentModal(false); // Update to specific assignment state
+        setShowCancelModal(false); // For Application cancel
         setTimeout(async () => {
             setLoading(true);
             try {
@@ -73,7 +76,7 @@ const JobDetails = () => {
         }, 300);
     };
 
-    
+
 
 
     const renderBottomSection = () => {
@@ -122,7 +125,7 @@ const JobDetails = () => {
 
                         <View style={{ marginBottom: 24 }}>
                             <CustomButton
-                                onPress={() => setShowCancelModal(true)}
+                                onPress={() => setShowCancelAssignmentModal(true)}
                                 title='Cancel Assignment'
                                 width={'100%'}
                                 height={44}
@@ -215,7 +218,7 @@ const JobDetails = () => {
 
 
             {/* Back Header */}
-            <View style={{paddingTop:"4%"}}>
+            <View style={{ paddingTop: "4%" }}>
                 <SectionTitle title='Job Details' />
             </View>
 
@@ -235,20 +238,8 @@ const JobDetails = () => {
                 {renderBottomSection()}
 
             </ScrollView>
-            {/* Loader */}
-            {loading && (
-                <View style={[StyleSheet.absoluteFill, {
-                    backgroundColor: 'rgba(0,0,0,0.6)',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 999
-                }]}>
-                    <CustomLoader size={55} />
-                </View>
-            )}
 
 
-        
             {/* Mark Job as Complete Modal */}
             <ConfirmationModal
                 visible={showCompleteModal}
@@ -262,17 +253,30 @@ const JobDetails = () => {
                 confirmSecondaryColor="#A78BFA"
             />
 
-            {/* Cancel Assignment Modal */}
+            {/* Cancel Application Modal */}
             <ConfirmationModal
                 visible={showCancelModal}
                 title="Cancel Application?"
-                description="Are you sure you want to cancel your application? You will no longer be considered for this job."
+                description="Are you sure you want to cancel your application?You will no longer be considered for this job."
                 confirmText="Confirm"
                 onCancel={() => setShowCancelModal(false)}
                 onConfirm={confirmCancelAssignment}
                 icon={<WarningIcon size={28} />}
                 confirmColor="#8B5CF6"
                 confirmSecondaryColor="#A78BFA"
+            />
+
+            {/* Cancel Assignment Modal */}
+            <ConfirmationModal
+                visible={showCancelAssignmentModal}
+                title="Cancel Assignment?"
+                description="Are you sure you want to cancel this assignment?You will be removed from this job."
+                confirmText="Yes, Cancel"
+                onCancel={() => setShowCancelAssignmentModal(false)}
+                onConfirm={confirmCancelAssignment}
+                icon={<WarningIcon size={28} color="#EF4444" />}
+                confirmColor="#822CE7"
+                confirmSecondaryColor="#BB82FF"
             />
         </SafeAreaView>
     );
@@ -346,7 +350,7 @@ const styles = StyleSheet.create({
     scrollContent: {
         paddingHorizontal: 20,
         paddingBottom: "20%",
-        paddingTop:15
+        paddingTop: 15
     },
     title: {
         marginBottom: 10,
@@ -397,7 +401,7 @@ const styles = StyleSheet.create({
         borderColor: Colors.BORDER_COLOR,
     },
     paymentTextcon: {
-        flexDirection:"row",
+        flexDirection: "row",
         alignItems: "center",
         gap: 5,
         marginBottom: 18

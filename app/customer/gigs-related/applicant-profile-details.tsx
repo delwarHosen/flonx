@@ -7,7 +7,7 @@ import { StarIcon } from '@/assets/images/icons/BarRelatedIcon/StarIcon';
 import { DetailsCardComponents } from '@/components/cardComponents/DetailsCardComponents';
 import { CustomButton } from '@/components/CustomButton';
 import SectionTitle from '@/components/SectionTitle';
-import { Body1, Body2 } from '@/components/typo/Typography';
+import { Body1, Body2, Caption2 } from '@/components/typo/Typography';
 import { jobPosts } from '@/constants/data/jobPosts';
 import { Colors } from '@/constants/theme';
 
@@ -34,9 +34,9 @@ const ApplicantProfileDetails = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-           <View style={{marginVertical:"4%"}}>
-             <SectionTitle title='Applicant detail' />
-           </View>
+            <View style={{ marginVertical: "4%" }}>
+                <SectionTitle title='Applicant detail' />
+            </View>
             <ScrollView contentContainerStyle={{ padding: "5%", alignItems: 'center' }}>
                 <View style={styles.imgWrapper}>
                     <Image source={applicant.profileImg} style={styles.profileImg} />
@@ -46,14 +46,22 @@ const ApplicantProfileDetails = () => {
                     <DetailsCardComponents topLabel="Name" bottomLabel={applicant.name} />
                     <DetailsCardComponents topLabel="Email" bottomLabel={applicant.email} />
                     <DetailsCardComponents topLabel="Contact Phone" bottomLabel={applicant.phone} />
-                    <DetailsCardComponents
-                        topLabel="Overall Rating"
-                        bottomLabel={`${applicant.rating} (${applicant.reviewCount})`}
-                    />
+
                     <DetailsCardComponents topLabel="Experience" bottomLabel={applicant.experience} />
                     <DetailsCardComponents topLabel="Total Jobs Completed" bottomLabel={applicant.totalJobs.toString()} />
 
-                    
+                    <DetailsCardComponents topLabel="Bio" bottomLabel={applicant.bio} />
+
+                    <View style={styles.fieldBox}>
+                        <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Overall Rating</Caption2>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+                            <StarIcon color='#FFB020' />
+                            <Body2 color={Colors.NEUTRAL0} style={{ marginLeft: 6 }}>
+                                {applicant.rating} ({applicant.reviewCount})
+                            </Body2>
+                        </View>
+                    </View>
+
                     {isRated ? (
                         <View style={styles.ratingDisplayContainer}>
                             <StarIcon color={Colors.COLOR_ORANGE} size={20} />
@@ -125,7 +133,7 @@ const ApplicantProfileDetails = () => {
                             <CustomButton
                                 onPress={() => {
                                     console.log("Rated:", rating);
-                                    setIsRated(true); 
+                                    setIsRated(true);
                                     setModalVisible(false);
                                 }}
                                 title='Submit'
@@ -173,6 +181,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginTop: 10,
     },
+    fieldBox: { width: '100%', backgroundColor: Colors.INPUT_BACKGROUND, padding: 14, borderRadius: 10, borderWidth: 1, borderColor: Colors.BORDER_COLOR },
 
     // Modal Styles
     modalOverlay: {

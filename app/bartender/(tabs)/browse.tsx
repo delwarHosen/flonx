@@ -63,7 +63,7 @@ const BrowseScreen: React.FC = () => {
                     placeholder="Search"
                     value={query}
                     onChangeText={setQuery}
-                    onScanPress={handleOpenScanner} // Scanner trigger link kora hoyeche
+                    onScanPress={handleOpenScanner} 
                 />
             </View>
         </View>
@@ -79,7 +79,7 @@ const BrowseScreen: React.FC = () => {
                 onScan={onScanSuccess}
             />
 
-            {/* Header fixed thakbe tai FlatList er baire ana hoyeche */}
+            {/* */}
             {renderHeaderContent()}
 
             <FlatList

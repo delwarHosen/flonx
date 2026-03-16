@@ -2,7 +2,7 @@ import { OrderTabIcon } from '@/assets/images/icons/icon';
 import BarCardComponents from '@/components/cardComponents/BarCardComponents';
 import ItemCard from '@/components/cardComponents/ItemCard';
 import SectionTitle from '@/components/SectionTitle';
-import { Body1, Body4, Caption1, Caption4 } from '@/components/typo/Typography';
+import { Body3, Body4, Caption1, Caption4 } from '@/components/typo/Typography';
 import { bars } from '@/constants/data/barData';
 import { Colors } from '@/constants/theme';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -87,9 +87,9 @@ const ShopItems = () => {
                                         selectedCategory === cat.id && styles.activeTab
                                     ]}
                                 >
-                                    <Body1 color={selectedCategory === cat.id ? '#FFF' : Colors.OTP_COLOR}>
+                                    <Body3 color={selectedCategory === cat.id ? '#FFF' : Colors.OTP_COLOR}>
                                         {cat.name}
-                                    </Body1>
+                                    </Body3>
                                 </TouchableOpacity>
                             )}
                         />

@@ -1,4 +1,5 @@
 import { CameraIcon } from '@/assets/images/icons/ProfileInfoIcons/CameraIcon'
+import { WarningIcon } from '@/assets/images/icons/ProfileInfoIcons/WarningIcon'
 import { CustomButton } from '@/components/CustomButton'
 import { FormInput } from '@/components/inputForm/InputForm'
 import ProfileImageComponent from '@/components/ProfileImageComponents'
@@ -14,6 +15,7 @@ import React from 'react'
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
+import { Caption3 } from '../typo/Typography'
 
 
 export default function EditProfileView() {
@@ -112,7 +114,32 @@ export default function EditProfileView() {
                         style={{ marginTop: 20 }}
                     />
 
+         
                     {/* Warning Section ... */}
+                    <View style={{
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        gap: 10,
+                        marginTop: "5%",
+                        // paddingHorizontal: "4%" 
+                    }}>
+                        <View style={{
+                            justifyContent: "center",
+                            alignItems: "center",
+                            height: 26,
+                            width: 26,
+                            borderRadius: 10,
+                            backgroundColor: "#EF44441A"
+                        }}>
+                            <WarningIcon />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Caption3 italic color={"#C9C6D6"}>
+                                Email updates are restricted as it is linked to authentication and system records.
+                            </Caption3>
+                        </View>
+                    </View>
                 </View>
             </KeyboardAvoidingView>
         </SafeAreaView>

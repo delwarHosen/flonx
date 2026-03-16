@@ -71,6 +71,7 @@ export default function TabsLayout() {
                 }}
             />
         
+        
             <Tabs.Screen
                 name="my-jobs"
                 options={{
