@@ -8,6 +8,7 @@ import SectionTitle from '@/components/SectionTitle';
 import { Body1, Body2, Caption1, Caption2 } from '@/components/typo/Typography';
 import { getJobs } from '@/constants/data/getJobs';
 import { Colors } from '@/constants/theme';
+import { hp } from '@/utils/responsive';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -77,7 +78,7 @@ const JobDetails = () => {
                     onPress={() => setShowApplyModal(true)}
                     title='Apply for The jobs'
                     width={'100%'}
-                    height={44}
+                    height={hp(44)}
                     borderRadius={100}
                     style={{ marginTop: 12 }}
                 />

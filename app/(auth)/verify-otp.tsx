@@ -3,6 +3,7 @@ import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
 import { Body2, Body3, H2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -80,7 +81,7 @@ export default function VerifyOtp() {
             />
 
             <View style={styles.form}>
-              <Body2 color={Colors.PLACEHOLLDER_TEXT} style={{ fontWeight: '600', marginBottom: 8 }}>
+              <Body2 color={Colors.PLACEHOLLDER_TEXT} style={{ marginBottom: hp(8) }}>
                 Verification Code
               </Body2>
 
@@ -136,7 +137,7 @@ export default function VerifyOtp() {
                     title="Verify Code"
                     onPress={() => router.push('/(auth)/set-new-password')}
                     width="100%"
-                    height={48}
+                    height={hp(44)}
                     borderRadius={100}
                   />
                 )}
@@ -153,14 +154,14 @@ const styles = StyleSheet.create({
   scrollContent: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: "6%",
+    paddingHorizontal: wp(20),
     backgroundColor: Colors.APP_BACKGROUND
   },
   container: {
     width: '100%',
   },
   form: {
-    marginTop: "5%",
+    marginTop: hp(20),
   },
   otpContainer: {
     flexDirection: 'row',

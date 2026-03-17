@@ -5,6 +5,7 @@ import { ProfileCard } from '@/components/cardComponents/ProfileCard'
 import SectionTitle from '@/components/SectionTitle'
 import { Colors } from '@/constants/theme'
 import { RootState } from '@/redux/store'
+import { hp, wp } from '@/utils/responsive'
 import { Href, useRouter } from 'expo-router'
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
@@ -30,7 +31,7 @@ export default function AccountSettingView() {
             <View style={{ paddingTop: "4%" }}>
                 <SectionTitle title='Account Settings' />
             </View>
-            <View style={{ paddingHorizontal: "5%", marginTop: 20 }}>
+            <View style={{ paddingHorizontal: wp(20), marginTop: hp(20) }}>
                 
                 <ProfileCard
                     icon={<NotificationIcon size={16} />}

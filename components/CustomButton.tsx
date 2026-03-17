@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/theme';
+import { fp, hp, wp } from '@/utils/responsive';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
@@ -26,9 +27,9 @@ export const CustomButton = ({
     secondaryColor = Colors.BRAND_PRIMARY_LIGHT,
     primaryColor = Colors.BRAND_PRIMARY,
     backgroundColor,
-    color="white", // 2. Destructure it here
-    width = 120,
-    height = 44,
+    color="white", 
+    width = wp(120),
+    height = hp(44),
     borderRadius = 100,
     borderColor,
 }: CustomButtonProps) => {
@@ -54,7 +55,7 @@ export const CustomButton = ({
                 } as any, style]}
             >
                 {/* 4. Pass the finalTextColor to ButtonText */}
-                {title ? <Text style={{fontFamily:"Nunito_600SemiBold",color}} >{title}</Text> : null}
+                {title ? <Text style={{fontFamily:"Nunito_600SemiBold",color,fontSize:fp(14)}} >{title}</Text> : null}
                 {icon && icon}
             </LinearGradient>
         </TouchableOpacity>
@@ -68,7 +69,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         gap: 10,
-        marginTop: 16,
+        marginTop: hp(16),
 
         // Add this
         padding: 0,

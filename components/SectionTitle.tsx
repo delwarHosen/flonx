@@ -1,5 +1,6 @@
 import { BackIcon } from "@/assets/images/icons/BackIcon";
 import { Colors } from "@/constants/theme";
+import { wp } from "@/utils/responsive";
 import { useRouter } from "expo-router";
 import React from "react";
 import { StyleProp, StyleSheet, TouchableOpacity, View, ViewStyle } from "react-native";
@@ -53,7 +54,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
         padding: 10,
-        marginLeft:"5%"
+        marginLeft:wp(20)
     },
     headerTitle: {
         flex: 1,

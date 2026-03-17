@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 // ConfirmationModal import
 import { ConfirmationModal } from "@/components/ConfirmationModalProps";
+import { hp, wp } from '@/utils/responsive';
 
 const { width, height } = Dimensions.get('window');
 const isIOS = Platform.OS === 'ios';
@@ -165,7 +166,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: "center",
-        paddingHorizontal: "5%",
+        paddingHorizontal: wp(20),
         paddingVertical: iosSpacing(16, 0, 0),
     },
     gradientWrapper: {
@@ -180,8 +181,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     iconStyle: {
-        height: 36,
-        width: 36,
+        height: hp(36),
+        width: wp(36),
         borderRadius: 5,
         backgroundColor: Colors.ICON_BG_COLOR,
         justifyContent: 'center',

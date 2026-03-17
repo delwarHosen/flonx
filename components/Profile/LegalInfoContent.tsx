@@ -1,5 +1,6 @@
 import { DetailsCardComponents } from '@/components/cardComponents/DetailsCardComponents';
 import SectionTitle from '@/components/SectionTitle';
+import { hp, wp } from '@/utils/responsive';
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
@@ -15,7 +16,7 @@ interface LegalInfoContentProps {
 export const LegalInfoContent: React.FC<LegalInfoContentProps> = ({ data }) => {
     return (
         <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={{ paddingTop: "4%" }}>
+            <View style={{ paddingTop: hp(20) }}>
                 <SectionTitle title='Legal & Company Info' />
             </View>
             <View style={styles.detailsContainer}>
@@ -33,7 +34,7 @@ export const LegalInfoContent: React.FC<LegalInfoContentProps> = ({ data }) => {
 
 const styles = StyleSheet.create({
     detailsContainer: {
-        paddingHorizontal: "5%",
-        marginTop: 20
+        paddingHorizontal: wp(20),
+        marginTop: hp(20)
     }
 });

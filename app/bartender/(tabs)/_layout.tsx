@@ -1,9 +1,10 @@
 import { BrowseIcon, JobsIcon, ProfileIcon } from "@/assets/images/icons/icon";
 import { Colors } from "@/constants/theme";
+import { fp, hp } from "@/utils/responsive";
 import { LinearGradient } from "expo-linear-gradient";
 import { Tabs } from "expo-router";
 import React from "react";
-import { Platform } from "react-native";
+import { Platform, Text } from "react-native";
 import Animated, {
     useAnimatedStyle,
     useDerivedValue,
@@ -19,14 +20,14 @@ export default function TabsLayout() {
                 tabBarActiveTintColor: Colors.BRAND_PRIMARY,
                 tabBarInactiveTintColor: Colors.NEUTRAL0,
                 tabBarStyle: {
-                    height: Platform.OS === "ios" ? 90 : "12%",
+                    height: Platform.OS === "ios" ? hp(90) : hp(100),
                     paddingBottom: Platform.OS === "ios" ? 20 : 10,
                     backgroundColor: Colors.INPUT_BACKGROUND,
                     borderTopWidth: 1,
                     borderTopColor: Colors.BORDER_COLOR,
                 },
                 tabBarLabelStyle: {
-                    fontSize: 14,
+                    fontSize: fp(14),
                 },
                 
             }}
@@ -35,7 +36,11 @@ export default function TabsLayout() {
                 name="browse"
                 options={{
                     title: "Browse",
-                    tabBarLabel: "Browse",
+                    tabBarLabel: ({ focused, color }) => (
+                        <Text style={{ color, fontSize: fp(11), fontWeight: focused ? "700" : "400" }}>
+                            Browse
+                        </Text>
+                    ),
                     tabBarIcon: ({ focused }) => {
                         const progress = useSharedValue(focused ? 0 : 1);
 
@@ -76,7 +81,11 @@ export default function TabsLayout() {
                 name="my-jobs"
                 options={{
                     title: "My Jobs",
-                    tabBarLabel: "My Jobs",
+                    tabBarLabel: ({ focused, color }) => (
+                        <Text style={{ color, fontSize: fp(11), fontWeight: focused ? "700" : "400" }}>
+                            My Jobs
+                        </Text>
+                    ),
                     tabBarIcon: ({ focused }) => {
                         const progress = useSharedValue(focused ? 0 : 1);
 
@@ -118,7 +127,11 @@ export default function TabsLayout() {
                 name="profile"
                 options={{
                     title: "Profile",
-                    tabBarLabel: "Profile",
+                    tabBarLabel: ({ focused, color }) => (
+                        <Text style={{ color, fontSize: fp(11), fontWeight: focused ? "700" : "400" }}>
+                            Profile
+                        </Text>
+                    ),
                     tabBarIcon: ({ focused }) => {
                         const progress = useSharedValue(focused ? 1 : 0);
 

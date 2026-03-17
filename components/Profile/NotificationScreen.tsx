@@ -2,6 +2,7 @@ import { LogoIcon } from '@/assets/images/icons/ProfileInfoIcons/LogoIcon';
 import { Body3, Caption3 } from '@/components/typo/Typography';
 import { NotificationItem } from '@/constants/notificationData';
 import { Colors } from '@/constants/theme';
+import { hp } from '@/utils/responsive';
 import React from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 
@@ -13,7 +14,7 @@ export const NotificationContent = ({ data }: { data: NotificationItem[] }) => {
             </View>
 
             <View style={styles.textContainer}>
-                <Body3 italic color={Colors.NEUTRAL0} style={{ marginBottom: 4 }}>
+                <Body3 italic color={Colors.NEUTRAL0} style={{ marginBottom: hp(4) }}>
                     {item.message}
                 </Body3>
                 <Caption3 color={Colors.PLACEHOLLDER_TEXT}>
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
         gap: 12,
         borderWidth: 1,
         borderColor: Colors.BRAND_PRIMARY,
-        marginBottom: 16,
+        marginBottom: hp(16),
         borderRadius: 12,
         padding: 12,
         backgroundColor: 'transparent',

@@ -2,6 +2,7 @@ import SectionTitle from '@/components/SectionTitle';
 import { DetailsCardComponents } from '@/components/cardComponents/DetailsCardComponents';
 import { bars } from '@/constants/data/barData';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
@@ -18,7 +19,7 @@ const ShopDetails = () => {
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
-            <View style={{paddingVertical:"4%"}}>
+            <View style={{paddingVertical:hp(16)}}>
                 <SectionTitle title='Shop Details ' />
             </View>
 
@@ -64,30 +65,20 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.APP_BACKGROUND,
     },
    
-    backButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: Colors.INPUT_BACKGROUND,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: Colors.BORDER_COLOR,
-    },
     scrollContent: {
         alignItems: 'center',
         // paddingBottom: 40,
-        paddingHorizontal: 20,
+        paddingHorizontal: wp(20),
     },
     logoWrapper: {
-        width: 100,
+        width: wp(100),
         height: 100,
         borderRadius: 20,
         backgroundColor: '#FFFFFF',
         justifyContent: 'center',
         alignItems: 'center',
         // marginVertical: 30,
-        marginBottom:16,
+        marginBottom:hp(16),
         overflow: 'hidden',
     },
     logo: {

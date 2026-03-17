@@ -9,6 +9,7 @@ import { IMAGE_COMPONENTS } from '@/constants/image.index'
 import { Colors } from '@/constants/theme'
 import { useForm } from '@/hooks/useForm'
 import { RootState } from '@/redux/store'
+import { hp, wp } from '@/utils/responsive'
 import { validateExperience, validateName, validatePhoneNumber } from '@/utils/validation'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import React from 'react'
@@ -56,14 +57,14 @@ export default function EditProfileView() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{ paddingVertical: "4%" }}>
+            <View style={{ paddingVertical: hp(20) }}>
                 <SectionTitle title='Update profile' />
             </View>
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={{ paddingHorizontal: "5%" }}
+                style={{ paddingHorizontal: wp(20) }}
             >
-                <View style={{ marginTop: 10 }}>
+                <View style={{ marginTop: hp(10) }}>
                     <ProfileImageComponent
                         image={IMAGE_COMPONENTS.profileImg}
                         icon={<CameraIcon />}
@@ -109,9 +110,9 @@ export default function EditProfileView() {
                             () => isBartender ? router.push("/bartender/profile/my-profile") : router.push("/customer/my-profile")
                         }
                         width="100%"
-                        height={44}
+                        height={hp(44)}
                         borderRadius={100}
-                        style={{ marginTop: 20 }}
+                        style={{ marginTop: hp(20) }}
                     />
 
          
@@ -121,7 +122,7 @@ export default function EditProfileView() {
                         justifyContent: "center",
                         alignItems: "center",
                         gap: 10,
-                        marginTop: "5%",
+                        marginTop: hp(20),
                         // paddingHorizontal: "4%" 
                     }}>
                         <View style={{
@@ -156,7 +157,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         gap: 5,
-        marginTop: 16
+        marginTop: hp(16)
     },
     iconContainer: {
         backgroundColor: "#EF44441A",

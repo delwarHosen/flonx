@@ -2,6 +2,7 @@ import { JobsBagIcon } from '@/assets/images/icons/BarRelatedIcon/JobsBagIcon';
 import { LocationIcon } from '@/assets/images/icons/icon';
 import { RightAngleIcon } from '@/assets/images/icons/ProfileInfoIcons/RightAngleIcon';
 import { Colors } from '@/constants/theme';
+import { hp } from '@/utils/responsive';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CustomButton } from '../CustomButton';
@@ -76,7 +77,7 @@ const GigCard = ({ item, onPress }: GigCardProps) => {
                     onPress={onPress}
                     icon={<RightAngleIcon color={Colors.NEUTRAL0} />}
                     width={100}
-                    height={44}
+                    height={hp(44)}
                     title='View'
                     borderRadius={100}
                 />

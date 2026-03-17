@@ -2,6 +2,7 @@ import CustomToggleButton from '@/components/CustomToggleButton';
 import SectionTitle from '@/components/SectionTitle';
 import { Body3, Caption3 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import React, { useState } from 'react';
 import { StyleSheet, ToastAndroid, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -38,10 +39,10 @@ const PushNotificationView = () => {
 
     return (
         <SafeAreaView style={styles.safeareContainer}>
-            <View style={{ paddingVertical: "4%" }}>
+            <View style={{ paddingVertical: hp(20) }}>
                 <SectionTitle title='Push Notification' />
             </View>
-            <View style={{ paddingHorizontal: "5%" }}>
+            <View style={{ paddingHorizontal: wp(20) }}>
                 <View style={[styles.card, loading && { opacity: 0.7 }]}>
                     <View style={styles.textContainer}>
                         <Body3 italic color={Colors.NEUTRAL0} style={styles.title}>

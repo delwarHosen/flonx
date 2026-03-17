@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CustomButton } from '../CustomButton';
@@ -58,7 +59,7 @@ const CustomTipContent: React.FC<CustomTipProps> = ({
 
                     <View style={[styles.content, { paddingHorizontal: dynamicPaddingHorizontal }]}>
                         <H4 color={Colors.NEUTRAL0} align="center">Tip Your Bartender</H4>
-                        <Body3 color={Colors.PLACEHOLLDER_TEXT} align="center" style={{ marginTop: 10, marginBottom: 24 }}>
+                        <Body3 color={Colors.PLACEHOLLDER_TEXT} align="center" style={{ marginTop: hp(10), marginBottom: hp(24) }}>
                             Show Your Appreciation
                         </Body3>
 
@@ -110,7 +111,7 @@ const CustomTipContent: React.FC<CustomTipProps> = ({
                                     title="Continue"
                                     onPress={() => router.push(continueRoute as any)}
                                     width="100%"
-                                    height={44}
+                                    height={hp(44)}
                                     borderRadius={100}
                                 />
                             </View>
@@ -121,7 +122,7 @@ const CustomTipContent: React.FC<CustomTipProps> = ({
                                 title="Skip & Continue Ordering"
                                 onPress={() => router.push(skipRoute as any)}
                                 width="100%"
-                                height={44}
+                                height={hp(44)}
                                 borderRadius={100}
                                 backgroundColor={Colors.NEUTRAL0}
                                 color={primaryColor}
@@ -136,31 +137,31 @@ const CustomTipContent: React.FC<CustomTipProps> = ({
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: Colors.APP_BACKGROUND },
-    header: { paddingTop: "4%" },
-    content: { flex: 1, paddingTop: 20 },
+    header: { paddingTop: hp(16) },
+    content: { flex: 1, paddingTop: hp(20) },
     tipOption: {
         width: '100%',
-        paddingVertical: 10,
+        paddingVertical: hp(10),
         borderRadius: 100,
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
         backgroundColor: Colors.INPUT_BACKGROUND,
-        marginBottom: 16,
+        marginBottom: hp(16),
     },
-    inputSection: { marginBottom: 16 },
+    inputSection: { marginBottom: hp(16) },
     inputContainer: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 100,
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
-        paddingHorizontal: 20,
-        height: 48,
+        paddingHorizontal: wp(20),
+        height: hp(48),
         justifyContent: 'center',
     },
     textInput: {
         color: Colors.NEUTRAL0,
         fontSize: 14,
-        paddingVertical: Platform.OS === 'ios' ? 10 : 0 // iOS input text alignment fix
+        paddingVertical: Platform.OS === 'ios' ? hp(10) : 0 // iOS input text alignment fix
     },
     actionRow: {
         flexDirection: 'row',

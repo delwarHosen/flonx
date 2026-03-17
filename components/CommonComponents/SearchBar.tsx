@@ -1,14 +1,15 @@
 import { InputSearchIcon } from '@/assets/images/icons/BarRelatedIcon/InputSearchIcon';
 import { SearchBarIcon } from '@/assets/images/icons/icon';
 import { Colors } from '@/constants/theme';
+import { fp, wp } from '@/utils/responsive';
 import React from 'react';
 import {
-    StyleSheet,
-    TextInput,
-    TextInputProps,
-    TouchableOpacity,
-    View,
-    ViewStyle
+  StyleSheet,
+  TextInput,
+  TextInputProps,
+  TouchableOpacity,
+  View,
+  ViewStyle
 } from 'react-native';
 
 interface SearchBarProps extends TextInputProps {
@@ -59,19 +60,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.INPUT_BACKGROUND, 
-    height: 44,
+    // height: hp(48),
     borderRadius: 100,
-    paddingHorizontal: "4.5%",
+    paddingHorizontal: wp(20),
     borderWidth: 1,
     borderColor: Colors.BORDER_COLOR
   },
   searchIcon: {
-    marginRight: 10,
+    marginRight: wp(10),
   },
   input: {
     flex: 1,
     color: Colors.NEUTRAL0,
-    fontSize: 14,
+    fontSize: fp(14),
     height: '100%',
   },
   actionButton: {

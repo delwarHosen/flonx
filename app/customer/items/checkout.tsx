@@ -6,6 +6,7 @@ import SectionTitle from '@/components/SectionTitle';
 import { Body1, Body2, Body4, Caption1, Caption3, H5, H6 } from '@/components/typo/Typography';
 import { bars } from '@/constants/data/barData';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -140,7 +141,7 @@ const Checkout: React.FC = () => {
 
             {
                 isInitialLoading ? (
-                    <ActivityIndicator color={Colors.BRAND_PRIMARY} style={{ marginTop: 50 }} />
+                    <ActivityIndicator color={Colors.BRAND_PRIMARY} style={{ marginTop: hp(50) }} />
                 ) : (
                     <FlatList
                         data={cartItems}
@@ -172,7 +173,7 @@ const Checkout: React.FC = () => {
                     title="Checkout"
                     onPress={() => router.push("/customer/items/payment-type")}
                     width="100%"
-                    height={48}
+                    height={hp(48)}
                     borderRadius={100}
                     backgroundColor={Colors.NEUTRAL0}
                     borderColor={Colors.BRAND_PRIMARY}
@@ -195,15 +196,15 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.APP_BACKGROUND,
     },
     headerWrapper: {
-        paddingVertical: Platform.OS === 'ios' ? 10 : "4%",
-        paddingBottom: 20
+        paddingVertical: Platform.OS === 'ios' ? 10 : hp(16),
+        paddingBottom: hp(20)
     },
     listContent: {
-        paddingHorizontal: 20,
-        paddingBottom: 30,
+        paddingHorizontal: wp(20),
+        paddingBottom: hp(30),
     },
     emptyContainer: {
-        marginTop: 100,
+        marginTop: hp(100),
         alignItems: 'center'
     },
     card: {
@@ -216,17 +217,17 @@ const styles = StyleSheet.create({
     },
     cardTop: {
         flexDirection: 'row',
-        marginBottom: 12
+        marginBottom: hp(12)
     },
     itemImage: {
-        width: 78,
+        width: wp(78),
         height: 78,
         borderRadius: 12,
         backgroundColor: '#FEE2E2'
     },
     itemInfo: {
         flex: 1,
-        marginLeft: 15,
+        marginLeft: wp(15),
         justifyContent: 'center'
     },
 
@@ -284,8 +285,8 @@ const styles = StyleSheet.create({
     },
     footer: {
         backgroundColor: Colors.BRAND_PRIMARY,
-        paddingHorizontal: 25,
-        paddingTop: 20,
+        paddingHorizontal: wp(20),
+        paddingTop: hp(20),
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
         // Elevation for Android, Shadow for iOS
@@ -312,7 +313,7 @@ const styles = StyleSheet.create({
     },
     stripeText: {
         textAlign: 'center',
-        marginTop: 15,
+        marginTop: hp(15),
         opacity: 0.7,
         fontSize: 11
     }

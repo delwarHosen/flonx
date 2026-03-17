@@ -3,6 +3,7 @@ import { CustomButton } from '@/components/CustomButton';
 import { Body1, H1 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { RootState } from '@/redux/store';
+import { hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -78,7 +79,7 @@ export default function OnboardingScreen() {
           <H1 italic color={Colors.NEUTRAL0}>
             {currentStep.title}
           </H1>
-          <Body1 style={{ marginTop: 20 }} italic color={Colors.PLACEHOLLDER_TEXT}>
+          <Body1 style={{ marginTop: hp(20) }} italic color={Colors.PLACEHOLLDER_TEXT}>
             {currentStep.description}
           </Body1>
         </Animated.View>
@@ -102,14 +103,25 @@ export default function OnboardingScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.APP_BACKGROUND },
-  centerWrapper: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 },
-  onBoadingContent: { width: '100%', justifyContent: 'center' },
+  container: {  
+    flex: 1, 
+    backgroundColor: Colors.APP_BACKGROUND 
+  },
+  centerWrapper: { 
+    flex: 1,
+     justifyContent: 'center',
+      alignItems: 'center', 
+      paddingHorizontal: wp(20)
+    },
+  onBoadingContent: {
+     width: '100%', 
+     justifyContent: 'center' 
+    },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: wp(20),
     paddingBottom: "15%",
   },
 });

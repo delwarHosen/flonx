@@ -12,6 +12,7 @@ import { Body1, Body2, Body3, Caption1, Caption2 } from '@/components/typo/Typog
 import { getJobs } from '@/constants/data/getJobs';
 
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -100,7 +101,7 @@ const JobDetails = () => {
                             onPress={() => setShowCancelModal(true)}
                             title='Cancel Application'
                             width={'100%'}
-                            height={44}
+                            height={hp(44)}
                             borderRadius={100}
                             style={{ marginTop: 12 }}
                             backgroundColor={Colors.COLOR_DANGER}
@@ -128,7 +129,7 @@ const JobDetails = () => {
                                 onPress={() => setShowCancelAssignmentModal(true)}
                                 title='Cancel Assignment'
                                 width={'100%'}
-                                height={44}
+                                height={hp(44)}
                                 borderRadius={100}
                                 backgroundColor={'#EF4444'}
                                 style={{ marginTop: 12 }}
@@ -153,7 +154,7 @@ const JobDetails = () => {
 
                         <View style={[styles.buttonContainer]}>
                             <View >
-                                <Caption2 style={{ marginBottom: 12 }} color={Colors.PLACEHOLLDER_TEXT}>Your Rating</Caption2>
+                                <Caption2 style={{ marginBottom: hp(12) }} color={Colors.PLACEHOLLDER_TEXT}>Your Rating</Caption2>
                                 <View style={{ flexDirection: "row", gap: 5 }}>
                                     {item?.applicants?.[0]?.rating ? (
                                         <>
@@ -180,7 +181,7 @@ const JobDetails = () => {
                     <>
 
 
-                        <View style={{ marginBottom: 12, marginTop: 16, }}>
+                        <View style={{ marginBottom: hp(12), marginTop: hp(16) }}>
                             <DetailsCardComponents
                                 topLabel="Cancelled By"
                                 bottomLabel={item.cancelledBy ?? '—'}
@@ -330,39 +331,32 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: Colors.APP_BACKGROUND,
-        marginBottom: 20
+        marginBottom: hp(20)
     },
     headerRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        paddingVertical: 12,
+        paddingHorizontal: wp(20),
+        paddingVertical: hp(12),
     },
-    backBtn: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: Colors.INPUT_BACKGROUND,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
+    
     scrollContent: {
-        paddingHorizontal: 20,
+        paddingHorizontal: wp(20),
         paddingBottom: "20%",
-        paddingTop: 15
+        paddingTop: hp(15)
     },
     title: {
-        marginBottom: 10,
+        marginBottom: hp(10),
     },
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
         alignSelf: 'flex-start',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingHorizontal: wp(12),
+        paddingVertical: hp(6),
         borderRadius: 100,
-        marginBottom: 16,
+        marginBottom: hp(16),
     },
     dot: {
         width: 4,
@@ -370,28 +364,8 @@ const styles = StyleSheet.create({
         borderRadius: 2,
         marginRight: 6,
     },
-    statusBadgeType: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: "center",
-        alignSelf: 'flex-start',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        marginTop: 10,
-        borderRadius: 100,
-    },
-    infoCard: {
-        backgroundColor: Colors.INPUT_BACKGROUND,
-        marginTop: 16,
-        borderRadius: 10,
-        padding: 14,
-        marginBottom: 12,
-        borderWidth: 1,
-        borderColor: Colors.BORDER_COLOR,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
+   
+    
     paymentCard: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 12,

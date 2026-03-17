@@ -4,6 +4,7 @@ import ContactForm from '@/components/ContactForm';
 import { Body2, Caption2 } from '@/components/typo/Typography';
 import { FAQItem } from '@/constants/faqData';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import React, { useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -41,7 +42,7 @@ const FAQRow: React.FC<FAQRowProps> = ({ item, isOpen, onToggle }) => {
 
             <Animated.View style={animatedStyle}>
                 <View style={styles.answerInner}>
-                    <Caption2 style={{ fontWeight: '400' }} color={Colors.PLACEHOLLDER_TEXT}>
+                    <Caption2 color={Colors.PLACEHOLLDER_TEXT}>
                         {item.answer}
                     </Caption2>
                 </View>
@@ -51,7 +52,7 @@ const FAQRow: React.FC<FAQRowProps> = ({ item, isOpen, onToggle }) => {
                 const h = e.nativeEvent.layout.height;
                 if (h > 0) setContentHeight(h);
             }}>
-                <Caption2 style={{ fontWeight: '400' }} color={Colors.NEUTRAL0}>{item.answer}</Caption2>
+                <Caption2 color={Colors.NEUTRAL0}>{item.answer}</Caption2>
             </View>
         </View>
     );
@@ -66,20 +67,20 @@ export const HelpSupportContent = ({ data }: { data: FAQItem[] }) => {
                 data={data}
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
-                    <View style={{ paddingHorizontal: '5%' }}>
+                    <View style={{ paddingHorizontal: wp(20) }}>
                         <FAQRow item={item} isOpen={openId === item.id} onToggle={() => setOpenId(openId === item.id ? null : item.id)} />
                     </View>
                 )}
                 ListHeaderComponent={<View style={{ height: 10 }} />}
                 ListFooterComponent={
-                    <View style={{ paddingHorizontal: '5%', marginTop: 20, paddingBottom: 40 }}>
+                    <View style={{ paddingHorizontal: wp(20), marginTop: hp(20), paddingBottom: hp(40) }}>
                         <ContactForm />
                     </View>
                 }
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ flexGrow: 1, paddingTop: 10 }}
+                contentContainerStyle={{ flexGrow: 1, paddingTop: hp(10) }}
             />
         </KeyboardAvoidingView>
     );

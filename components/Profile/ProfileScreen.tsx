@@ -12,6 +12,7 @@ import { Caption2 } from '@/components/typo/Typography'
 import { IMAGE_COMPONENTS } from '@/constants/image.index'
 import { Colors } from '@/constants/theme'
 import { RootState } from '@/redux/store'
+import { hp, wp } from '@/utils/responsive'
 import { Href, useRouter } from 'expo-router'
 import React from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
@@ -32,7 +33,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <View style={{ marginTop: "4%" }}>
+      <View style={{ marginTop: hp(20) }}>
         <SectionTitle title='Profile' />
       </View>
 
@@ -40,7 +41,7 @@ export default function ProfileScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContainer}
       >
-        <View style={{ width: '100%', paddingHorizontal: "5%", marginTop: 20 }}>
+        <View style={{ width: '100%', paddingHorizontal: wp(20), marginTop: hp(20) }}>
 
           <ProfileImageComponent
             image={IMAGE_COMPONENTS.profileImg}
@@ -59,7 +60,7 @@ export default function ProfileScreen() {
             onPress={() => router.push(getPath('account-setting'))}
           />
 
-          <View style={{ marginTop: 6, marginBottom: 10 }}>
+          <View style={{ marginTop: hp(6), marginBottom: hp(10) }}>
             <Caption2 color={Colors.PLACEHOLLDER_TEXT}>More</Caption2>
           </View>
 
@@ -111,7 +112,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     alignItems: "center",
-    marginTop: 10,
-    paddingBottom: 20
+    marginTop: hp(10),
+    paddingBottom: hp(20)
   }
 })

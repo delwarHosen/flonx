@@ -1,5 +1,6 @@
 import { IMAGE_COMPONENTS } from '@/constants/image.index'
 import { Colors } from '@/constants/theme'
+import { hp, wp } from '@/utils/responsive'
 import { Image } from 'expo-image'
 import { useRouter } from 'expo-router'
 import React from 'react'
@@ -53,15 +54,15 @@ export default function OrderSuccessContent({
                         title="Tip Bartender"
                         onPress={() => router.push(tipRoute as any)}
                         width="100%"
-                        height={44}
+                        height={hp(44)}
                         borderRadius={100}
-                        style={{ marginBottom: 10 }}
+                        style={{ marginBottom: hp(10) }}
                     />
                     <CustomButton
                         title="Order Again"
                         onPress={() => router.push(orderAgainRoute as any)}
                         width="100%"
-                        height={44}
+                        height={hp(44)}
                         borderRadius={100}
                         backgroundColor={Colors.NEUTRAL0}
                         color={Colors.BRAND_PRIMARY}
@@ -78,9 +79,9 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.APP_BACKGROUND,
     },
     container: {
-        paddingHorizontal: 20,
+        paddingHorizontal: wp(20),
         marginTop: 20,
-        paddingBottom: Platform.OS === 'ios' ? 30 : 20, 
+        paddingBottom: Platform.OS === 'ios' ? hp(30) : hp(20),
     },
     successLogo: {
         height: 100,
@@ -88,16 +89,16 @@ const styles = StyleSheet.create({
         borderRadius: 50,
     },
     title: {
-        marginTop: 20,
+        marginTop: hp(20),
         textAlign: "center",
     },
     subtitle: {
-        marginTop: 8,
+        marginTop: hp(8),
         textAlign: "center",
         lineHeight: 20,
     },
     buttonContainer: {
-        marginBottom: 30,
-        marginTop: 16
+        marginBottom: hp(30),
+        marginTop: hp(16)
     },
 });

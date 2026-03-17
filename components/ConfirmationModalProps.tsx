@@ -1,6 +1,7 @@
 import { CustomButton } from "@/components/CustomButton";
 import { Body1, Caption1 } from "@/components/typo/Typography";
 import { Colors } from "@/constants/theme";
+import { hp, wp } from "@/utils/responsive";
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { AnimatedModal } from './AnimatedModal';
@@ -56,7 +57,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                             title={cancelText}
                             onPress={onCancel}
                             width="100%"
-                            height={44}
+                            height={hp(44)}
                             borderRadius={100}
                             backgroundColor="transparent"
                             borderColor={Colors.COLOR_DANGER}
@@ -68,7 +69,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                             title={confirmText}
                             onPress={onConfirm}
                             width="100%"
-                            height={44}
+                            height={hp(44)}
                             borderRadius={100}
                             secondaryColor={confirmSecondaryColor}
                             primaryColor={confirmColor}
@@ -84,9 +85,9 @@ const styles = StyleSheet.create({
     card: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 18,
-        paddingHorizontal: 22,
-        paddingTop: 30,
-        paddingBottom: 24,
+        paddingHorizontal: wp(22),
+        paddingTop: hp(30),
+        paddingBottom: hp(24),
         alignItems: 'center',
         width: '100%',
         borderWidth: 1,
@@ -96,20 +97,20 @@ const styles = StyleSheet.create({
         backgroundColor: "#EF44441A",
         alignItems: "center",
         justifyContent: "center",
-        height: 52,
-        width: 52,
+        height: hp(52),
+        width: wp(52),
         borderRadius: 10,
-        marginBottom: 16,
+        marginBottom: hp(16),
     },
     title: {
-        fontWeight: '700',
-        marginBottom: 10,
+        // fontWeight: '700',
+        marginBottom: hp(10),
         textAlign: 'center',
     },
     body: {
         lineHeight: 21,
         textAlign: 'center',
-        marginBottom: 20,
+        marginBottom: hp(20),
     },
     buttonRow: {
         flexDirection: 'row',

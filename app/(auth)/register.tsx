@@ -231,7 +231,5 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     // marginBottom: 24,
   },
-  forgotPassword: {
-    fontWeight: '500',
-  },
+  
 })

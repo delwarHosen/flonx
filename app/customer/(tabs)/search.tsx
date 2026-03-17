@@ -2,6 +2,7 @@ import BarCardComponents from '@/components/cardComponents/BarCardComponents'
 import SearchBar from '@/components/CommonComponents/SearchBar'
 import { bars } from '@/constants/data/barData'
 import { Colors } from '@/constants/theme'
+import { hp, wp } from '@/utils/responsive'
 import { useRouter } from 'expo-router'
 import React, { useState } from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
@@ -29,7 +30,7 @@ const Search: React.FC = () => {
       </View>
 
 
-      <View style={{ marginTop: "4%" }}>
+      <View style={{ marginTop: hp(16) }}>
         <FlatList
           data={filteredBars}
           keyExtractor={(item) => item.id.toString()}
@@ -42,7 +43,7 @@ const Search: React.FC = () => {
               })}
             />
           )}
-          contentContainerStyle={{ paddingBottom: 20 }}
+          contentContainerStyle={{ paddingBottom: hp(20) }}
           showsVerticalScrollIndicator={false}
         />
       </View>
@@ -56,16 +57,16 @@ export default Search;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: wp(20),
     backgroundColor: Colors.APP_BACKGROUND,
-    marginTop: "5%"
+    marginTop: hp(20)
   },
   scrollContainer: {
-    marginTop: 10,
+    marginTop: hp(10),
   },
   scrollContent: {
     flexGrow: 1,
     alignItems: "center",
-    paddingBottom: 20,
+    paddingBottom: hp(20),
   }
 })

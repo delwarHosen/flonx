@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/theme';
+import { hp } from '@/utils/responsive';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { Body3, Caption2 } from '../typo/Typography';
@@ -29,7 +30,7 @@ export const DetailsCardComponents: React.FC<DetailsItemProps> = ({
         >
             <View style={{
             }}>
-                <Caption2 style={{ marginBottom: 8 }} color={Colors.PLACEHOLLDER_TEXT}>{topLabel}</Caption2>
+                <Caption2 style={{ marginBottom: hp(8) }} color={Colors.PLACEHOLLDER_TEXT}>{topLabel}</Caption2>
                 <Body3 style={{lineHeight:20}} color={textColor ? textColor : Colors.NEUTRAL0} >{bottomLabel}</Body3>
             </View>
 

@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/theme';
+import { fp, hp, wp } from '@/utils/responsive';
 import React, { useState } from 'react';
 import {
     StyleSheet,
@@ -18,7 +19,7 @@ export default function ContactForm() {
 
     return (
         <View style={styles.container}>
-            <Body1 italic color={Colors.NEUTRAL0} style={{ marginVertical: 16 }}>—Contact us</Body1>
+            <Body1 italic color={Colors.NEUTRAL0} style={{ marginVertical: hp(16) }}>—Contact us</Body1>
             {/* ── Reason for Contact ── */}
             <Body2 color={Colors.NEUTRAL0} style={styles.label}>Reason for Contact</Body2>
             <TextInput
@@ -46,7 +47,7 @@ export default function ContactForm() {
                 title="Send message"
                 onPress={handleSubmit}
                 width="100%"
-                height={44}
+                height={hp(44)}
                 borderRadius={100}
             // icon={<DoubleRightArrowIcon />}
             />
@@ -69,10 +70,10 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
+        paddingHorizontal: hp(16),
+        paddingVertical: wp(14),
         color: '#FFFFFF',
-        fontSize: 14,
+        fontSize: fp(14),
     },
 
     // Multi-line textarea
@@ -81,11 +82,11 @@ const styles = StyleSheet.create({
         borderRadius: 14,
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
-        paddingHorizontal: 16,
-        paddingTop: 14,
-        paddingBottom: 14,
+        paddingHorizontal: wp(16),
+        paddingTop: hp(14),
+        paddingBottom: hp(14),
         color: '#FFFFFF',
-        fontSize: 14,
+        fontSize: fp(14),
         minHeight: 150,
     },
 });

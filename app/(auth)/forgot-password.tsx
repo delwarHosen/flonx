@@ -4,6 +4,7 @@ import { FormInput } from '@/components/inputForm/InputForm';
 import { FORM_FIELDS, FORM_LABELS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
+import { hp, wp } from '@/utils/responsive';
 import { validateEmail } from '@/utils/validation';
 import { useRouter } from 'expo-router';
 import React from 'react';
@@ -82,7 +83,7 @@ export default function ForgotPassword() {
                                     // onPress={handleSubmit}
                                     onPress={()=>router.push("/(auth)/verify-otp")}
                                     width="100%"
-                                    height={44}
+                                    height={hp(44)}
                                     borderRadius={100}
                                 />
                             </View>
@@ -107,10 +108,10 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center", 
         alignItems: "center",
-        paddingHorizontal: 20,
+        paddingHorizontal: wp(20),
     },
     form: {
-        marginTop: 16,
+        marginTop: hp(16),
         width: '100%',
     },
 })

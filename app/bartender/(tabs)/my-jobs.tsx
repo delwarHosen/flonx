@@ -4,6 +4,7 @@ import SectionTitle from '@/components/SectionTitle';
 import { Body2 } from '@/components/typo/Typography';
 import { getJobs } from '@/constants/data/getJobs';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -26,12 +27,12 @@ export default function JobsScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Header */}
-      <View style={{marginVertical:20}}>
+      <View style={{ marginVertical: hp(20) }}>
         <SectionTitle title='My Jobs' />
       </View>
 
       {/* Tabs */}
-      <View style={{ height: 60 }}>
+      <View style={{ height: hp(60) }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabList}>
           {TABS.map((tab) => (
             <TouchableOpacity
@@ -91,23 +92,29 @@ export default function JobsScreen() {
 
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.APP_BACKGROUND },
+  container: {
+    flex: 1,
+    backgroundColor: Colors.APP_BACKGROUND
+  },
 
-  tabList: { paddingHorizontal: 20, alignItems: 'center' },
+  tabList: {
+     paddingHorizontal: hp(20),
+      alignItems: 'center'
+     },
   tabItem: {
-    paddingHorizontal: 24,
-    paddingVertical: 10,
+    paddingHorizontal: wp(24),
+    paddingVertical: hp(10),
     borderRadius: 100,
     marginRight: 10,
     backgroundColor: Colors.INPUT_BACKGROUND,
-    height: 45,
+    height: hp(45),
     justifyContent: 'center'
   },
   activeTabItem: {
     backgroundColor: Colors.BRAND_PRIMARY,
   },
   listContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: wp(20),
     paddingBottom: "20%",
   },
 

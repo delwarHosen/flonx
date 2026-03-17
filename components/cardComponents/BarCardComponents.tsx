@@ -1,6 +1,7 @@
 import { RightAngleIcon } from '@/assets/images/icons/ProfileInfoIcons/RightAngleIcon';
 import { LocationIcon } from '@/assets/images/icons/icon';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import { Image } from 'expo-image';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -64,7 +65,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 10,
         borderRadius: 14,
-        marginBottom: 16,
+        marginBottom: hp(16),
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
     },
@@ -83,20 +84,20 @@ const styles = StyleSheet.create({
     },
     details: {
         flex: 1,
-        marginLeft: 15,
+        marginLeft: wp(15),
         justifyContent: 'center',
     },
     name: {
-        marginBottom: 4,
+        marginBottom: hp(4),
     },
     statusTag: {
         flexDirection: 'row',
         alignItems: 'center',
         alignSelf: 'flex-start',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        paddingHorizontal: wp(10),
+        paddingVertical: hp(4),
         borderRadius: 12,
-        marginBottom: 6,
+        marginBottom: hp(6),
     },
     dot: {
         width: 4,
@@ -104,17 +105,13 @@ const styles = StyleSheet.create({
         borderRadius: 2,
         marginRight: 6,
     },
-    statusText: {
-        fontSize: 12,
-        fontWeight: '600',
-        textTransform: 'capitalize',
-    },
+    
     locationContainer: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     locationText: {
         // fontWeight: 400,
-        marginLeft: 4,
+        marginLeft: wp(4),
     },
 });

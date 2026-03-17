@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/theme';
+import { hp } from '@/utils/responsive';
 import React, { ReactNode } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Body3, Caption3 } from '../typo/Typography';
@@ -35,7 +36,7 @@ export const ProfileDetailsCard: React.FC<ProfileInfoItemProps> = ({
                     </View>
                 )}
                 <View style={styles.textContainer}>
-                    <Caption3 italic color={Colors.PLACEHOLLDER_TEXT} style={{ marginBottom: 6 }}>
+                    <Caption3 italic color={Colors.PLACEHOLLDER_TEXT} style={{ marginBottom: hp(6) }}>
                         {label}
                     </Caption3>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
@@ -59,7 +60,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
         borderRadius: 10,
-        marginBottom: 10,
+        marginBottom: hp(10),
     },
     leftSection: {
         flexDirection: 'row',

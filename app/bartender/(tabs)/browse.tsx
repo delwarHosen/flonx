@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import GigCard from '@/components/cardComponents/GigCard';
 import SearchBar from '@/components/CommonComponents/SearchBar';
 import { getJobs } from '@/constants/data/getJobs';
+import { hp, wp } from '@/utils/responsive';
 
 // ... imports exactly same as yours
 
@@ -39,7 +40,7 @@ const BrowseScreen: React.FC = () => {
 
     // Header content exactly the same
     const renderHeaderContent = () => (
-        <View style={[styles.headerContainer, { paddingHorizontal: 20 }]}>
+        <View style={[styles.headerContainer, { paddingHorizontal: wp(20) }]}>
             <View style={styles.header}>
                 <View style={styles.userInfo}>
                     <Image
@@ -48,7 +49,7 @@ const BrowseScreen: React.FC = () => {
                     />
                     <View style={{ marginLeft: 12 }}>
                         <Body1 italic color={Colors.NEUTRAL0} weight="bold">Hello Florian</Body1>
-                        <Body3 italic style={{ marginTop: 6 }} color={Colors.PLACEHOLLDER_TEXT}>Welcome to FLÖNX</Body3>
+                        <Body3 italic style={{ marginTop: hp(8) }} color={Colors.PLACEHOLLDER_TEXT}>Welcome to FLÖNX</Body3>
                     </View>
                 </View>
                 <TouchableOpacity
@@ -58,7 +59,7 @@ const BrowseScreen: React.FC = () => {
                 </TouchableOpacity>
             </View>
 
-            <View style={{ marginTop: 20 }}>
+            <View style={{ marginTop: hp(20) }}>
                 <SearchBar
                     placeholder="Search"
                     value={query}
@@ -86,7 +87,7 @@ const BrowseScreen: React.FC = () => {
                 data={openJobs}
                 keyExtractor={(item) => item.id}
                 // ListHeaderComponent khati rakha hoyeche jate top e ektu gap thake
-                ListHeaderComponent={<View style={{ height: 10 }} />}
+                ListHeaderComponent={<View style={{ height: hp(10) }} />}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => (
@@ -113,11 +114,11 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.APP_BACKGROUND,
     },
     headerContainer: {
-        marginBottom: 10,
+        marginBottom: hp(10),
     },
     listContent: {
-        paddingHorizontal: 20,
-        paddingBottom: 20,
+        paddingHorizontal: wp(20),
+        paddingBottom: hp(20),
     },
     header: {
         flexDirection: 'row',

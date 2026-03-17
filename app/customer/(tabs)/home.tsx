@@ -82,18 +82,18 @@ const HomeScreen: React.FC = () => {
               <View style={styles.venueIconBg}>
                 <BartenderIcons />
               </View>
-              <H6 color={Colors.NEUTRAL0} style={{ marginLeft: 8 }}>Copper Alley Bar</H6>
+              <H6 color={Colors.NEUTRAL0} style={{ marginLeft: wp(8) }}>Copper Alley Bar</H6>
             </View>
 
             <View style={styles.codeBanner}>
               <H5 italic align="center" color={"#FFFFFFCC"}>Order Code</H5>
-              <H2 align="center" color={Colors.NEUTRAL0} style={{ marginTop: 16 }}>A44</H2>
+              <H2 align="center" color={Colors.NEUTRAL0} style={{ marginTop: hp(12) }}>A44</H2>
             </View>
 
             <View style={styles.statusRow}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <QueuedIcon />
-                <Body3 color="#F97316" italic style={{ marginLeft: 6 }}>Queued</Body3>
+                <Body3 color="#F97316" italic style={{ marginLeft: wp(8) }}>Queued</Body3>
               </View>
               <Caption1 color={Colors.PLACEHOLLDER_TEXT}>2 items</Caption1>
             </View>
@@ -103,7 +103,7 @@ const HomeScreen: React.FC = () => {
               onPress={() => router.push("/customer/(tabs)/orders")}
               // onPress={() => router.push("/customer/orders-details/my-orders")}
               width="100%"
-              height={44}
+              height={hp(44)}
               borderRadius={100}
             />
           </View>
@@ -119,7 +119,7 @@ const HomeScreen: React.FC = () => {
             title=""
             onPress={handleOpenScanner}
             width="100%"
-            height={50}
+            height={hp(50)}
             borderRadius={100}
             icon={
               <View style={styles.buttonIconRow}>
@@ -134,7 +134,7 @@ const HomeScreen: React.FC = () => {
             title=""
             onPress={() => router.push("/customer/(tabs)/search")}
             width="100%"
-            height={50}
+            height={hp(50)}
             borderRadius={100}
             backgroundColor={Colors.INPUT_BACKGROUND}
             icon={
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: hp(10),
   },
   userInfo: {
     flexDirection: 'row',
@@ -191,8 +191,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sectionTitle: {
-    marginTop: 24,
-    marginBottom: 16,
+    marginTop: hp(24),
+    marginBottom: hp(16),
   },
   orderCard: {
     backgroundColor: Colors.INPUT_BACKGROUND,
@@ -202,24 +202,12 @@ const styles = StyleSheet.create({
     borderColor: Colors.BORDER_COLOR,
   },
   /* Empty Card Styling */
-  emptyCard: {
-    backgroundColor: Colors.INPUT_BACKGROUND,
-    borderRadius: 12,
-    paddingVertical: 40,
-    paddingHorizontal: 14,
-    borderWidth: 1,
-    borderColor: Colors.BORDER_COLOR,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyIconContainer: {
-    marginBottom: 12,
-    opacity: 0.8,
-  },
+  
+  
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: hp(16),
   },
   venueIconBg: {
     width: 22,
@@ -232,19 +220,19 @@ const styles = StyleSheet.create({
   },
   codeBanner: {
     backgroundColor: Colors.COLOR_ACTIVE,
-    borderRadius: 25,
-    paddingVertical: 30,
-    marginBottom: 16,
+    borderRadius: 24,
+    paddingVertical: hp(30),
+    marginBottom: hp(16),
   },
   statusRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
-    paddingHorizontal: 4,
+    marginBottom: hp(16),
+    paddingHorizontal: wp(4),
   },
   bottomActions: {
-    marginTop: 16,
+    marginTop: hp(16),
   },
   buttonIconRow: {
     flexDirection: 'row',

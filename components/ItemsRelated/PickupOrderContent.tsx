@@ -1,5 +1,6 @@
 import { Body1, Body2, Body3, ButtonText, H1, H6 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
+import { fp, hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { Animated, Dimensions, PanResponder, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -113,19 +114,19 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: Platform.OS === 'ios' ? 60 : 40, 
+        paddingVertical: Platform.OS === 'ios' ? hp(60) : hp(40), 
         width: '100%'
     },
     headerSection: {
-        marginTop: 10,
+        marginTop: hp(10),
     },
     readyTitle: {
-        fontSize: 18,
-        height: 24,
+        fontSize: fp(18),
+        height: hp(24),
         textAlign: 'center'
     },
     readyTitlePlaceholder: {
-        height: 24
+        height: hp(24)
     },
     centerSection: {
         alignItems: 'center',
@@ -133,7 +134,7 @@ const styles = StyleSheet.create({
     },
     codeText: {
         fontSize: SCREEN_WIDTH * 0.18, 
-        marginBottom: 12,
+        marginBottom: hp(12),
         textAlign: 'center'
     },
     pickupLabel: {
@@ -148,12 +149,12 @@ const styles = StyleSheet.create({
     sliderTrack: {
         backgroundColor: 'white',
         width: '100%',
-        height: 60,
+        height: hp(60),
         borderRadius: 30,
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: SLIDER_TRACK_PADDING,
-        marginBottom: 20,
+        marginBottom: wp(20),
         overflow: 'hidden',
         position: 'relative' 
     },
@@ -166,7 +167,7 @@ const styles = StyleSheet.create({
     },
     sliderThumb: {
         backgroundColor: Colors.BRAND_PRIMARY,
-        height: 50,
+        height: hp(50),
         width: THUMB_WIDTH,
         borderRadius: 25,
         justifyContent: 'center',
@@ -175,7 +176,7 @@ const styles = StyleSheet.create({
     },
     textOverlay: {
         position: 'absolute',
-        left: 0,
+        left: wp(20),
         right: 0,
         alignItems: 'center',
         justifyContent: 'center',
@@ -191,7 +192,7 @@ const styles = StyleSheet.create({
         height: 6,
         borderRadius: 3,
         backgroundColor: 'white',
-        marginRight: 8
+        marginRight: wp(8)
     },
 });
 

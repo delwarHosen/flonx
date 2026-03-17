@@ -1,6 +1,7 @@
 import { PaymentLinkLogoIcon } from '@/assets/images/icons/BarRelatedIcon/PaymentLinkLogoIcon'
 import { TikmarkIcon } from '@/assets/images/icons/BarRelatedIcon/TikMarkIcon'
 import { Colors } from '@/constants/theme'
+import { hp, wp } from '@/utils/responsive'
 import { useRouter } from 'expo-router'
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
@@ -40,7 +41,7 @@ export default function PaymentSuccessScreen() {
                     title="See my orders"
                     onPress={() => router.push("/customer/(tabs)/orders")}
                     width="100%"
-                    height={55}
+                    height={hp(55)}
                     borderRadius={10}
                     backgroundColor={Colors.COLOR_ACTIVE}
                     color="#000000"
@@ -55,10 +56,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#F2F2F2",
-        paddingHorizontal: 20,
+        paddingHorizontal: wp(20),
         justifyContent: "space-evenly",
         // Negative marginTop-ti iOS notch-er bhetore content dhukiye dewar karone ektu adjust kora lagte pare
-        marginTop: -120 
+        marginTop: hp(-120)
     },
 
     logoContainer: {
@@ -83,13 +84,13 @@ const styles = StyleSheet.create({
     },
 
     subtitle: {
-        marginTop: 8,
+        marginTop: hp(8),
         textAlign: "center",
         lineHeight: 20,
     },
 
     buttonContainer: {
         // iOS physical home bar theke safe distance maintain korbe
-        paddingBottom: 10, 
+        paddingBottom: hp(10), 
     },
 });

@@ -1,5 +1,6 @@
 import { RightAngleIcon } from '@/assets/images/icons/ProfileInfoIcons/RightAngleIcon';
 import { Colors } from '@/constants/theme';
+import { hp } from '@/utils/responsive';
 import React, { ReactNode } from 'react';
 import { StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { Body3 } from '../typo/Typography';
@@ -55,7 +56,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderWidth: 1,
         borderRadius: 10,
-        marginBottom: 10
+        marginBottom: hp(10)
     },
     icon: {
         flexDirection: "row",

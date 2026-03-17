@@ -11,6 +11,7 @@ import { FORM_FIELDS } from '@/constants/form'
 import { IMAGE_COMPONENTS } from '@/constants/image.index'
 import { Colors } from '@/constants/theme'
 import { RootState } from '@/redux/store'
+import { hp, wp } from '@/utils/responsive'
 import { Href, useRouter } from 'expo-router'
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
@@ -44,10 +45,10 @@ export default function MyProfileView() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{ marginTop: "4%" }}>
+            <View style={{ marginTop: hp(20) }}>
                 <SectionTitle title='My Profile' />
             </View>
-            <View style={{ paddingHorizontal: "5%", marginTop: 10 }}>
+            <View style={{ paddingHorizontal: wp(20), marginTop: hp(10) }}>
                 <ProfileImageComponent image={IMAGE_COMPONENTS.profileImg} />
 
                 {
@@ -105,7 +106,7 @@ export default function MyProfileView() {
                     title=""
                     onPress={handleEdit}
                     width="100%"
-                    height={44}
+                    height={hp(44)}
                     borderRadius={100}
                     icon={
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>

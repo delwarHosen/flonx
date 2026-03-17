@@ -6,6 +6,7 @@ import { FORM_FIELDS, FORM_LABELS, FORM_PLACEHOLDERS } from '@/constants/form'
 import { Colors } from '@/constants/theme'
 import { useForm } from '@/hooks/useForm'
 import { RootState } from '@/redux/store'
+import { hp, wp } from '@/utils/responsive'
 import { validatePassword } from '@/utils/validation'
 import { Href, useRouter } from 'expo-router'
 import React, { useState } from 'react'
@@ -80,7 +81,7 @@ export default function ChangePasswordView() {
 
     return (
         <SafeAreaView style={styles.safeareContainer}>
-            <View style={{ paddingTop: "4%" }}>
+            <View style={{ paddingTop: hp(20) }}>
                 <SectionTitle title='Change Password' />
             </View>
             <View style={styles.form}>
@@ -128,7 +129,7 @@ export default function ChangePasswordView() {
                             // onPress={handleSubmit}
                             onPress={()=>router.back()}
                             width="100%"
-                            height={48}
+                            height={hp(44)}
                             borderRadius={100}
                         />
                     )}
@@ -144,11 +145,11 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.APP_BACKGROUND
     },
     form: {
-        marginTop: 16,
-        paddingHorizontal: "5%"
+        marginTop: hp(16),
+        paddingHorizontal: wp(20)
     },
     buttonContainer: {
-        marginTop: 20,
+        marginTop: hp(20),
         // Changed from center to stretch so the 100% width button works correctly
         alignItems: 'stretch' 
     }

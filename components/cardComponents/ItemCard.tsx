@@ -1,6 +1,7 @@
 import { PlusIcon } from '@/assets/images/icons/BarRelatedIcon/PlusIcon';
 import { OrderTabIcon } from '@/assets/images/icons/icon';
 import { Colors } from '@/constants/theme';
+import { hp } from '@/utils/responsive';
 import { Image } from 'expo-image';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -55,7 +56,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 10,
         borderRadius: 14,
-        marginBottom: 16,
+        marginBottom: hp(16),
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
     },

@@ -13,6 +13,7 @@ import { Body2, Body3, Caption1, Caption2, H6 } from '@/components/typo/Typograp
 import { orders } from '@/constants/data/orderData';
 import { IMAGE_COMPONENTS } from '@/constants/image.index';
 import { Colors } from '@/constants/theme';
+import { hp } from '@/utils/responsive';
 
 const OrderDetailsScreen = () => {
   const params = useLocalSearchParams();
@@ -44,7 +45,7 @@ const OrderDetailsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={{ paddingTop: "4%" }}>
+      <View style={{ paddingTop: hp(16) }}>
         <SectionTitle title="My Order" />
       </View>
 

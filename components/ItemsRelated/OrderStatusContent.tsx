@@ -1,6 +1,7 @@
 import SectionTitle from '@/components/SectionTitle';
 import { Body3, H2, H4 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -82,13 +83,13 @@ const styles = StyleSheet.create({
     },
     header: {
         width: '100%',
-        paddingVertical: "4%"
+        paddingVertical: hp(16)
     },
     content: {
         flex: 1,
         paddingHorizontal: width * 0.05,
         alignItems: 'center',
-        paddingTop: Platform.OS === 'ios' ? 10 : 20
+        paddingTop: Platform.OS === 'ios' ? hp(10) : hp(20)
     },
     codeCard: {
         backgroundColor: Colors.COLOR_ACTIVE,
@@ -99,7 +100,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3, shadowRadius: 4.65,
     },
     codeText: {
-        marginBottom: 8,
+        marginBottom: hp(8),
         fontSize: width * 0.12
     },
     statusBox: {
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.05)'
     },
     statusTextContainer: {
-        marginLeft: 16,
+        marginLeft: wp(16),
         flex: 1
     },
     borderOrange: {
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
     },
     footer: {
         marginTop: '2.5%',
-        marginBottom: 20,
+        marginBottom: hp(20),
         // width: '80%'
     }
 });

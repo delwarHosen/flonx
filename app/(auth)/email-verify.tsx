@@ -4,6 +4,7 @@ import CustomLoader from '@/components/CustomLoader';
 import { Body2, Body3, H2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { RootState } from '@/redux/store';
+import { hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -99,7 +100,7 @@ export default function EmailVerifyOtp() {
             />
 
             <View style={styles.form}>
-              <Body2 color={Colors.PLACEHOLLDER_TEXT} style={{ fontWeight: '600', marginBottom: 8 }}>
+              <Body2 color={Colors.PLACEHOLLDER_TEXT} style={{ marginBottom: hp(8) }}>
                 Verification Code
               </Body2>
 
@@ -155,7 +156,7 @@ export default function EmailVerifyOtp() {
                     title="Verif code"
                     onPress={handleVerify}
                     width="100%"
-                    height={44}
+                    height={hp(44)}
                     borderRadius={100}
                   />
                 )}
@@ -173,14 +174,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center', // Keeps content vertically centered
     alignItems: 'center',     // Keeps content horizontally centered
-    paddingHorizontal: "5%",
+    paddingHorizontal: wp(20),
     backgroundColor: Colors.APP_BACKGROUND
   },
   container: {
     width: '100%',
   },
   form: {
-    marginTop: "8%",
+    marginTop: hp(32),
   },
   otpContainer: {
     flexDirection: 'row',
@@ -200,7 +201,7 @@ const styles = StyleSheet.create({
   },
   otpText: {
     fontSize: 24,
-    fontWeight: '600',
+    // fontWeight: '600',
   },
   hiddenInput: {
     position: 'absolute',
@@ -211,11 +212,11 @@ const styles = StyleSheet.create({
   resendContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
-    marginBottom: 20, // Space between resend and button
+    marginTop: hp(16),
+    marginBottom: hp(20), // Space between resend and button
   },
   resendText: {
-    fontWeight: '600',
+    // fontWeight: '600',
   },
   timerText: {
     color: Colors.BRAND_PRIMARY,

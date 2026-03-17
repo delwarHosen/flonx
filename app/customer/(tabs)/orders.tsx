@@ -11,6 +11,7 @@ import SectionTitle from '@/components/SectionTitle';
 import { Body1, Body3, Caption1, H6 } from '@/components/typo/Typography';
 import { OrderItem, orders } from '@/constants/data/orderData';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 
 const OrderScreen = () => {
@@ -82,7 +83,7 @@ const OrderScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <View style={{paddingTop:20}}>
+      <View >
         <SectionTitle title='My Orders' />
       </View>
 
@@ -94,7 +95,7 @@ const OrderScreen = () => {
             title="Current Orders"
             onPress={() => setSelectedTab("Current Orders")}
             width="100%"
-            height={44}
+            height={hp(44)}
             borderRadius={100}
             backgroundColor={selectedTab === "Current Orders" ? undefined : '#1D1733'}
           />
@@ -106,7 +107,7 @@ const OrderScreen = () => {
             title="Past Orders"
             onPress={() => setSelectedTab("Past Orders")}
             width="100%"
-            height={44}
+            height={hp(44)}
             borderRadius={100}
             backgroundColor={selectedTab === "Past Orders" ? undefined : '#1D1733'}
           />
@@ -140,7 +141,7 @@ const styles = StyleSheet.create({
   },
   tabWrapper: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
+    paddingHorizontal: wp(20),
     justifyContent: 'space-between',
   },
   tabItem: {
@@ -148,14 +149,14 @@ const styles = StyleSheet.create({
   },
 
   listContent: {
-     paddingHorizontal: 20,
-     paddingTop: 25 
+     paddingHorizontal: wp(20),
+     paddingTop: hp(25)
     },
   orderCard: {
     backgroundColor: Colors.INPUT_BACKGROUND,
     borderRadius: 14,
     padding: 10,
-    marginBottom: 16,
+    marginBottom: hp(16),
     borderWidth: 1,
     borderColor: Colors.BORDER_COLOR,
   },
@@ -169,9 +170,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: '#FEE2E2', // Placeholder bg for image highlight
   },
-  itemInfo: { flex: 1, marginLeft: 15 },
+  itemInfo: { flex: 1, marginLeft: wp(15) },
   metaText: {
-     marginVertical: 6 
+     marginVertical: hp(6) 
     },
 });
 

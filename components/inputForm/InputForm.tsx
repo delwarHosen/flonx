@@ -1,5 +1,6 @@
 import { EyeIcon } from '@/assets/images/icons/icon';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import { validateEmail, validatePassword } from '@/utils/validation';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
@@ -181,12 +182,12 @@ export const FormInput: React.FC<FormInputProps> = ({
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 16
+        marginTop: hp(16)
     },
     labelContainer: {
         flexDirection: "row",
         alignItems: "center",
-        marginBottom: 8,
+        marginBottom: hp(8),
     },
     label: {
 
@@ -202,18 +203,15 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
-        paddingHorizontal: 16,
+        paddingHorizontal: wp(16),
     },
     input: {
         flex: 1,
-        paddingVertical: 13,
-        fontSize: 14,
+        paddingVertical: hp(13),
+        // fontSize: 14,
         color: Colors.PLACEHOLLDER_TEXT,
     },
-    inputText: {
-        flex: 1,
-        fontSize: 14,
-    },
+   
     inputError: {
         // borderColor: '#EF4444',
         // backgroundColor: Colors.,

@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/theme';
+import { hp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
@@ -26,19 +27,19 @@ const TipSelectionContent: React.FC<TipSelectionProps> = ({
 
     // Responsive measurements
     const { width } = useWindowDimensions();
-    const dynamicPadding = width > 400 ? 30 : 25; 
+    const dynamicPadding = width > 400 ? 30 : 25;
 
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="light-content" />
 
-            <View style={{marginVertical:15}}>
+            <View style={{ marginVertical: hp(15) }}>
                 <SectionTitle />
             </View>
 
             <View style={[styles.content, { paddingHorizontal: dynamicPadding }]}>
                 <H4 color={Colors.NEUTRAL0} align="center">Tip Your Bartender</H4>
-                <Body3 color={Colors.PLACEHOLLDER_TEXT} align="center" style={{ marginTop: 10, marginBottom: 24 }}>
+                <Body3 color={Colors.PLACEHOLLDER_TEXT} align="center" style={{ marginTop: hp(10), marginBottom: hp(24) }}>
                     Show Your Appreciation
                 </Body3>
 
@@ -68,7 +69,7 @@ const TipSelectionContent: React.FC<TipSelectionProps> = ({
                             title="Custom"
                             onPress={() => router.push(customTipRoute as any)}
                             width="100%"
-                            height={44}
+                            height={hp(44)}
                             borderRadius={100}
                         />
                     </View>
@@ -77,7 +78,7 @@ const TipSelectionContent: React.FC<TipSelectionProps> = ({
                             title="Continue"
                             onPress={() => router.push(continueRoute as any)}
                             width="100%"
-                            height={44}
+                            height={hp(44)}
                             borderRadius={100}
                         />
                     </View>
@@ -87,11 +88,11 @@ const TipSelectionContent: React.FC<TipSelectionProps> = ({
                     title="Skip"
                     onPress={() => router.push(skipRoute as any)}
                     width="100%"
-                    height={44}
+                    height={hp(44)}
                     borderRadius={100}
                     backgroundColor={Colors.NEUTRAL0}
                     color={primaryColor}
-                    style={{ marginTop: 16 }}
+                    style={{ marginTop: hp(16) }}
                 />
             </View>
         </SafeAreaView>
@@ -108,16 +109,16 @@ const styles = StyleSheet.create({
     },
     tipOption: {
         width: '100%',
-        paddingVertical: 10,
+        paddingVertical: hp(10),
         borderRadius: 100,
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
         backgroundColor: Colors.INPUT_BACKGROUND,
-        marginBottom: 16,
+        marginBottom: hp(16),
     },
     actionRow: {
         flexDirection: 'row',
-        justifyContent: 'space-between', 
+        justifyContent: 'space-between',
         gap: 16
     },
     buttonWrapper: { flex: 1 },

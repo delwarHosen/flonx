@@ -1,5 +1,6 @@
 import { Body2, Caption1, Caption2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 
@@ -47,10 +48,10 @@ export const StatusInfoCard: React.FC<StatusInfoCardProps> = ({
 const styles = StyleSheet.create({
   infoCard: {
     backgroundColor: Colors.INPUT_BACKGROUND,
-    marginTop: 16,
+    marginTop: hp(16),
     borderRadius: 10,
     padding: 14,
-    marginBottom: 12,
+    marginBottom: hp(12),
     borderWidth: 1,
     borderColor: Colors.BORDER_COLOR,
     flexDirection: 'row',
@@ -60,8 +61,8 @@ const styles = StyleSheet.create({
   statusBadgeType: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: wp(12),
+    paddingVertical: hp(6),
     borderRadius: 100,
   },
   dot: {

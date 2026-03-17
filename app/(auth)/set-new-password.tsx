@@ -4,6 +4,7 @@ import { FormInput } from '@/components/inputForm/InputForm';
 import { FORM_FIELDS, FORM_LABELS, FORM_PLACEHOLDERS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
+import { hp, wp } from '@/utils/responsive';
 import { validateConfirmPassword, validatePassword } from '@/utils/validation';
 import { useRouter } from 'expo-router';
 import React from 'react';
@@ -97,12 +98,12 @@ export default function ForgotPassword() {
                   required
                 />
 
-                <View style={{ marginTop: 10 }}>
+                <View style={{ marginTop: hp(10) }}>
                   <CustomButton
                     title="Set New Password"
                     onPress={() => router.push('/(auth)/login')}
                     width="100%"
-                    height={48}
+                    height={hp(44)}
                     borderRadius={100}
                   />
                 </View>
@@ -124,7 +125,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: "6%",
+    paddingHorizontal: wp(20),
   },
   form: {
     marginTop: 0,

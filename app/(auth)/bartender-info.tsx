@@ -6,6 +6,7 @@ import { FORM_FIELDS, FORM_LABELS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
 import { RootState } from '@/redux/store';
+import { hp, wp } from '@/utils/responsive';
 import { validateExperience, validateSkills } from '@/utils/validation';
 import { useRouter } from 'expo-router';
 import React from 'react';
@@ -202,6 +203,7 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         justifyContent: "center",
         backgroundColor: Colors.APP_BACKGROUND,
+        paddingVertical:hp(30)
         // minHeight: height,
     },
     form: {
@@ -209,19 +211,19 @@ const styles = StyleSheet.create({
         gap: responsiveSpacing(4),
     },
     label: {
-        marginBottom: 4,
-        marginTop: 10
+        marginBottom: hp(4),
+        marginTop: hp(10)
     },
     textArea: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 14,
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
-        paddingHorizontal: 16,
-        paddingTop: 14,
-        paddingBottom: 14,
+        paddingHorizontal: wp(16),
+        paddingTop: hp(10),
+        paddingBottom: hp(14),
         color: '#FFFFFF',
         fontSize: 14,
-        height: 150,   
+        height: hp(150),   
     },
 })
