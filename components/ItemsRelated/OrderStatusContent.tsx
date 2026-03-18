@@ -27,9 +27,9 @@ export const OrderStatusContent: React.FC<OrderStatusContentProps> = ({ orderCod
         let timer: ReturnType<typeof setTimeout>;
 
         if (step === OrderStatus.QUEUED) {
-            timer = setTimeout(() => setStep(OrderStatus.IN_PROGRESS), 2500);
+            timer = setTimeout(() => setStep(OrderStatus.IN_PROGRESS), 1500);
         } else if (step === OrderStatus.IN_PROGRESS) {
-            timer = setTimeout(() => router.push(nextRoute as any), 2500);
+            timer = setTimeout(() => router.push(nextRoute as any), 1500);
         }
 
         return () => { if (timer) clearTimeout(timer); };

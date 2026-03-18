@@ -19,7 +19,7 @@ const ShopDetails = () => {
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
             {/* Header - Added padding wrapper for consistency */}
             <View style={styles.headerWrapper}>
-                <SectionTitle title='Shop Details ' />
+                <SectionTitle title='Shop Details' />
             </View>
 
             <ScrollView 
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.APP_BACKGROUND,
     },
     headerWrapper: {
-        // paddingVertical: Platform.OS === 'ios' ? 10 : 0, 
+        paddingVertical: Platform.OS === 'ios' ? hp(10) : hp(10), 
     },
     scrollContent: {
         alignItems: 'center',

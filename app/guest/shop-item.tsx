@@ -35,7 +35,7 @@ const ShopItems = () => {
         <SafeAreaView style={styles.container} edges={['top']}>
             {/* Header Section */}
             <View style={styles.headerWrapper}>
-                <SectionTitle title='Shop Item' />
+                <SectionTitle title='Shop Items' />
             </View>
 
             <FlatList
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.APP_BACKGROUND,
     },
     headerWrapper: {
-        paddingVertical: hp(16)
+        paddingBottom: hp(16)
     },
     tabList: {
         marginBottom:hp(16),
