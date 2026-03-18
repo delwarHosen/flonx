@@ -7,9 +7,10 @@ import { StarIcon } from '@/assets/images/icons/BarRelatedIcon/StarIcon';
 import { DetailsCardComponents } from '@/components/cardComponents/DetailsCardComponents';
 import { CustomButton } from '@/components/CustomButton';
 import SectionTitle from '@/components/SectionTitle';
-import { Body1, Body2, Caption2 } from '@/components/typo/Typography';
+import { Body1, Body2, Body3, Caption2 } from '@/components/typo/Typography';
 import { jobPosts } from '@/constants/data/jobPosts';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 
 const ApplicantProfileDetails = () => {
     const { applicantId, jobId } = useLocalSearchParams<{ applicantId: string, jobId: string }>();
@@ -34,7 +35,7 @@ const ApplicantProfileDetails = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{ marginVertical: "4%" }}>
+            <View style={{ marginVertical: hp(16) }}>
                 <SectionTitle title='Applicant detail' />
             </View>
             <ScrollView contentContainerStyle={{ padding: "5%", alignItems: 'center' }}>
@@ -42,7 +43,7 @@ const ApplicantProfileDetails = () => {
                     <Image source={applicant.profileImg} style={styles.profileImg} />
                 </View>
 
-                <View style={{ width: '100%', marginTop: 10 }}>
+                <View style={{ width: '100%', marginTop: hp(10) }}>
                     <DetailsCardComponents topLabel="Name" bottomLabel={applicant.name} />
                     <DetailsCardComponents topLabel="Email" bottomLabel={applicant.email} />
                     <DetailsCardComponents topLabel="Contact Phone" bottomLabel={applicant.phone} />
@@ -56,7 +57,7 @@ const ApplicantProfileDetails = () => {
                         <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Overall Rating</Caption2>
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
                             <StarIcon color='#FFB020' />
-                            <Body2 color={Colors.NEUTRAL0} style={{ marginLeft: 6 }}>
+                            <Body2 color={Colors.NEUTRAL0} style={{ marginLeft: wp(6) }}>
                                 {applicant.rating} ({applicant.reviewCount})
                             </Body2>
                         </View>
@@ -64,10 +65,10 @@ const ApplicantProfileDetails = () => {
 
                     {isRated ? (
                         <View style={styles.ratingDisplayContainer}>
-                            <StarIcon color={Colors.COLOR_ORANGE} size={20} />
-                            <Body1 color={Colors.NEUTRAL0} style={{ marginLeft: 8 }}>
+                            <StarIcon color={Colors.COLOR_ORANGE} size={14} />
+                            <Body3 color={Colors.NEUTRAL0} style={{ marginLeft: wp(8) }}>
                                 {rating}.0 / 5
-                            </Body1>
+                            </Body3>
                         </View>
                     ) : (
                         job?.status === 'Completed' ? (
@@ -75,18 +76,18 @@ const ApplicantProfileDetails = () => {
                                 onPress={() => setModalVisible(true)}
                                 title='Leave A Rating'
                                 width="100%"
-                                height={44}
+                                height={hp(44)}
                                 borderRadius={100}
-                                style={{ marginTop: 10 }}
+                                style={{ marginTop: hp(10) }}
                             />
                         ) : (
                             <CustomButton
                                 onPress={() => console.log("Assigned")}
                                 title='Accept & Assign Job'
                                 width="100%"
-                                height={44}
+                                height={hp(44)}
                                 borderRadius={100}
-                                style={{ marginTop: 10 }}
+                                style={{ marginTop: hp(10) }}
                             />
                         )
                     )}
@@ -103,7 +104,7 @@ const ApplicantProfileDetails = () => {
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <Body1 color={Colors.NEUTRAL0}>- Rate the Applicant</Body1>
-                        <Body2 color={Colors.NEUTRAL0} style={{ marginTop: 10, marginBottom: 20 }}>
+                        <Body2 color={Colors.NEUTRAL0} style={{ marginTop: hp(10), marginBottom: hp(20) }}>
                             Select a star to provide rating
                         </Body2>
 
@@ -123,7 +124,7 @@ const ApplicantProfileDetails = () => {
                                 onPress={() => { setModalVisible(false); setRating(0); }}
                                 title='Cancel'
                                 width="90%"
-                                height={44}
+                                height={hp(44)}
                                 borderRadius={100}
                                 color={Colors.COLOR_DANGER}
                                 backgroundColor={"transparent"}
@@ -138,7 +139,7 @@ const ApplicantProfileDetails = () => {
                                 }}
                                 title='Submit'
                                 width="90%"
-                                height={44}
+                                height={hp(44)}
                                 borderRadius={100}
                             />
                         </View>
@@ -171,7 +172,7 @@ const styles = StyleSheet.create({
 
     ratingDisplayContainer: {
         width: '100%',
-        height: 54,
+        height: hp(44),
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 100,
         borderWidth: 1,
@@ -179,9 +180,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 10,
+        marginTop: hp(10),
     },
-    fieldBox: { width: '100%', backgroundColor: Colors.INPUT_BACKGROUND, padding: 14, borderRadius: 10, borderWidth: 1, borderColor: Colors.BORDER_COLOR },
+    fieldBox: {
+        width: '100%',
+        backgroundColor: Colors.INPUT_BACKGROUND,
+        padding: 14,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: Colors.BORDER_COLOR
+    },
 
     // Modal Styles
     modalOverlay: {
@@ -201,7 +209,7 @@ const styles = StyleSheet.create({
     starRow: {
         flexDirection: 'row',
         justifyContent: 'flex-start',
-        marginBottom: 30
+        marginBottom: hp(30)
     },
     modalActions: {
         flexDirection: "row"

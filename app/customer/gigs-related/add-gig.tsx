@@ -4,6 +4,7 @@ import SectionTitle from '@/components/SectionTitle';
 import { Body2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
+import { hp, wp } from '@/utils/responsive';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
@@ -51,7 +52,7 @@ const AddGig: React.FC = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{marginVertical:"4%"}}>
+            <View style={{marginVertical:hp(16)}}>
                 <SectionTitle title="Add Gig" />
             </View>
 
@@ -129,7 +130,7 @@ const AddGig: React.FC = () => {
                         textAlignVertical="top"
                     />
 
-                    <View style={{ marginBottom: 20 }}>
+                    <View style={{ marginBottom: hp(20) }}>
                         <CustomButton
                             title="Publish Event"
                             onPress={handleSubmit}
@@ -145,13 +146,13 @@ const AddGig: React.FC = () => {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: Colors.APP_BACKGROUND },
     scrollContent: {
-        paddingHorizontal: '5%',
-        paddingBottom: 20,
-        marginTop: 16
+        paddingHorizontal: wp(20),
+        paddingBottom: hp(20),
+        marginTop: hp(16)
     },
     label: {
-        marginBottom: 10,
-        marginTop: 10
+        marginBottom: hp(10),
+        marginTop: hp(10)
     },
     input: {
         backgroundColor: Colors.INPUT_BACKGROUND,
@@ -166,9 +167,9 @@ const styles = StyleSheet.create({
         borderRadius: 14,
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
-        paddingHorizontal: 16,
-        paddingTop: 14,
-        paddingBottom: 14,
+        paddingHorizontal: wp(16),
+        paddingTop: hp(14),
+        paddingBottom: hp(14),
         color: '#FFFFFF',
         fontSize: 14,
         height: 150,

@@ -94,7 +94,20 @@ export const jobPosts: JobPost[] = [
     payRate: 30.00,
     totalDuration: "3 hours",
     totalAmount: 200,
-    applicants: []
+    applicants: [
+      {
+        id: "A101",
+        name: "Test Applicant",
+        email: "test@example.com",
+        phone: "+1 (000) 000-0000",
+        experience: "3 Years",
+        bio: "Experienced mixologist.",
+        totalJobs: 50,
+        rating: 4.5,
+        reviewCount: 20,
+        profileImg: IMAGE_COMPONENTS.profile1,
+      }
+    ]
   },
 
   // --- ASSIGNED JOBS ---

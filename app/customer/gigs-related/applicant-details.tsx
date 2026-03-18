@@ -8,6 +8,7 @@ import SectionTitle from '@/components/SectionTitle';
 import { Body2, Caption2 } from '@/components/typo/Typography';
 import { jobPosts } from '@/constants/data/jobPosts';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import { Image, ScrollView, StyleSheet, View } from 'react-native';
@@ -60,7 +61,7 @@ const ApplicantDetails = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{ marginVertical: "4%" }}>
+            <View style={{ marginVertical: hp(16) }}>
                 <SectionTitle title='Applicant details' />
             </View>
             <ScrollView contentContainerStyle={{ padding: "5%", alignItems: 'center' }}>
@@ -68,7 +69,7 @@ const ApplicantDetails = () => {
                     <Image source={applicant.profileImg} style={styles.profileImg} />
                 </View>
 
-                <View style={{ width: '100%', marginTop: 10 }}>
+                <View style={{ width: '100%', marginTop: hp(10) }}>
                     <DetailsCardComponents
                         topLabel="Name"
                         bottomLabel={applicant.name}
@@ -95,13 +96,13 @@ const ApplicantDetails = () => {
                         bottomLabel={`${applicant.rating} (${applicant.reviewCount})`}
                     /> */}
 
-                     <DetailsCardComponents topLabel="Bio" bottomLabel={applicant.bio} />
+                    <DetailsCardComponents topLabel="Bio" bottomLabel={applicant.bio} />
 
                     <View style={styles.fieldBox}>
                         <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Overall Rating</Caption2>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: hp(12) }}>
                             <StarIcon color='#FFB020' />
-                            <Body2 color={Colors.NEUTRAL0} style={{ marginLeft: 6 }}>
+                            <Body2 color={Colors.NEUTRAL0} style={{ marginLeft: wp(6) }}>
                                 {applicant.rating} ({applicant.reviewCount})
                             </Body2>
                         </View>
@@ -110,7 +111,7 @@ const ApplicantDetails = () => {
                         onPress={() => setShowAssignModal(true)}
                         title='Accept & Assign Job'
                         width="100%"
-                        height={44}
+                        height={hp(44)}
                         borderRadius={100}
                     />
                 </View>
@@ -145,10 +146,32 @@ const ApplicantDetails = () => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: Colors.APP_BACKGROUND },
-    imgWrapper: { width: 100, height: 100, borderRadius: 20, backgroundColor: Colors.INPUT_BACKGROUND, overflow: 'hidden', borderWidth: 1, borderColor: Colors.BORDER_COLOR },
-    profileImg: { width: '100%', height: '100%', backgroundColor: Colors.INPUT_BACKGROUND },
-    fieldBox: { width: '100%', backgroundColor: Colors.INPUT_BACKGROUND, padding: 14, borderRadius: 10, borderWidth: 1, borderColor: Colors.BORDER_COLOR }
+    container: {
+        flex: 1,
+        backgroundColor: Colors.APP_BACKGROUND
+    },
+    imgWrapper: {
+        width: 100,
+        height: 100,
+        borderRadius: 20,
+        backgroundColor: Colors.INPUT_BACKGROUND,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: Colors.BORDER_COLOR
+    },
+    profileImg: {
+        width: '100%',
+        height: '100%',
+        backgroundColor: Colors.INPUT_BACKGROUND
+    },
+    fieldBox: {
+        width: '100%',
+        backgroundColor: Colors.INPUT_BACKGROUND,
+        padding: 14,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: Colors.BORDER_COLOR
+    }
 });
 
 export default ApplicantDetails

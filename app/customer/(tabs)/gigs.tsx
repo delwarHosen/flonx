@@ -10,6 +10,7 @@ import { CustomButton } from '@/components/CustomButton';
 import EmptyStateCard from '@/components/EmptyStateCardProps';
 import SectionTitle from '@/components/SectionTitle';
 import { jobPosts } from '@/constants/data/jobPosts';
+import { hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 
 const TABS = ["Active", "Assigned", "Completed", "Cancelled"];
@@ -29,12 +30,12 @@ const GigsScreen = () => {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Header */}
-      <View style={{paddingVertical:10}}>
+      <View style={{paddingVertical:hp(10)}}>
         <SectionTitle title='Gigs' />
       </View>
 
       {/* Tabs */}
-      <View style={{ height: 60 }}>
+      <View style={{ height: hp(60) }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabList}>
           {TABS.map((tab) => (
             <TouchableOpacity
@@ -100,7 +101,7 @@ const CreatGig = () => {
     <View style={styles.createCard}>
       <View style={""}>
         <Body2 color={Colors.NEUTRAL0}>Create a New Gig</Body2>
-        <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: 8 }}>
+        <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: hp(8) }}>
           Provide the details to publish your job.
         </Caption1>
       </View>
@@ -121,26 +122,30 @@ const CreatGig = () => {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.APP_BACKGROUND },
+  container: { 
+    flex: 1, 
+    backgroundColor: Colors.APP_BACKGROUND 
+  },
 
-  tabList: { paddingHorizontal: 20, 
+  tabList: { 
+    paddingHorizontal: wp(20), 
     alignItems: 'center', 
   // paddingTop:15
   },
   tabItem: {
-    paddingHorizontal: 24,
-    paddingVertical: 10,
+    paddingHorizontal: wp(24),
+    paddingVertical: hp(10),
     borderRadius: 100,
-    marginRight: 10,
+    marginRight: wp(10),
     backgroundColor: Colors.INPUT_BACKGROUND,
-    height: 45,
+    height: hp(45),
     justifyContent: 'center'
   },
   activeTabItem: {
     backgroundColor: Colors.BRAND_PRIMARY,
   },
   listContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: wp(20),
     paddingBottom: 0,
   },
   emptyContainer: {
@@ -149,10 +154,10 @@ const styles = StyleSheet.create({
 
   createCard: {
     backgroundColor: Colors.INPUT_BACKGROUND,
-    marginTop: 16,
+    marginTop: hp(16),
     padding: 14,
     borderRadius: 10,
-    marginBottom: 20,
+    marginBottom: hp(20),
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

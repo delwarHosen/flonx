@@ -6,9 +6,10 @@ import { ConfirmationModal } from '@/components/ConfirmationModalProps';
 import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
 import SectionTitle from '@/components/SectionTitle';
-import { Body1, Body2, Caption1, Caption2, Caption3 } from '@/components/typo/Typography';
+import { Body1, Body2, Caption2, Caption3 } from '@/components/typo/Typography';
 import { jobPosts } from '@/constants/data/jobPosts';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -120,7 +121,7 @@ const GigDetails = () => {
                                     onPress={() => router.push("/customer/gigs-related/update-gig")}
                                     title='Update Listing'
                                     width="100%"
-                                    height={44}
+                                    height={hp(44)}
                                     borderRadius={100}
                                 />
                             </View>
@@ -129,11 +130,11 @@ const GigDetails = () => {
                                     onPress={() => router.push({
                                         pathname: '/customer/gigs-related/applicants-list',
                                         params: { jobId: item.id }
-                                        
+
                                     })}
                                     title='View Applicants'
                                     width="100%"
-                                    height={44}
+                                    height={hp(44)}
                                     borderRadius={100}
                                     backgroundColor={'#22C55E'}
                                 />
@@ -144,7 +145,7 @@ const GigDetails = () => {
                             onPress={() => setShowDeleteModal(true)}
                             title='Delete listing'
                             width={'100%'}
-                            height={44}
+                            height={hp(44)}
                             borderRadius={100}
                             backgroundColor={'#EF4444'}
                             style={{ marginTop: 12 }}
@@ -169,7 +170,7 @@ const GigDetails = () => {
                                         source={item.assignedTo?.profileImg}
                                         style={styles.avatar}
                                     />
-                                    <View style={{ flexDirection: "column", gap: 10, marginLeft: 10 }}>
+                                    <View style={{ flexDirection: "column", gap: 10, marginLeft: wp(10) }}>
                                         <Caption3 color={Colors.PLACEHOLLDER_TEXT}>ASSIGNED TO</Caption3>
                                         <Body2 color={Colors.NEUTRAL0}>
                                             {item.assignedTo?.name ?? '—'}
@@ -180,12 +181,12 @@ const GigDetails = () => {
                             <Body2 color={Colors.NEUTRAL0}>›</Body2>
                         </TouchableOpacity>
 
-                        <View style={{ marginBottom: 24 }}>
+                        <View style={{ marginBottom: hp(24) }}>
                             <CustomButton
                                 onPress={() => setShowCompleteModal(true)}
                                 title='Mark As Completed'
                                 width={'100%'}
-                                height={44}
+                                height={hp(44)}
                                 borderRadius={100}
                                 backgroundColor={'#22C55E'}
                                 style={{ marginTop: 16 }}
@@ -194,10 +195,10 @@ const GigDetails = () => {
                                 onPress={() => setShowCancelModal(true)}
                                 title='Cancel Assignment'
                                 width={'100%'}
-                                height={44}
+                                height={hp(44)}
                                 borderRadius={100}
                                 backgroundColor={'#EF4444'}
-                                style={{ marginTop: 12 }}
+                                style={{ marginTop: hp(12) }}
                             />
                         </View>
                     </>
@@ -222,7 +223,7 @@ const GigDetails = () => {
                                         source={item.assignedTo?.profileImg}
                                         style={styles.avatar}
                                     />
-                                    <View style={{ flexDirection: "column", gap: 10, marginLeft: 10 }}>
+                                    <View style={{ flexDirection: "column", gap: 10, marginLeft: wp(10) }}>
                                         <Caption3 color={Colors.PLACEHOLLDER_TEXT}>ASSIGNED TO</Caption3>
                                         <Body2 color={Colors.NEUTRAL0}>
                                             {item.assignedTo?.name ?? '—'}
@@ -248,7 +249,7 @@ const GigDetails = () => {
                     <>
 
 
-                        <View style={{ marginBottom: 12, marginTop: 16, }}>
+                        <View style={{ marginBottom: hp(12), marginTop: hp(16), }}>
                             <DetailsCardComponents
                                 topLabel="Cancelled By"
                                 bottomLabel={item.cancelledBy ?? '—'}
@@ -307,7 +308,7 @@ const GigDetails = () => {
                 <Body1 color={Colors.NEUTRAL0} italic style={styles.title}>{item.title}</Body1>
                 <View style={[styles.statusBadge, { backgroundColor: statusColors.bg }]}>
                     <View style={[styles.dot, { backgroundColor: statusColors.text }]} />
-                    <Caption1 color={statusColors.text}>{item.status}</Caption1>
+                    <Caption3 color={statusColors.text}>{item.status}</Caption3>
                 </View>
 
                 <GigBasicDetails item={item} />
@@ -404,7 +405,7 @@ const PaymentInfoCard = ({ item }: { item: any }) => (
             <Body2 color={Colors.NEUTRAL0}>{item.totalDuration ?? '15 hours'}</Body2>
         </View>
 
-        <View style={{ height: 1.5, backgroundColor: Colors.BORDER_COLOR, marginVertical: 16 }} />
+        <View style={{ height: 1.5, backgroundColor: Colors.BORDER_COLOR, marginVertical: hp(16) }} />
 
         <View style={styles.payRow}>
             <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Total Amount</Caption2>
@@ -420,36 +421,22 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.APP_BACKGROUND,
         marginBottom: "20%"
     },
-    headerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-    },
-    backBtn: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: Colors.INPUT_BACKGROUND,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
+
     scrollContent: {
-        paddingHorizontal: 20,
-        paddingVertical: 20,
+        paddingHorizontal: wp(20),
+        paddingVertical: hp(20),
     },
     title: {
-        marginBottom: 10,
+        marginBottom: hp(10),
     },
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
         alignSelf: 'flex-start',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingHorizontal: wp(12),
+        paddingVertical: hp(6),
         borderRadius: 100,
-        marginBottom: 16,
+        marginBottom: hp(16),
     },
     dot: {
         width: 4,
@@ -457,18 +444,7 @@ const styles = StyleSheet.create({
         borderRadius: 2,
         marginRight: 6,
     },
-    infoCard: {
-        backgroundColor: Colors.INPUT_BACKGROUND,
-        marginTop: 16,
-        borderRadius: 10,
-        padding: 14,
-        marginBottom: 12,
-        borderWidth: 1,
-        borderColor: Colors.BORDER_COLOR,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
+
     paymentCard: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 12,
@@ -478,7 +454,11 @@ const styles = StyleSheet.create({
         borderColor: Colors.BORDER_COLOR,
     },
     paymentTextcon: {
-        flexDirection: "row", alignItems: "center", gap: 5, marginBottom: 18
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 5,
+        marginBottom: hp(18)
+
     },
     iconContainer: {
         width: 24,
@@ -489,13 +469,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    paymentTitle: {
-        // marginBottom: 12,
-    },
+    
     payRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 10,
+        marginBottom: hp(10),
     },
     actionRow: {
 
@@ -506,20 +484,13 @@ const styles = StyleSheet.create({
     buttonWrapper: {
         flex: 1,
     },
-    applicantIconBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: Colors.BRAND_PRIMARY,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
+    
     assignedRow: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 12,
         padding: 14,
-        marginTop: 10,
-        marginBottom: 12,
+        marginTop: hp(10),
+        marginBottom: hp(12),
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
         flexDirection: 'row',
@@ -532,7 +503,7 @@ const styles = StyleSheet.create({
     assigneeInfo: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 8,
+        marginTop: hp(8),
     },
     avatar: {
         width: 44,

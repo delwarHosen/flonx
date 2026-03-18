@@ -1,5 +1,5 @@
 import SectionTitle from '@/components/SectionTitle';
-import { Body3, H2, H4 } from '@/components/typo/Typography';
+import { Body3, Caption4, H2, H5 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { hp, wp } from '@/utils/responsive';
 import { Ionicons } from '@expo/vector-icons';
@@ -27,9 +27,9 @@ export const OrderStatusContent: React.FC<OrderStatusContentProps> = ({ orderCod
         let timer: ReturnType<typeof setTimeout>;
 
         if (step === OrderStatus.QUEUED) {
-            timer = setTimeout(() => setStep(OrderStatus.IN_PROGRESS), 5000);
+            timer = setTimeout(() => setStep(OrderStatus.IN_PROGRESS), 2500);
         } else if (step === OrderStatus.IN_PROGRESS) {
-            timer = setTimeout(() => router.push(nextRoute as any), 5000);
+            timer = setTimeout(() => router.push(nextRoute as any), 2500);
         }
 
         return () => { if (timer) clearTimeout(timer); };
@@ -46,7 +46,7 @@ export const OrderStatusContent: React.FC<OrderStatusContentProps> = ({ orderCod
             <View style={styles.content}>
                 <View style={styles.codeCard}>
                     <H2 color="white" style={styles.codeText}>{orderCode}</H2>
-                    <H4 color="white" italic>Order Code</H4>
+                    <H5 color="white" italic>Order Code</H5>
                 </View>
 
                 <View style={[styles.statusBox, isQueued ? styles.borderOrange : styles.borderGreen]}>
@@ -58,12 +58,12 @@ export const OrderStatusContent: React.FC<OrderStatusContentProps> = ({ orderCod
                         />
                     </View>
                     <View style={styles.statusTextContainer}>
-                        <H4 color={isQueued ? '#F97316' : '#22C55E'}>
+                        <H5 color={isQueued ? '#F97316' : '#22C55E'}>
                             {isQueued ? 'Queued' : 'In Progress'}
-                        </H4>
-                        <Body3 color="#999">
+                        </H5>
+                        <Caption4 color="#999">
                             {isQueued ? 'Your order is in the queue' : 'Your drink is being prepared'}
-                        </Body3>
+                        </Caption4>
                     </View>
                 </View>
 

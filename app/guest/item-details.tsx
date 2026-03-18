@@ -3,12 +3,13 @@ import { PlusIcon } from '@/assets/images/icons/BarRelatedIcon/PlusIcon';
 import { OrderTabIcon } from '@/assets/images/icons/icon';
 import { CustomButton } from '@/components/CustomButton';
 import SectionTitle from '@/components/SectionTitle';
-import { ButtonText, Caption1, H5, H6 } from '@/components/typo/Typography';
+import { Caption1, Caption3, H5, H6 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ItemDetails = () => {
@@ -67,7 +68,7 @@ const ItemDetails = () => {
 
                 <View style={styles.infoCard}>
                     <H5 color={Colors.NEUTRAL0} style={styles.title}>{itemName}</H5>
-                    <Caption1 italic color={Colors.OTP_COLOR} style={{ marginBottom: 6, textAlign: 'center' }}>
+                    <Caption1 italic color={Colors.OTP_COLOR} style={{ marginBottom: hp(6), textAlign: 'center' }}>
                         {itemIngredients || "No ingredients listed"}
                     </Caption1>
 
@@ -79,9 +80,9 @@ const ItemDetails = () => {
                             styles.dot,
                             { backgroundColor: itemStatus === 'in_stock' ? Colors.COLOR_ACTIVE : Colors.COLOR_DANGER }
                         ]} />
-                        <Caption1 color={itemStatus === 'in_stock' ? Colors.COLOR_ACTIVE : Colors.COLOR_DANGER}>
+                        <Caption3 color={itemStatus === 'in_stock' ? Colors.COLOR_ACTIVE : Colors.COLOR_DANGER}>
                             {itemStatus === 'in_stock' ? 'In Stock' : 'Out of Stock'}
-                        </Caption1>
+                        </Caption3>
                     </View>
 
                     <View style={styles.quantityRow}>
@@ -109,12 +110,12 @@ const ItemDetails = () => {
                             title=""
                             onPress={handleAddToCart}
                             width="100%"
-                            height={50}
+                            height={hp(44)}
                             borderRadius={100}
                             icon={
                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                                     <OrderTabIcon />
-                                    <ButtonText color={Colors.NEUTRAL0}>Add To Cart</ButtonText>
+                                    <Text style={{color:"white"}}>Add To Cart</Text>
                                 </View>
                             }
                         />
@@ -136,7 +137,7 @@ const styles = StyleSheet.create({
         paddingVertical: Platform.OS === 'ios' ? "2%" :"4%"
     },
     imageWrapper: {
-        height: 280,
+        height: hp(280),
         width: '100%',
         justifyContent: 'center',
         alignItems: 'center',
@@ -145,7 +146,7 @@ const styles = StyleSheet.create({
     mainImage: {
         width: 220,
         height: 220,
-        marginTop: 30,
+        marginTop: hp(30),
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
         borderRadius: 20,
@@ -157,21 +158,21 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 50,
         alignItems: 'center',
         paddingTop: Platform.OS === 'ios' ? "35%" : "30%",
-        paddingHorizontal: 25,
-        marginTop: -100,
-        paddingBottom: 40
+        paddingHorizontal: wp(25),
+        marginTop: hp(-100),
+        paddingBottom: hp(40)
     },
     title: {
-        marginBottom: 6,
+        marginBottom: hp(6),
         textAlign: 'center'
     },
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 12,
-        paddingVertical: 5,
+        paddingHorizontal: wp(12),
+        paddingVertical: hp(5),
         borderRadius: 20,
-        marginTop: 10
+        marginTop: hp(10)
     },
     dot: {
         width: 6,
@@ -182,7 +183,7 @@ const styles = StyleSheet.create({
     quantityRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 30
+        marginTop: hp(30)
     },
     qtyText: {
         marginHorizontal: 20,
@@ -190,7 +191,7 @@ const styles = StyleSheet.create({
     },
     actionButtonContainer: {
         width: "100%",
-        marginTop: 40,
-        paddingBottom: Platform.OS === 'ios' ? 20 : 0
+        marginTop: hp(40),
+        paddingBottom: Platform.OS === 'ios' ? hp(40) : hp(20)
     }
 });

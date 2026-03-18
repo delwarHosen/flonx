@@ -2,11 +2,11 @@ import { JobsBagIcon } from '@/assets/images/icons/BarRelatedIcon/JobsBagIcon';
 import { LocationIcon } from '@/assets/images/icons/icon';
 import { RightAngleIcon } from '@/assets/images/icons/ProfileInfoIcons/RightAngleIcon';
 import { Colors } from '@/constants/theme';
-import { hp } from '@/utils/responsive';
+import { hp, wp } from '@/utils/responsive';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CustomButton } from '../CustomButton';
-import { Body1, Body2, Body3, Caption1, Caption2 } from '../typo/Typography';
+import { Body1, Body2, Body3, Caption2, Caption3 } from '../typo/Typography';
 
 interface GigCardProps {
     item: any;
@@ -55,14 +55,14 @@ const GigCard = ({ item, onPress }: GigCardProps) => {
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: statusColors.bg }]}>
                     <View style={[styles.dot, { backgroundColor: statusColors.text }]} />
-                    <Caption1 color={statusColors.text}>{item.status}</Caption1>
+                    <Caption3 color={statusColors.text}>{item.status}</Caption3>
                 </View>
             </View>
 
             <Body1 color={Colors.NEUTRAL0} style={styles.title}>{item.title}</Body1>
             <View style={styles.locationRow}>
                 <LocationIcon />
-                <Body3 color={Colors.PLACEHOLLDER_TEXT} style={{ marginLeft: 4 }}>
+                <Body3 color={Colors.PLACEHOLLDER_TEXT} style={{ marginLeft: wp(4) }}>
                     {item.location}
                 </Body3>
             </View>
@@ -70,7 +70,7 @@ const GigCard = ({ item, onPress }: GigCardProps) => {
             <View style={styles.footer}>
                 <View>
                     <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Pay Rate (Per Hour)</Caption2>
-                    <Body2 color={Colors.NEUTRAL0} style={{ marginTop: 8 }}>$ {item.payRate.toFixed(2)}</Body2>
+                    <Body2 color={Colors.NEUTRAL0} style={{ marginTop: hp(8) }}>$ {item.payRate.toFixed(2)}</Body2>
                 </View>
 
                 <CustomButton
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 12,
         padding: 14,
-        marginTop: 16,
+        marginTop: hp(16),
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
     },
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 12,
+        marginBottom: hp(12),
     },
     iconContainer: {
         width: 24,
@@ -114,8 +114,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#FFB02033',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingHorizontal: wp(12),
+        paddingVertical: hp(6),
         borderRadius: 100,
     },
     dot: {
@@ -125,19 +125,19 @@ const styles = StyleSheet.create({
         marginRight: 4,
     },
     title: {
-        marginBottom: 8,
-        marginTop: 4
+        marginBottom: hp(8),
+        marginTop: hp(4)
     },
     locationRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: hp(20),
     },
     footer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingTop: 16,
+        paddingTop: hp(16),
         borderTopWidth: 1,
         borderTopColor: Colors.BORDER_COLOR,
     },

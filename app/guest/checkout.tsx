@@ -6,6 +6,7 @@ import SectionTitle from '@/components/SectionTitle';
 import { Body1, Body2, Body4, Caption1, Caption3, H5, H6 } from '@/components/typo/Typography';
 import { bars } from '@/constants/data/barData';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -140,7 +141,7 @@ const Checkout: React.FC = () => {
 
             {
                 isInitialLoading ? (
-                    <ActivityIndicator color={Colors.BRAND_PRIMARY} style={{ marginTop: 50 }} />
+                    <ActivityIndicator color={Colors.BRAND_PRIMARY} style={{ marginTop: hp(50) }} />
                 ) : (
                     <FlatList
                         data={cartItems}
@@ -172,7 +173,7 @@ const Checkout: React.FC = () => {
                     title="Checkout"
                     onPress={() => router.push("/guest/payment-type")}
                     width="100%"
-                    height={48}
+                    height={hp(44)}
                     borderRadius={100}
                     backgroundColor={Colors.NEUTRAL0}
                     borderColor={Colors.BRAND_PRIMARY}
@@ -195,12 +196,12 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.APP_BACKGROUND,
     },
     headerWrapper: {
-        paddingVertical: Platform.OS === 'ios' ? 10 : "4%",
-        paddingBottom: 20
+        paddingVertical: Platform.OS === 'ios' ? hp(10) : hp(16),
+        paddingBottom: hp(20)
     },
     listContent: {
-        paddingHorizontal: 20,
-        paddingBottom: 30,
+        paddingHorizontal: wp(20),
+        paddingBottom: hp(30),
     },
     emptyContainer: {
         marginTop: 100,
@@ -210,13 +211,13 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 14,
         padding: 12,
-        marginBottom: 16,
+        marginBottom: hp(16),
         borderWidth: 1,
         borderColor: '#2A2344',
     },
     cardTop: {
         flexDirection: 'row',
-        marginBottom: 12
+        marginBottom: hp(12)
     },
     itemImage: {
         width: 78,
@@ -226,13 +227,13 @@ const styles = StyleSheet.create({
     },
     itemInfo: {
         flex: 1,
-        marginLeft: 15,
+        marginLeft: wp(15),
         justifyContent: 'center'
     },
 
     ingredients: {
         fontSize: 12,
-        marginVertical: 4,
+        marginVertical: hp(4),
         lineHeight: 16
     },
     price: {
@@ -251,7 +252,7 @@ const styles = StyleSheet.create({
         height: 1,
         backgroundColor: "#2A2448",
         // marginBottom: 14,
-        marginTop: 6
+        marginTop: hp(6)
     },
     cardBottom: {
         flexDirection: 'row',
@@ -263,18 +264,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     qtyText: {
-        marginHorizontal: 15,
-        marginTop: 15,
+        marginHorizontal: wp(15),
+        marginTop: hp(15),
         minWidth: 20,
         textAlign: 'center'
     },
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        paddingHorizontal: wp(10),
+        paddingVertical: hp(4),
         borderRadius: 20,
-        marginTop: 15
+        marginTop: hp(15)
     },
     statusDot: {
         width: 6,
@@ -284,8 +285,8 @@ const styles = StyleSheet.create({
     },
     footer: {
         backgroundColor: Colors.BRAND_PRIMARY,
-        paddingHorizontal: 25,
-        paddingTop: 20,
+        paddingHorizontal: wp(25),
+        paddingTop: hp(20),
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
         // Elevation for Android, Shadow for iOS
@@ -312,7 +313,7 @@ const styles = StyleSheet.create({
     },
     stripeText: {
         textAlign: 'center',
-        marginTop: 15,
+        marginTop: hp(15),
         opacity: 0.7,
         fontSize: 11
     }

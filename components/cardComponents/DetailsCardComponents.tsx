@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderWidth: 1,
         borderRadius: 10,
-        marginBottom: 10
+        marginBottom: hp(10)
     },
     
 });

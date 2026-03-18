@@ -9,14 +9,19 @@ import SectionTitle from '@/components/SectionTitle';
 import { Body2, Caption1 } from '@/components/typo/Typography';
 import { jobPosts } from '@/constants/data/jobPosts';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 
 const ApplicantsList = () => {
     const { jobId } = useLocalSearchParams<{ jobId: string }>();
-    const job = jobPosts.find(j => j.id === jobId); 
-    const applicants = job?.applicants || []; 
+
+    // console.log("Received jobId:", jobId);
+
+    const job = jobPosts.find(j => j.id === jobId);
+    const applicants = job?.applicants || [];
+    // console.log("Found applicants count:", applicants.length);
 
     const renderApplicantCard = ({ item }: { item: any }) => (
-        <TouchableOpacity 
+        <TouchableOpacity
             style={styles.card}
             onPress={() => router.push({
                 pathname: '/customer/gigs-related/applicant-details',
@@ -28,7 +33,7 @@ const ApplicantsList = () => {
                 <View style={styles.info}>
                     <Body2 color={Colors.NEUTRAL0} >{item.name}</Body2>
                     <View style={styles.ratingRow}>
-                        <StarIcon color='#FFB020'/>
+                        <StarIcon color='#FFB020' />
                         <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginLeft: 4 }}>
                             {item.rating} ({item.reviewCount})
                         </Caption1>
@@ -41,10 +46,10 @@ const ApplicantsList = () => {
 
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-          <View style={{paddingTop:"4%"}}>
-              <SectionTitle  title="Applicants" />
-          </View>
-            
+            <View style={{ paddingTop: hp(16) }}>
+                <SectionTitle title="Applicants" />
+            </View>
+
             <FlatList
                 data={applicants}
                 renderItem={renderApplicantCard}
@@ -72,12 +77,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: Colors.INPUT_BACKGROUND, 
+        backgroundColor: Colors.INPUT_BACKGROUND,
         padding: 10,
         borderRadius: 12,
-        marginBottom: 12,
+        marginBottom: hp(12),
         borderWidth: 1,
-        borderColor: Colors.BORDER_COLOR, 
+        borderColor: Colors.BORDER_COLOR,
     },
     cardLeft: {
         flexDirection: 'row',
@@ -88,19 +93,19 @@ const styles = StyleSheet.create({
         height: 44,
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: Colors.BRAND_PRIMARY, 
+        borderColor: Colors.BRAND_PRIMARY,
     },
     info: {
-        marginLeft: 12,
+        marginLeft: wp(12),
     },
     ratingRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 5,
+        marginTop: hp(5),
     },
     emptyText: {
         textAlign: 'center',
-        marginTop: 50,
+        marginTop: hp(50),
     }
 });
 

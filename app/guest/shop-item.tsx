@@ -5,6 +5,7 @@ import SectionTitle from '@/components/SectionTitle';
 import { Body1, Body4, Caption1, Caption4 } from '@/components/typo/Typography';
 import { bars } from '@/constants/data/barData';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { FlatList, Platform, Image as RNImage, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -78,7 +79,7 @@ const ShopItems = () => {
                             showsHorizontalScrollIndicator={false}
                             keyExtractor={(cat) => cat.id.toString()}
                             style={styles.tabList}
-                            contentContainerStyle={{ paddingRight: 20 }}
+                            contentContainerStyle={{ paddingRight: wp(20) }}
                             renderItem={({ item: cat }) => (
                                 <TouchableOpacity
                                     onPress={() => setSelectedCategory(cat.id)}
@@ -146,17 +147,17 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.APP_BACKGROUND,
     },
     headerWrapper: {
-        paddingVertical: "4%"
+        paddingVertical: hp(16)
     },
     tabList: {
-        marginBottom: 16,
+        marginBottom:hp(16),
     },
     tab: {
-        paddingHorizontal: 20,
-        paddingVertical: 7,
+        paddingHorizontal: wp(20),
+        paddingVertical: hp(7),
         borderRadius: 100,
         backgroundColor: Colors.INPUT_BACKGROUND,
-        marginRight: 10,
+        marginRight: wp(10),
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
     },
@@ -165,12 +166,12 @@ const styles = StyleSheet.create({
         borderColor: Colors.BRAND_PRIMARY || '#A020F0',
     },
     listContent: {
-        paddingHorizontal: 20,
+        paddingHorizontal: wp(20),
     },
     modalOverlay: {
         position: 'absolute',
-        left: 20,
-        right: 20,
+        left: wp(20),
+        right: wp(20),
         backgroundColor: Colors.BRAND_PRIMARY,
         borderRadius: 100,
         padding: 20, // Slightly reduced to fit better
@@ -199,8 +200,8 @@ const styles = StyleSheet.create({
     },
     checkoutBtn: {
         backgroundColor: Colors.NEUTRAL0,
-        paddingHorizontal: 20,
-        paddingVertical: 12,
+        paddingHorizontal: wp(20),
+        paddingVertical: hp(12),
         borderRadius: 100,
     },
     priceText: {

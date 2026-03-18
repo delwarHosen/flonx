@@ -2,6 +2,7 @@ import SectionTitle from '@/components/SectionTitle';
 import { DetailsCardComponents } from '@/components/cardComponents/DetailsCardComponents';
 import { bars } from '@/constants/data/barData';
 import { Colors } from '@/constants/theme';
+import { hp, wp } from '@/utils/responsive';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
@@ -71,8 +72,8 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         alignItems: 'center',
-        paddingBottom: 40,
-        paddingHorizontal: 20,
+        paddingBottom: hp(40),
+        paddingHorizontal: wp(20),
     },
     logoWrapper: {
         width: 120, // Slightly larger for better visibility on high-res screens
@@ -81,7 +82,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         justifyContent: 'center',
         alignItems: 'center',
-        marginVertical: 24,
+        marginVertical: hp(24),
         overflow: 'hidden',
         // Platform Shadow
         ...Platform.select({

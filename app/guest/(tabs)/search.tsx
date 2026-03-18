@@ -2,6 +2,7 @@ import BarCardComponents from '@/components/cardComponents/BarCardComponents'
 import SearchBar from '@/components/CommonComponents/SearchBar'
 import { bars } from '@/constants/data/barData'
 import { Colors } from '@/constants/theme'
+import { hp, wp } from '@/utils/responsive'
 import { useRouter } from 'expo-router'
 import React, { useState } from 'react'
 import { FlatList, Platform, StyleSheet, View } from 'react-native'; // Added Platform
@@ -55,22 +56,22 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.APP_BACKGROUND,
   },
   searchWrapper: {
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 10 : 10, 
-    marginBottom: 10,
+    paddingHorizontal: wp(20),
+    paddingTop: Platform.OS === 'ios' ? hp(10) : hp(10), 
+    marginBottom: hp(10),
   },
   listContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 40, 
-    paddingTop: 10,
+    paddingHorizontal: wp(20),
+    paddingBottom: hp(40), 
+    paddingTop: hp(10),
   },
   // Kept your original styles below in case you need them elsewhere
   scrollContainer: {
-    marginTop: 10,
+    marginTop: hp(10),
   },
   scrollContent: {
     flexGrow: 1,
     alignItems: "center",
-    paddingBottom: 20,
+    paddingBottom: hp(20),
   }
 })
