@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: wp(20),
     },
     logoWrapper: {
-        width: wp(100),
+        width: 100,
         height: 100,
         borderRadius: 20,
         backgroundColor: '#FFFFFF',
