@@ -31,7 +31,8 @@ interface FormInputProps {
     maxLength?: number;
     minLength?: number;
     editable?: boolean;
-    rightIcon?: React.ReactNode; // Nuton prop add kora hoyeche
+    rightIcon?: React.ReactNode;
+    onBlur?: () => void; // Nuton prop add kora hoyeche
 }
 
 export const FormInput: React.FC<FormInputProps> = ({
@@ -47,6 +48,7 @@ export const FormInput: React.FC<FormInputProps> = ({
     minLength,
     rightIcon, // Prop destructure kora hoyeche
     // editable
+    onBlur
 }) => {
 
     const [showPassword, setShowPassword] = useState(false);
@@ -150,6 +152,7 @@ export const FormInput: React.FC<FormInputProps> = ({
                     autoCapitalize={type === "email" ? "none" : "sentences"}
                     autoCorrect={false}
                     maxLength={maxLength}
+                    onBlur={onBlur}
                 />
 
                 {/* Jodi password field hoy tobe eye icon dekhabe, na hole rightIcon dekhabe */}

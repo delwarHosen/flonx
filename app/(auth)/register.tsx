@@ -5,38 +5,33 @@ import { Body3 } from '@/components/typo/Typography';
 import { FORM_FIELDS, FORM_LABELS, FORM_PLACEHOLDERS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
+import { useRegisterMutation } from '@/redux/services/authApi';
 import { RootState } from '@/redux/store';
-import { validateEmail, validateName, validatePassword, validatePhoneNumber } from '@/utils/validation';
+import { validateName, validatePhoneNumber } from '@/utils/validation';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Dimensions, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
-const { width, height } = Dimensions.get('window');
-
-// Responsive helpers
-const isIOS = Platform.OS === 'ios';
-const isSmallDevice = height < 700;
-const isMediumDevice = height >= 700 && height < 844;
+const { height } = Dimensions.get('window');
 
 const rs = (small: number, medium: number, large: number) => {
-  if (isSmallDevice) return small;
-  if (isMediumDevice) return medium;
+  if (height < 700) return small;
+  if (height >= 700 && height < 844) return medium;
   return large;
 };
 
 export default function RegisterScreen() {
   const router = useRouter();
-  const [isRemembered, setIsRemembered] = React.useState(false);
-
   const userRole = useSelector((state: RootState) => state.auth.userRole);
   const isBartender = userRole === "bartender";
+
+  const [registerUser, { isLoading }] = useRegisterMutation();
 
   const {
     values,
     errors,
     touched,
-    isSubmitting,
     handleChange,
     handleBlur,
     handleSubmit,
@@ -51,42 +46,57 @@ export default function RegisterScreen() {
 
     validationRules: {
       [FORM_FIELDS.FULL_NAME]: validateName,
-      [FORM_FIELDS.EMAIL]: validateEmail,
-      [FORM_FIELDS.CONTACT_NO]: validatePhoneNumber,
-      [FORM_FIELDS.PASSWORD]: validatePassword,
-      [FORM_FIELDS.CONFIRM_PASSWORD]: validatePassword,
+
+      // Email: No format check, only required
+      [FORM_FIELDS.EMAIL]: (val: string) => (!val.trim() ? "Email is required" : ""),
+
+      [FORM_FIELDS.CONTACT_NO]: (val: string): string => {
+        if (isBartender) return validatePhoneNumber(val);
+        return '';
+      },
+
+      // Password: No length check, only required
+      [FORM_FIELDS.PASSWORD]: (val: string) => (!val.trim() ? "Password is required" : ""),
+
+      // Confirm Password: Must match Password (Postman logic)
+      [FORM_FIELDS.CONFIRM_PASSWORD]: (val: string): string => {
+        if (!val.trim()) return "Confirm Password is required";
+        if (val !== values[FORM_FIELDS.PASSWORD]) return "Passwords do not match";
+        return "";
+      },
     },
 
-    onSubmit: async (values) => {
+    onSubmit: async (formValues) => {
       try {
-        const data = {
-          email: values.email,
-          password: values.password
+        // Postman payload onujayi data structure
+        const payload = {
+          name: formValues[FORM_FIELDS.FULL_NAME],
+          email: formValues[FORM_FIELDS.EMAIL],
+          password: formValues[FORM_FIELDS.PASSWORD],
+          confirmPassword: formValues[FORM_FIELDS.CONFIRM_PASSWORD],
+          role: userRole,
+          phone: isBartender ? formValues[FORM_FIELDS.CONTACT_NO] : "",
+        };
+
+        console.log("Sending Payload:", payload);
+
+        const res = await registerUser(payload).unwrap();
+
+        if (res?.success) {
+          ToastAndroid.show(res.message || "Registration Successful!", ToastAndroid.SHORT);
+          router.push({
+            pathname: "/email-verify",
+            params: { email: formValues[FORM_FIELDS.EMAIL] }
+          });
         }
-        console.log("SignIn data from signup Page", data)
-        // router.push("/(tabs)/home")
       } catch (error: any) {
-        const message = error?.data?.message || error?.message || "something eent wrong while signing!"
-
-        ToastAndroid.showWithGravityAndOffset(
-          message,
-          ToastAndroid.LONG,
-          ToastAndroid.BOTTOM,
-          25,
-          50
-        )
+        // API Not Found hole ekhane details paben (Check IP/Network)
+        console.error("Signup Error Detail:", error);
+        const message = error?.data?.message || "API Not Found! Check IP or Server.";
+        ToastAndroid.show(message, ToastAndroid.LONG);
       }
-
     },
   });
-
-
-  const isFormValid =
-    values[FORM_FIELDS.EMAIL] &&
-    values[FORM_FIELDS.PASSWORD] &&
-    !errors[FORM_FIELDS.EMAIL] &&
-    !errors[FORM_FIELDS.PASSWORD]
-
 
   return (
     <KeyboardAvoidingView
@@ -98,18 +108,8 @@ export default function RegisterScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-
-        <View style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          paddingHorizontal: rs(16, 20, 24),
-          paddingVertical: rs(16, 24, 32),
-          minHeight: height,
-        }}>
-
+        <View style={styles.containerStyle}>
           <View style={{ width: '100%', maxWidth: 500 }}>
-
             <AuthHeading
               title={isBartender ? "Join as a Bartender" : "Create Your Account"}
               description={isBartender ?
@@ -117,15 +117,13 @@ export default function RegisterScreen() {
                 : "Sign up to track orders, explore bars, and access extra features."}
             />
 
-            {/* ---Form--- */}
             <View style={styles.form}>
-
               <FormInput
                 label={FORM_LABELS[FORM_FIELDS.FULL_NAME]}
                 value={values[FORM_FIELDS.FULL_NAME]}
                 onChangeText={(text) => handleChange(FORM_FIELDS.FULL_NAME, text)}
-                type="email"
-                placeholder='Enter Your Email'
+                onBlur={() => handleBlur(FORM_FIELDS.FULL_NAME)}
+                placeholder='Enter Your Full Name'
                 error={errors[FORM_FIELDS.FULL_NAME]}
                 touched={touched[FORM_FIELDS.FULL_NAME]}
                 required
@@ -135,6 +133,7 @@ export default function RegisterScreen() {
                 label={FORM_LABELS[FORM_FIELDS.EMAIL]}
                 value={values[FORM_FIELDS.EMAIL]}
                 onChangeText={(text) => handleChange(FORM_FIELDS.EMAIL, text)}
+                onBlur={() => handleBlur(FORM_FIELDS.EMAIL)}
                 type="email"
                 placeholder='Enter Your Email'
                 error={errors[FORM_FIELDS.EMAIL]}
@@ -142,28 +141,26 @@ export default function RegisterScreen() {
                 required
               />
 
-              {
-                isBartender && (
-                  <FormInput
-                    label={FORM_LABELS[FORM_FIELDS.CONTACT_NO]}
-                    value={values[FORM_FIELDS.CONTACT_NO]}
-                    onChangeText={(number) => handleChange(FORM_FIELDS.CONTACT_NO, number)}
-                    type="number"
-                    placeholder='Enter Your Contact No'
-                    error={errors[FORM_FIELDS.CONTACT_NO]}
-                    touched={touched[FORM_FIELDS.CONTACT_NO]}
-                    required
-                  />
-                )
-              }
-
+              {isBartender && (
+                <FormInput
+                  label={FORM_LABELS[FORM_FIELDS.CONTACT_NO]}
+                  value={values[FORM_FIELDS.CONTACT_NO]}
+                  onChangeText={(number) => handleChange(FORM_FIELDS.CONTACT_NO, number)}
+                  onBlur={() => handleBlur(FORM_FIELDS.CONTACT_NO)}
+                  type="number"
+                  placeholder='Enter Your Contact No'
+                  error={errors[FORM_FIELDS.CONTACT_NO]}
+                  touched={touched[FORM_FIELDS.CONTACT_NO]}
+                  required
+                />
+              )}
 
               <FormInput
                 label={FORM_LABELS[FORM_FIELDS.PASSWORD]}
                 value={values[FORM_FIELDS.PASSWORD]}
                 onChangeText={(text) => handleChange(FORM_FIELDS.PASSWORD, text)}
+                onBlur={() => handleBlur(FORM_FIELDS.PASSWORD)}
                 placeholder={FORM_PLACEHOLDERS[FORM_FIELDS.PASSWORD]}
-                // placeholder='Enter Your Password'
                 type="password"
                 error={errors[FORM_FIELDS.PASSWORD]}
                 touched={touched[FORM_FIELDS.PASSWORD]}
@@ -174,62 +171,58 @@ export default function RegisterScreen() {
                 label={FORM_LABELS[FORM_FIELDS.CONFIRM_PASSWORD]}
                 value={values[FORM_FIELDS.CONFIRM_PASSWORD]}
                 onChangeText={(text) => handleChange(FORM_FIELDS.CONFIRM_PASSWORD, text)}
+                onBlur={() => handleBlur(FORM_FIELDS.CONFIRM_PASSWORD)}
                 placeholder={FORM_PLACEHOLDERS[FORM_FIELDS.CONFIRM_PASSWORD]}
-                // placeholder='Enter Your Password'
                 type="password"
                 error={errors[FORM_FIELDS.CONFIRM_PASSWORD]}
                 touched={touched[FORM_FIELDS.CONFIRM_PASSWORD]}
                 required
               />
 
-
-              {/* ----Submit Button---- */}
               <CustomButton
-                title="Create Account"
-                // onPress={handleSubmit}
-                onPress={()=>router.push("/email-verify")}
+                title={isLoading ? "Creating..." : "Create Account"}
+                onPress={handleSubmit}
+                disabled={isLoading}
                 width="100%"
                 height={rs(44, 48, 52)}
                 borderRadius={100}
-              // icon={<DoubleRightArrowIcon />}
               />
             </View>
-            <View style={{ marginTop: rs(12, 16, 16), flexDirection:"row", alignItems: "center", justifyContent:"center" }}>
+
+            <View style={styles.footer}>
               <Body3 color={Colors.PLACEHOLLDER_TEXT}>Already have an account?</Body3>
-              <TouchableOpacity
-                onPress={() => router.push("/(auth)/login")}
-                hitSlop={{ top: 8, bottom: 8, left: 4, right: 8 }}
-              >
+              <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
                 <Body3 color={Colors.BRAND_PRIMARY}> Sign In</Body3>
               </TouchableOpacity>
             </View>
-
           </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
-
-  )
+  );
 }
 
-
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1
-  },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: "center",
     backgroundColor: Colors.APP_BACKGROUND,
-    // minHeight: height,
+  },
+  containerStyle: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: rs(16, 20, 24),
+    paddingVertical: rs(16, 24, 32),
+    minHeight: height,
   },
   form: {
     marginTop: rs(12, 16, 20),
     gap: rs(2, 4, 4),
   },
-  forgotPasswordContainer: {
-    alignItems: 'flex-end',
-    // marginBottom: 24,
-  },
-  
-})
+  footer: {
+    marginTop: rs(12, 16, 16),
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center"
+  }
+});

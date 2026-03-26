@@ -3,9 +3,11 @@ import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
 import { Body2, Body3, H2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
+import { useResendVerifyCodeMutation, useVerifyEmailMutation } from '@/redux/services/authApi';
 import { RootState } from '@/redux/store';
 import { hp, wp } from '@/utils/responsive';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Dimensions,
@@ -25,11 +27,15 @@ const CODE_LENGTH = 6;
 
 export default function EmailVerifyOtp() {
   const router = useRouter();
+  const { email } = useLocalSearchParams<{ email: string }>();
   const [code, setCode] = useState<string>('');
   const [timer, setTimer] = useState<number>(30);
   const [canResend, setCanResend] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
   const inputRef = useRef<TextInput | null>(null);
+
+  // API Hooks
+  const [verifyEmail, { isLoading: isVerifying }] = useVerifyEmailMutation();
+  const [resendCode, { isLoading: isResending }] = useResendVerifyCodeMutation();
 
   const userRole = useSelector((state: RootState) => state.auth.userRole);
   const isBartender = userRole === "bartender";
@@ -45,46 +51,67 @@ export default function EmailVerifyOtp() {
     return () => clearInterval(interval);
   }, [timer]);
 
-  const handleResend = () => {
-    if (!canResend) return;
-    setTimer(30);
-    setCanResend(false);
-    setCode('');
-    if (Platform.OS === 'android') {
-      ToastAndroid.show('Verification code sent again!', ToastAndroid.SHORT);
+  const handleResend = async () => {
+    if (!canResend || isResending) return;
+
+    try {
+      const res = await resendCode({ email }).unwrap();
+      if (res.success) {
+        setTimer(30);
+        setCanResend(false);
+        setCode('');
+        if (Platform.OS === 'android') {
+          ToastAndroid.show(res.message || 'Verification code sent again!', ToastAndroid.SHORT);
+        }
+      }
+    } catch (error: any) {
+      const errorMsg = error?.data?.message || "Failed to resend code";
+      ToastAndroid.show(errorMsg, ToastAndroid.LONG);
     }
   };
 
-  // const handleVerify = () => {
-  //   if (code.length !== CODE_LENGTH) {
-  //     if (Platform.OS === 'android') {
-  //       ToastAndroid.show('Please enter full 6-digit code', ToastAndroid.SHORT);
-  //     }
-  //     return;
-  //   }
-  //   setLoading(true);
-  //   setTimeout(() => {
-  //     setLoading(false);
-  //     if (isBartender) {
-  //       router.push("/bartender-info")
-  //     } else {
-  //       router.push('/onboarding');
-  //     }
+  // submit verify code
+  const handleVerify = async () => {
+  if (!code || code.length !== CODE_LENGTH) {
+    if (Platform.OS === 'android') {
+      ToastAndroid.show('Please enter full 6-digit code', ToastAndroid.SHORT);
+    }
+    return;
+  }
 
-  //   }, 1000);
-  // };
+  try {
+   
+    console.log("Payload Sending:", { email, code });
 
-  const handleVerify = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+   
+    const res = await verifyEmail({ 
+      email: email, 
+      code: code 
+    }).unwrap();
+    
+    if (res?.success) {
+      if (res.data?.accessToken) {
+        await SecureStore.setItemAsync('accessToken', res.data.accessToken);
+        await SecureStore.setItemAsync('refreshToken', res.data.refreshToken);
+      }
+
+      ToastAndroid.show(res.message || "Verification Successful!", ToastAndroid.SHORT);
+
       if (isBartender) {
         router.push("/bartender-info");
       } else {
         router.push('/onboarding');
       }
-    }, 1000);
-  };
+    }
+  } catch (error: any) {
+    
+    console.error("Full Verify Error:", JSON.stringify(error, null, 2));
+    
+    const errorMsg = error?.data?.message || "Verification failed!";
+    ToastAndroid.show(errorMsg, ToastAndroid.LONG);
+  }
+};
+
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.APP_BACKGROUND }}>
@@ -138,8 +165,10 @@ export default function EmailVerifyOtp() {
               <View style={styles.resendContainer}>
                 <Body3 color={Colors.PLACEHOLLDER_TEXT}>Didn’t receive the code?</Body3>
                 {canResend ? (
-                  <TouchableOpacity onPress={handleResend}>
-                    <Body3 color={Colors.BRAND_PRIMARY} style={styles.resendText}>Resend code</Body3>
+                  <TouchableOpacity onPress={handleResend} disabled={isResending}>
+                    <Body3 color={Colors.BRAND_PRIMARY} style={styles.resendText}>
+                      {isResending ? "Sending..." : "Resend code"}
+                    </Body3>
                   </TouchableOpacity>
                 ) : (
                   <Body3 color={Colors.BRAND_PRIMARY} style={styles.timerText}>Resend in {timer}s</Body3>
@@ -147,7 +176,7 @@ export default function EmailVerifyOtp() {
               </View>
 
               <View>
-                {loading ? (
+                {isVerifying ? (
                   <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
                     <CustomLoader size={45} />
                   </View>
@@ -172,8 +201,8 @@ export default function EmailVerifyOtp() {
 const styles = StyleSheet.create({
   scrollContent: {
     flex: 1,
-    justifyContent: 'center', // Keeps content vertically centered
-    alignItems: 'center',     // Keeps content horizontally centered
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: wp(20),
     backgroundColor: Colors.APP_BACKGROUND
   },
@@ -188,7 +217,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   otpBox: {
-    // Dynamic calculation ensures boxes fit all iOS screen widths perfectly
     width: (width * 0.9 - 50) / 6,
     height: (width * 0.9 - 50) / 6,
     maxWidth: 54,
@@ -201,7 +229,6 @@ const styles = StyleSheet.create({
   },
   otpText: {
     fontSize: 24,
-    // fontWeight: '600',
   },
   hiddenInput: {
     position: 'absolute',
@@ -213,10 +240,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: hp(16),
-    marginBottom: hp(20), // Space between resend and button
+    marginBottom: hp(20),
   },
   resendText: {
-    // fontWeight: '600',
   },
   timerText: {
     color: Colors.BRAND_PRIMARY,

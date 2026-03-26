@@ -6,58 +6,40 @@ import { Body2, Body3 } from '@/components/typo/Typography';
 import { FORM_FIELDS, FORM_LABELS, FORM_PLACEHOLDERS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
+import { setCredentials } from '@/redux/authSlice'; // Credentials set korar action
+import { useLoginMutation } from '@/redux/services/authApi';
 import { RootState } from '@/redux/store';
+import { hp, wp } from '@/utils/responsive';
 import { validateEmail, validatePassword } from '@/utils/validation';
 import { Link, useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
+import { jwtDecode } from "jwt-decode";
 import React from 'react';
-import { Dimensions, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, ToastAndroid, TouchableOpacity, View } from 'react-native';
-import { useSelector } from 'react-redux';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 
-const { width, height } = Dimensions.get('window');
+// const { width, height } = Dimensions.get('window');
 
-// Responsive helpers
-const isSmallDevice = width < 375;
-const isMediumDevice = width >= 375 && width < 414;
-const isLargeDevice = width >= 414;
-
-const responsiveSize = (small: number, medium: number, large: number) => {
-  if (isSmallDevice) return small;
-  if (isMediumDevice) return medium;
-  return large;
-};
-
-const responsiveFontSize = (base: number) => {
-  const scale = width / 375;
-  const scaled = base * scale;
-  return Math.round(Math.min(scaled, base * 1.3));
-};
-
-const responsiveSpacing = (base: number) => {
-  const scale = width / 375;
-  return Math.round(base * Math.min(scale, 1.4));
-};
 
 export default function LoginScreen() {
   const router = useRouter();
+  const dispatch = useDispatch();
   const [isRemembered, setIsRemembered] = React.useState(false);
-  const userRole = useSelector((state: RootState) => (state.auth.userRole))
 
-  
+  const userRole = useSelector((state: RootState) => state.auth.userRole);
+  const [loginSubmit, { isLoading }] = useLoginMutation();
 
   const {
     values,
     errors,
     touched,
-    isSubmitting,
     handleChange,
-    handleBlur,
     handleSubmit,
   } = useForm({
     initialValues: {
       [FORM_FIELDS.EMAIL]: "",
       [FORM_FIELDS.PASSWORD]: "",
     },
-
     validationRules: {
       [FORM_FIELDS.EMAIL]: validateEmail,
       [FORM_FIELDS.PASSWORD]: validatePassword,
@@ -65,50 +47,42 @@ export default function LoginScreen() {
 
     onSubmit: async (values) => {
       try {
-        const data = {
-          email: values.email,
-          password: values.password
+        const res = await loginSubmit({
+          email: values[FORM_FIELDS.EMAIL],
+          password: values[FORM_FIELDS.PASSWORD],
+          role: userRole,
+        }).unwrap();
+
+        if (res?.success && res?.data?.accessToken) {
+          const token = res.data.accessToken;
+          await SecureStore.setItemAsync('accessToken', token);
+
+          const decoded: any = jwtDecode(token);
+          const roleFromToken = decoded.role;
+
+          // console.log("Decoded Role from Token:", roleFromToken);
+
+          if (roleFromToken) {
+            dispatch(setCredentials({
+              role: roleFromToken,
+              token: token
+            }));
+
+            ToastAndroid.show("Login Successful!", ToastAndroid.SHORT);
+
+            if (roleFromToken === 'bartender') {
+              router.replace("/bartender/(tabs)/browse");
+            } else {
+              router.replace("/customer/(tabs)/home");
+            }
+          }
         }
-
-        // api call
-        // const res = await loginSubmit().unwrap()
-        // if (!res?.success) {
-        //   throw new Error(res?.message)
-        // }
-
-        // ToastAndroid.show()
-
-        if (userRole === 'bartender') {
-          router.replace("/bartender/(tabs)/browse");
-        } else {
-          router.replace("/customer/(tabs)/home");
-        }
-
-        console.log("SignIn data from login Page", data)
-        // router.push("/(tabs)/home")
       } catch (error: any) {
-        const message = error?.data?.message || error?.message || "something eent wrong while signing!"
-
-        ToastAndroid.showWithGravityAndOffset(
-          message,
-          ToastAndroid.LONG,
-          ToastAndroid.BOTTOM,
-          25,
-          50
-        )
+        console.error("Login error:", error);
+        ToastAndroid.show("Login failed!", ToastAndroid.LONG);
       }
-
     },
   });
-
-
-  const isFormValid =
-    values[FORM_FIELDS.EMAIL] &&
-    values[FORM_FIELDS.PASSWORD] &&
-    !errors[FORM_FIELDS.EMAIL] &&
-    !errors[FORM_FIELDS.PASSWORD]
-
-
 
   return (
     <KeyboardAvoidingView
@@ -120,24 +94,13 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-
-        <View style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          paddingHorizontal: responsiveSize(16, 20, 24),
-          paddingVertical: responsiveSpacing(24),
-          minHeight: height,
-        }}>
-
+        <View style={styles.container}>
           <View style={{ width: '100%', maxWidth: 500 }}>
-
             <AuthHeading
               title="Welcome Back"
               description="Sign in to continue exploring and managing your orders."
             />
 
-            {/* ---Form--- */}
             <View style={styles.form}>
               <FormInput
                 label={FORM_LABELS[FORM_FIELDS.EMAIL]}
@@ -147,7 +110,6 @@ export default function LoginScreen() {
                 placeholder='Enter Your Email'
                 error={errors[FORM_FIELDS.EMAIL]}
                 touched={touched[FORM_FIELDS.EMAIL]}
-                required
               />
 
               <FormInput
@@ -155,11 +117,9 @@ export default function LoginScreen() {
                 value={values[FORM_FIELDS.PASSWORD]}
                 onChangeText={(text) => handleChange(FORM_FIELDS.PASSWORD, text)}
                 placeholder={FORM_PLACEHOLDERS[FORM_FIELDS.PASSWORD]}
-                // placeholder='Enter Your Password'
                 type="password"
                 error={errors[FORM_FIELDS.PASSWORD]}
                 touched={touched[FORM_FIELDS.PASSWORD]}
-                required
               />
 
               <View>
@@ -167,90 +127,68 @@ export default function LoginScreen() {
                   label="Remember me"
                   checked={isRemembered}
                   onChange={(val) => setIsRemembered(val)}
-                  required
                 />
 
                 <View style={styles.forgotPasswordContainer}>
-                  <Link href={{
-                    pathname: "/(auth)/forgot-password",
-                    params: {
-                      email: FORM_FIELDS.EMAIL,
-                    },
-                  }}
-
-                    asChild>
-                    <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                  <Link href="/(auth)/forgot-password" asChild>
+                    <TouchableOpacity>
                       <Body2 color={Colors.BRAND_PRIMARY} style={styles.forgotPassword}>
                         Forgot password?
                       </Body2>
                     </TouchableOpacity>
                   </Link>
                 </View>
-
               </View>
-              {/* ----Submit Button---- */}
+
               <CustomButton
-                title="Log in"
-                // onPress={handleSubmit}
-                onPress={() =>
-                  userRole === "bartender"
-                    ? router.replace("/bartender/(tabs)/browse")
-                    : router.replace("/customer/(tabs)/home")
-                }
+                title={isLoading ? "Logging in..." : "Log in"}
+                onPress={handleSubmit} 
+                disabled={isLoading}
                 width="100%"
-                height={responsiveSize(44, 48, 52)}
+                height={hp(44)}
                 borderRadius={100}
-              // icon={<DoubleRightArrowIcon />}
               />
             </View>
-            <View style={{ marginTop: responsiveSpacing(16), alignItems: "center" }}>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Body3 color={Colors.PLACEHOLLDER_TEXT}>
-                  No account yet?
-                </Body3>
 
-                <TouchableOpacity
-                  onPress={() => router.push("/select-role")}
-                  hitSlop={{ top: 8, bottom: 8, left: 4, right: 8 }}
-                >
-                  <Body3 color={Colors.BRAND_PRIMARY}>
-                    {" "}Create an account
-                  </Body3>
-                </TouchableOpacity>
-              </View>
+            <View style={styles.footer}>
+              <Body3 color={Colors.PLACEHOLLDER_TEXT}>No account yet?</Body3>
+              <TouchableOpacity onPress={() => router.push("/select-role")}>
+                <Body3 color={Colors.BRAND_PRIMARY}> Create an account</Body3>
+              </TouchableOpacity>
             </View>
-            {/* Age Verification Modal */}
             
           </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
-
-  )
+  );
 }
 
-
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1
-  },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: "center",
     backgroundColor: Colors.APP_BACKGROUND,
-    // minHeight: height,
+  },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: wp(20)
   },
   form: {
-    marginTop: responsiveSize(24, 32, 40),
-    gap: responsiveSpacing(4),
+    marginTop: hp(32),
+    gap: 12,
   },
   forgotPasswordContainer: {
     alignItems: 'flex-end',
-    marginTop: responsiveSpacing(-5),
-    // marginBottom: 24,
+    marginTop: -5,
   },
   forgotPassword: {
-    // fontWeight: '500',
-    fontSize: responsiveFontSize(14),
+    fontSize: 14,
   },
-})
+  footer: {
+    marginTop: 16,
+    flexDirection: "row",
+    justifyContent: "center",
+  }
+});

@@ -4,7 +4,7 @@ import CustomLoader from '@/components/CustomLoader';
 import { Body2, Body3, H2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { hp, wp } from '@/utils/responsive';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Dimensions,
@@ -30,6 +30,9 @@ export default function VerifyOtp() {
   const [canResend, setCanResend] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const inputRef = useRef<TextInput | null>(null);
+
+  const { email } = useLocalSearchParams();
+  // const [verifyEmail, { isLoading }] = useVerifyEmailMutation<{ email: string }>();
 
   useEffect(() => {
     if (timer <= 0) {
@@ -100,7 +103,7 @@ export default function VerifyOtp() {
                       ]}
                     >
                       <H2 color={Colors.OTP_COLOR} style={styles.otpText}>
-                        {code[index] ?  code[index]: '' }
+                        {code[index] ? code[index] : ''}
                       </H2>
                     </View>
                   ))}

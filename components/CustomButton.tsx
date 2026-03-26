@@ -17,6 +17,8 @@ interface CustomButtonProps {
     height?: number;
     borderRadius?: number;
     borderColor?: string;
+    disabled?: boolean; // Ei line-ti add korun
+    isLoading?: boolean
 }
 
 export const CustomButton = ({
@@ -27,7 +29,7 @@ export const CustomButton = ({
     secondaryColor = Colors.BRAND_PRIMARY_LIGHT,
     primaryColor = Colors.BRAND_PRIMARY,
     backgroundColor,
-    color="white", 
+    color = "white",
     width = wp(120),
     height = hp(44),
     borderRadius = 100,
@@ -55,7 +57,7 @@ export const CustomButton = ({
                 } as any, style]}
             >
                 {/* 4. Pass the finalTextColor to ButtonText */}
-                {title ? <Text style={{fontFamily:"Nunito_600SemiBold",color,fontSize:fp(14)}} >{title}</Text> : null}
+                {title ? <Text style={{ fontFamily: "Nunito_600SemiBold", color, fontSize: fp(14) }} >{title}</Text> : null}
                 {icon && icon}
             </LinearGradient>
         </TouchableOpacity>
