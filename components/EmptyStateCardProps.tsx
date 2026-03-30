@@ -1,8 +1,7 @@
 import { IMAGE_COMPONENTS } from '@/constants/image.index';
 import { Colors } from '@/constants/theme';
-import { Image } from 'expo-image';
 import React from 'react';
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { Image, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Body3 } from './typo/Typography';
 
 interface EmptyStateCardProps {
@@ -19,8 +18,8 @@ const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
             <View style={styles.emptyIconContainer}>
                 <Image
                     source={IMAGE_COMPONENTS.emptyImg}
-                    style={{ height: 50, width: 80 }}
-                    contentFit='cover' />
+                    style={{ height: 50, width: 80 ,resizeMode: 'cover'}}
+                />
             </View>
 
             <Body3 italic color={Colors.PLACEHOLLDER_TEXT} align="center">
@@ -36,7 +35,7 @@ const styles = StyleSheet.create({
     emptyCard: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 12,
-        padding:24,
+        padding: 24,
         // paddingVertical: 40,
         // paddingHorizontal: 14,
         borderWidth: 1,

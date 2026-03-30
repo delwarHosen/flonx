@@ -23,8 +23,8 @@ export const validatePhoneNumber = (phone: string): string => {
 };
 
 
-export const validatePassword = (password: string): string => {
-  if (!password.trim()) return 'Password is required';
+// export const validatePassword = (password: string): string => {
+//   if (!password.trim()) return 'Password is required';
 
   // if (password.length < 8) {
   //   return 'Password must be at least 8 characters';
@@ -35,6 +35,13 @@ export const validatePassword = (password: string): string => {
   // if (!/[a-z]/.test(password)) return 'Password must contain at least one lowercase letter';
   // if (!/\d/.test(password)) return 'Password must contain at least one number';
 
+//   return '';
+// };
+
+
+export const validatePassword = (password: string): string => {
+  if (!password.trim()) return 'Password is required';
+  if (password.length < 8) return 'Password must be at least 8 characters';
   return '';
 };
 
@@ -90,13 +97,19 @@ export const validateExperience = (experience: string): string => {
   return '';
 };
 
+// export const validateName = (name: string): string => {
+//   if (!name.trim()) return 'Full name is required';
+
+//   if (name.trim().length < 2) {
+//     return 'Name must be at least 2 characters';
+//   }
+
+//   return '';
+// };
+
 export const validateName = (name: string): string => {
   if (!name.trim()) return 'Full name is required';
-
-  if (name.trim().length < 2) {
-    return 'Name must be at least 2 characters';
-  }
-
+  if (name.trim().length < 3) return 'Name must be at least 3 characters';
   return '';
 };
 

@@ -1,6 +1,5 @@
 import { baseApis } from "../base";
 
-
 export const authApi = baseApis.injectEndpoints({
     endpoints: (builder) => ({
         register: builder.mutation({
@@ -34,8 +33,71 @@ export const authApi = baseApis.injectEndpoints({
             }),
         }),
 
+        // forgot password
+        forgetPassword: builder.mutation({
+            query: (data) => ({
+                url: '/auth/forget-password',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
+        // forget verify otp
+        verifyForgetPassword: builder.mutation({
+            query: (data) => ({
+                url: '/auth/verify-reset-otp',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+
+        // reset password
+        resetPassword: builder.mutation({
+            query: (data) => ({
+                url: "/auth/reset-password",
+                method: "POST",
+                body: data
+            })
+        }),
+        // Change password
+        changePassword: builder.mutation({
+            query: (data) => ({
+                url: "/auth/change-password",
+                method: "POST",
+                body: data
+            }),
+        }),
+
+        // delete account
+        deleteAccount: builder.mutation({
+            query: (data) => ({
+                url: "/user/delete-account",
+                method: "POST",
+                body: data
+            })
+        }),
+
+        // get profile
+        getProfile: builder.query({
+            query: () => ({
+                url: '/user/user-profile',
+                method: 'GET',
+            }),
+            transformResponse: (response: any) => response.data,
+        }),
     }),
+    overrideExisting: true,
 });
 
-
-export const { useLoginMutation, useVerifyEmailMutation,useResendVerifyCodeMutation, useRegisterMutation } = authApi;
+export const {
+    useLoginMutation,
+    useVerifyEmailMutation,
+    useResendVerifyCodeMutation,
+    useRegisterMutation,
+    useForgetPasswordMutation,
+    useVerifyForgetPasswordMutation,
+    useResetPasswordMutation,
+    useChangePasswordMutation,
+    useDeleteAccountMutation,
+    useGetProfileQuery
+} = authApi;

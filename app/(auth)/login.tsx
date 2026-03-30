@@ -18,8 +18,6 @@ import React from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
-// const { width, height } = Dimensions.get('window');
-
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -53,11 +51,14 @@ export default function LoginScreen() {
           role: userRole,
         }).unwrap();
 
+        // console.log("Login Response:", res.data);
+
         if (res?.success && res?.data?.accessToken) {
           const token = res.data.accessToken;
           await SecureStore.setItemAsync('accessToken', token);
 
           const decoded: any = jwtDecode(token);
+          // console.log("Decoded Token:", decoded);
           const roleFromToken = decoded.role;
 
           // console.log("Decoded Role from Token:", roleFromToken);
@@ -78,8 +79,12 @@ export default function LoginScreen() {
           }
         }
       } catch (error: any) {
-        console.error("Login error:", error);
-        ToastAndroid.show("Login failed!", ToastAndroid.LONG);
+        console.log("Forgot Password Error:", error);
+        const message =
+          error?.data?.message ||
+          error?.message ||
+          "Something went wrong!";
+        ToastAndroid.show(message, ToastAndroid.LONG);
       }
     },
   });
@@ -142,7 +147,7 @@ export default function LoginScreen() {
 
               <CustomButton
                 title={isLoading ? "Logging in..." : "Log in"}
-                onPress={handleSubmit} 
+                onPress={handleSubmit}
                 disabled={isLoading}
                 width="100%"
                 height={hp(44)}
@@ -156,7 +161,7 @@ export default function LoginScreen() {
                 <Body3 color={Colors.BRAND_PRIMARY}> Create an account</Body3>
               </TouchableOpacity>
             </View>
-            
+
           </View>
         </View>
       </ScrollView>

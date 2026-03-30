@@ -5,13 +5,13 @@ import { hp, wp } from '@/utils/responsive';
 import { Image } from 'expo-image';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Caption2, Caption3, H6 } from '../typo/Typography';
+import { Caption3, H6 } from '../typo/Typography';
 
 
 interface BarCardProps {
     item: {
         name: string;
-        logo: any;
+        logo: string;
         status: "open" | "close";
         location: string;
     };
@@ -25,9 +25,13 @@ const BarCardComponents: React.FC<BarCardProps> = ({ item, onPress }) => {
         <TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={onPress}>
             {/* Left side: Logo */}
             <View style={styles.logoContainer}>
-                <Image source={item.logo} style={styles.logo}
+                <Image
+                    source={{ uri: item.logo }}
+                    style={styles.logo}
                     contentFit="contain"
-                    cachePolicy="disk" />
+                    cachePolicy="disk"
+                    // placeholder={require('@/assets/images/placeholder.png')}
+                />
             </View>
 
             {/* Center: Details */}
@@ -46,7 +50,7 @@ const BarCardComponents: React.FC<BarCardProps> = ({ item, onPress }) => {
                 <View style={styles.locationContainer}>
                     <LocationIcon />
 
-                    <Caption2 color={Colors.OTP_COLOR} style={styles.locationText} numberOfLines={1}>{item.location}</Caption2>
+                    <Caption3 color={Colors.OTP_COLOR} style={styles.locationText} numberOfLines={1}>{item.location}</Caption3>
                 </View>
             </View>
 
@@ -63,7 +67,8 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.INPUT_BACKGROUND,
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 10,
+        paddingVertical: hp(8),
+        paddingHorizontal:wp(16),
         borderRadius: 14,
         marginBottom: hp(16),
         borderWidth: 1,
@@ -76,9 +81,9 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     logo: {
-        borderWidth:1,
-        borderColor:Colors.BRAND_PRIMARY,
-        borderRadius:16,
+        borderWidth: 1,
+        borderColor: Colors.BRAND_PRIMARY,
+        borderRadius: 16,
         width: '100%',
         height: '100%',
     },
@@ -95,7 +100,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         alignSelf: 'flex-start',
         paddingHorizontal: wp(10),
-        paddingVertical: hp(4),
+        paddingVertical: hp(2),
         borderRadius: 12,
         marginBottom: hp(6),
     },
@@ -105,7 +110,7 @@ const styles = StyleSheet.create({
         borderRadius: 2,
         marginRight: 6,
     },
-    
+
     locationContainer: {
         flexDirection: 'row',
         alignItems: 'center',

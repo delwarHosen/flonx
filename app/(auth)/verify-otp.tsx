@@ -3,6 +3,7 @@ import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
 import { Body2, Body3, H2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
+import { useVerifyForgetPasswordMutation } from '@/redux/services/authApi';
 import { hp, wp } from '@/utils/responsive';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -20,7 +21,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 const CODE_LENGTH = 6;
-// Calculate dynamic box size so 6 boxes always fit the screen width
 const OTP_BOX_SIZE = Math.min(54, (width * 0.8) / CODE_LENGTH);
 
 export default function VerifyOtp() {
@@ -32,7 +32,7 @@ export default function VerifyOtp() {
   const inputRef = useRef<TextInput | null>(null);
 
   const { email } = useLocalSearchParams();
-  // const [verifyEmail, { isLoading }] = useVerifyEmailMutation<{ email: string }>();
+  const [verifyOtp, { isLoading: isVerifying }] = useVerifyForgetPasswordMutation();
 
   useEffect(() => {
     if (timer <= 0) {
@@ -47,7 +47,7 @@ export default function VerifyOtp() {
 
   const handleResend = () => {
     if (!canResend) return;
-    setTimer(30);
+    setTimer(300);
     setCanResend(false);
     setCode('');
     if (Platform.OS === 'android') {
@@ -55,19 +55,39 @@ export default function VerifyOtp() {
     }
   };
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     if (code.length !== CODE_LENGTH) {
       if (Platform.OS === 'android') {
         ToastAndroid.show('Please enter full 6-digit code', ToastAndroid.SHORT);
       }
       return;
     }
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      router.push('/(auth)/set-new-password');
-    }, 1000);
+
+    try {
+      const payload = {
+        email: email,
+        resetCode: Number(code), // Key must be 'resetCode'
+      };
+
+      console.log("Submitting Payload:", payload);
+
+      const res = await verifyOtp(payload).unwrap();
+
+      if (res?.success) {
+        ToastAndroid.show(res.message || "OTP Verified!", ToastAndroid.SHORT);
+        router.push({
+          pathname: '/(auth)/set-new-password',
+          params: { email: email, code: code }
+        });
+      }
+    } catch (error: any) {
+      // Error message handle kora
+      const errorMsg = error?.data?.message || "Invalid OTP";
+      ToastAndroid.show(errorMsg, ToastAndroid.LONG);
+    }
   };
+
+  
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.APP_BACKGROUND }}>
@@ -137,8 +157,8 @@ export default function VerifyOtp() {
                   </View>
                 ) : (
                   <CustomButton
-                    title="Verify Code"
-                    onPress={() => router.push('/(auth)/set-new-password')}
+                    title={isVerifying ? "Verifying..." : "Verify Code"}
+                    onPress={handleVerify}
                     width="100%"
                     height={hp(44)}
                     borderRadius={100}

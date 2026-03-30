@@ -57,7 +57,7 @@ export default function EmailVerifyOtp() {
     try {
       const res = await resendCode({ email }).unwrap();
       if (res.success) {
-        setTimer(30);
+        setTimer(300);
         setCanResend(false);
         setCode('');
         if (Platform.OS === 'android') {
@@ -72,46 +72,45 @@ export default function EmailVerifyOtp() {
 
   // submit verify code
   const handleVerify = async () => {
-  if (!code || code.length !== CODE_LENGTH) {
-    if (Platform.OS === 'android') {
-      ToastAndroid.show('Please enter full 6-digit code', ToastAndroid.SHORT);
-    }
-    return;
-  }
-
-  try {
-   
-    console.log("Payload Sending:", { email, code });
-
-   
-    const res = await verifyEmail({ 
-      email: email, 
-      code: code 
-    }).unwrap();
-    
-    if (res?.success) {
-      if (res.data?.accessToken) {
-        await SecureStore.setItemAsync('accessToken', res.data.accessToken);
-        await SecureStore.setItemAsync('refreshToken', res.data.refreshToken);
+    if (code.length !== CODE_LENGTH) {
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('Please enter full 6-digit code', ToastAndroid.SHORT);
       }
-
-      ToastAndroid.show(res.message || "Verification Successful!", ToastAndroid.SHORT);
-
-      if (isBartender) {
-        router.push("/bartender-info");
-      } else {
-        router.push('/onboarding');
-      }
+      return;
     }
-  } catch (error: any) {
-    
-    console.error("Full Verify Error:", JSON.stringify(error, null, 2));
-    
-    const errorMsg = error?.data?.message || "Verification failed!";
-    ToastAndroid.show(errorMsg, ToastAndroid.LONG);
-  }
-};
 
+    try {
+      
+      const payload = {
+        email: email,
+        verifyCode: Number(code), 
+      };
+
+      console.log("Sending Payload:", payload);
+
+      const res = await verifyEmail(payload).unwrap();
+
+      if (res?.success) {
+        if (res.data?.accessToken) {
+          await SecureStore.setItemAsync('accessToken', res.data.accessToken);
+          await SecureStore.setItemAsync('refreshToken', res.data.refreshToken);
+        }
+
+        ToastAndroid.show(res.message || "Verification Successful!", ToastAndroid.SHORT);
+
+        if (isBartender) {
+          router.push("/bartender-info");
+        } else {
+          router.push('/onboarding');
+        }
+      }
+    } catch (error: any) {
+      console.log("Verify Error:", error);
+      // Ekhon ar validation error ashar kotha na
+      const errorMsg = error?.data?.message || "Verification failed!";
+      ToastAndroid.show(errorMsg, ToastAndroid.LONG);
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.APP_BACKGROUND }}>

@@ -9,6 +9,7 @@ import { Body1, Body3, ButtonText, Caption1, H2, H5, H6 } from '@/components/typ
 import { IMAGE_COMPONENTS } from '@/constants/image.index';
 import { Colors } from '@/constants/theme';
 import { useCameraScanner } from '@/hooks/useCameraScanner';
+import { useGetProfileQuery } from '@/redux/services/authApi';
 import { hp, wp } from '@/utils/responsive';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -21,6 +22,8 @@ const HomeScreen: React.FC = () => {
   const [isScannerOpen, setIsScannerOpen] = useState<boolean>(false);
   const { checkPermission } = useCameraScanner();
   const router = useRouter();
+  const { data: profile } = useGetProfileQuery({});
+
 
   // Handle QR Scan Button Click
   const handleOpenScanner = async () => {
@@ -54,17 +57,20 @@ const HomeScreen: React.FC = () => {
         <View style={styles.header}>
           <View style={styles.userInfo}>
             <Image
-              source={IMAGE_COMPONENTS.profileImg}
+              source={profile?.profile_image
+                ? { uri: profile.profile_image }
+                : IMAGE_COMPONENTS.profileImg
+              }
               style={styles.avatar}
             />
             <View style={{ marginLeft: 12 }}>
-              <Body1 italic color={Colors.NEUTRAL0} weight="bold">Hello Florian</Body1>
+              <Body1 italic color={Colors.NEUTRAL0} weight="bold">Hello {profile?.name || 'User'}</Body1>
               <Body3 italic color={Colors.PLACEHOLLDER_TEXT}>Welcome to FLÖNX</Body3>
             </View>
           </View>
           <TouchableOpacity
-          onPress={()=>router.push("/customer/notification")}
-          style={styles.notificationBtn}>
+            onPress={() => router.push("/customer/notification")}
+            style={styles.notificationBtn}>
             <NotificationIcon size={24} />
           </TouchableOpacity>
         </View>
@@ -158,9 +164,9 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     // paddingHorizontal: 20,
-    paddingHorizontal:wp(20),
+    paddingHorizontal: wp(20),
     // paddingVertical: 20,
-    paddingVertical:hp(20),
+    paddingVertical: hp(20),
   },
   header: {
     flexDirection: 'row',
@@ -202,8 +208,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.BORDER_COLOR,
   },
   /* Empty Card Styling */
-  
-  
+
+
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',

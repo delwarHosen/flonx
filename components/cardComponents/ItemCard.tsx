@@ -8,7 +8,6 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CustomButton } from '../CustomButton';
 import { Body1, Caption1, H6 } from '../typo/Typography';
 
-
 interface ItemCardProps {
     item: {
         name: string;
@@ -18,20 +17,24 @@ interface ItemCardProps {
     };
     onAdd?: () => void;
     isInCart?: boolean;
+    onPress?: () => void;
 }
 
-
-const ItemCard: React.FC<ItemCardProps & { onPress?: () => void }> = ({ item, onAdd, onPress,isInCart }) => {
+const ItemCard: React.FC<ItemCardProps> = ({ item, onAdd, onPress, isInCart }) => {
     return (
         <TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={onPress}>
-            <Image source={item.img} style={styles.image} contentFit="cover" />
+            <Image
+                source={{ uri: item.img }}
+                style={styles.image}
+                contentFit="cover"
+            />
 
             <View style={styles.details}>
-                <Body1 color={Colors.NEUTRAL0} >{item.name}</Body1>
+                <Body1 color={Colors.NEUTRAL0}>{item.name}</Body1>
                 <Caption1 italic color={Colors.OTP_COLOR} style={styles.itemDetails} numberOfLines={1}>
                     {item.ingredients.join(', ')}
                 </Caption1>
-                <H6 color={Colors.NEUTRAL0} style={{marginTop:4}}>${item.price}</H6>
+                <H6 color={Colors.NEUTRAL0} style={{ marginTop: 4 }}>${item.price}</H6>
             </View>
 
             <View style={styles.addButton}>
@@ -68,19 +71,14 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         backgroundColor: '#FFE4E1',
     },
-    itemHeading: {
-        fontWeight: 400,
-        // marginBottom: 6
-    },
     itemDetails: {
         fontSize: 13,
-        // marginBottom: 6
     },
     details: {
         flex: 1,
         marginLeft: 15,
     },
     addButton: {
-        marginTop: -50
+        marginTop: -50,
     },
 });

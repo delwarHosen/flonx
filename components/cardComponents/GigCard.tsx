@@ -35,15 +35,6 @@ const GigCard = ({ item, onPress }: GigCardProps) => {
         'Cancelled': 'cancelled',
     };
 
-    // const handlePress = () => {
-    //     router.push({
-    //         pathname: '/customer/gigs-related/gig-details',
-    //         params: {
-    //             id: item.id,
-    //             initialTab: tabMap[item.status] ?? 'open',
-    //         },
-    //     });
-    // };
 
     const statusColors = getStatusColors(item.status);
 
@@ -55,7 +46,9 @@ const GigCard = ({ item, onPress }: GigCardProps) => {
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: statusColors.bg }]}>
                     <View style={[styles.dot, { backgroundColor: statusColors.text }]} />
-                    <Caption3 color={statusColors.text}>{item.status}</Caption3>
+                    <Caption3 color={statusColors.text}>
+                        {/* {item.status} */}
+                     {item.status === 'Pending' ? 'Open' : item.status}</Caption3>
                 </View>
             </View>
 
@@ -63,14 +56,14 @@ const GigCard = ({ item, onPress }: GigCardProps) => {
             <View style={styles.locationRow}>
                 <LocationIcon />
                 <Body3 color={Colors.PLACEHOLLDER_TEXT} style={{ marginLeft: wp(4) }}>
-                    {item.location}
+                   {item.address}
                 </Body3>
             </View>
 
             <View style={styles.footer}>
                 <View>
                     <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Pay Rate (Per Hour)</Caption2>
-                    <Body2 color={Colors.NEUTRAL0} style={{ marginTop: hp(8) }}>$ {item.payRate.toFixed(2)}</Body2>
+                    <Body2 color={Colors.NEUTRAL0} style={{ marginTop: hp(8) }}>$ {item.hourlyRate?.toFixed(2)}</Body2>
                 </View>
 
                 <CustomButton

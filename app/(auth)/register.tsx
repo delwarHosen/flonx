@@ -7,7 +7,7 @@ import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
 import { useRegisterMutation } from '@/redux/services/authApi';
 import { RootState } from '@/redux/store';
-import { validateName, validatePhoneNumber } from '@/utils/validation';
+import { validateName, validatePassword, validatePhoneNumber } from '@/utils/validation';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Dimensions, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, ToastAndroid, TouchableOpacity, View } from 'react-native';
@@ -46,29 +46,26 @@ export default function RegisterScreen() {
 
     validationRules: {
       [FORM_FIELDS.FULL_NAME]: validateName,
-
-      // Email: No format check, only required
       [FORM_FIELDS.EMAIL]: (val: string) => (!val.trim() ? "Email is required" : ""),
-
       [FORM_FIELDS.CONTACT_NO]: (val: string): string => {
         if (isBartender) return validatePhoneNumber(val);
         return '';
       },
 
-      // Password: No length check, only required
-      [FORM_FIELDS.PASSWORD]: (val: string) => (!val.trim() ? "Password is required" : ""),
+      [FORM_FIELDS.PASSWORD]: validatePassword,
 
-      // Confirm Password: Must match Password (Postman logic)
-      [FORM_FIELDS.CONFIRM_PASSWORD]: (val: string): string => {
+      //  Now uses allValues instead of stale closure
+      [FORM_FIELDS.CONFIRM_PASSWORD]: (val: string, allValues: Record<string, string>): string => {
         if (!val.trim()) return "Confirm Password is required";
-        if (val !== values[FORM_FIELDS.PASSWORD]) return "Passwords do not match";
+        if (val !== allValues[FORM_FIELDS.PASSWORD]) return "Passwords do not match";
+
         return "";
       },
     },
 
     onSubmit: async (formValues) => {
+
       try {
-        // Postman payload onujayi data structure
         const payload = {
           name: formValues[FORM_FIELDS.FULL_NAME],
           email: formValues[FORM_FIELDS.EMAIL],
@@ -90,13 +87,16 @@ export default function RegisterScreen() {
           });
         }
       } catch (error: any) {
-        // API Not Found hole ekhane details paben (Check IP/Network)
-        console.error("Signup Error Detail:", error);
-        const message = error?.data?.message || "API Not Found! Check IP or Server.";
+        console.log("Forgot Password Error:", error);
+        const message =
+          error?.data?.message ||
+          error?.message ||
+          "Something went wrong!";
         ToastAndroid.show(message, ToastAndroid.LONG);
       }
     },
   });
+
 
   return (
     <KeyboardAvoidingView

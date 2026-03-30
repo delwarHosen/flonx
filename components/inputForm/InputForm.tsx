@@ -1,7 +1,6 @@
 import { EyeIcon } from '@/assets/images/icons/icon';
 import { Colors } from '@/constants/theme';
 import { hp, wp } from '@/utils/responsive';
-import { validateEmail, validatePassword } from '@/utils/validation';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { EyeOff } from 'lucide-react-native';
@@ -63,24 +62,30 @@ export const FormInput: React.FC<FormInputProps> = ({
     }
 
 
+    // const getError = () => {
+    //     if (!touched) return error;
+
+    //     if (required && !value.trim()) {
+    //         return "This field is required";
+    //     }
+
+    //     if (type === "email" && value && !validateEmail(value)) {
+    //         return "Please enter a valid email address";
+    //     };
+
+    //     if (type === "password" && value && !validatePassword(value)) {
+    //         return "Password must be at least 8 character";
+    //     };
+
+    //     return;
+    // }
+
+
     const getError = () => {
-        if (!touched) return error;
-
-        if (required && !value.trim()) {
-            return "This field is required";
-        }
-
-        if (type === "email" && value && !validateEmail(value)) {
-            return "Please enter a valid email address";
-        };
-
-        if (type === "password" && value && !validatePassword(value)) {
-            return "Password must be at least 8 character";
-        };
-
-        return;
+        if (!touched) return undefined;
+        if (required && !value.trim()) return "This field is required";
+        return error;
     }
-
 
     // <_____Image validation________>
     const pickImage = async () => {
@@ -162,7 +167,7 @@ export const FormInput: React.FC<FormInputProps> = ({
                         onPress={() => setShowPassword(!showPassword)}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
-                        {showPassword ? <EyeIcon /> : <EyeOff color={"#8C88A3"} size={18}/>}
+                        {showPassword ? <EyeIcon /> : <EyeOff color={"#8C88A3"} size={18} />}
                     </TouchableOpacity>
                 ) : (
                     rightIcon && <View style={styles.iconButton}>{rightIcon}</View>
@@ -214,7 +219,7 @@ const styles = StyleSheet.create({
         // fontSize: 14,
         color: Colors.PLACEHOLLDER_TEXT,
     },
-   
+
     inputError: {
         // borderColor: '#EF4444',
         // backgroundColor: Colors.,

@@ -1,3 +1,4 @@
+import { FilterIcon } from '@/assets/images/icons/BarRelatedIcon/FilterIcon';
 import { InputSearchIcon } from '@/assets/images/icons/BarRelatedIcon/InputSearchIcon';
 import { SearchBarIcon } from '@/assets/images/icons/icon';
 import { Colors } from '@/constants/theme';
@@ -15,33 +16,39 @@ import {
 interface SearchBarProps extends TextInputProps {
   containerStyle?: ViewStyle;
   onScanPress?: () => void;
+  showFilter?: boolean;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ 
-  containerStyle, 
-  onScanPress, 
-  ...textInputProps 
+const SearchBar: React.FC<SearchBarProps> = ({
+  containerStyle,
+  onScanPress,
+  showFilter = false,
+  ...textInputProps
 }) => {
   return (
     <View style={[styles.headerRow, containerStyle]}>
       <View style={styles.searchBarContainer}>
         {/* <SearchBarIcon/> */}
-        <InputSearchIcon/>
+        <InputSearchIcon />
         {/* <Ionicons name="search" size={20} color="#FFFFFF" style={styles.searchIcon} /> */}
         <TextInput
           style={styles.input}
           placeholderTextColor={Colors.PLACEHOLLDER_TEXT}
           // This spreads all standard TextInput props (value, onChangeText, etc.)
-          {...textInputProps} 
+          {...textInputProps}
         />
       </View>
 
-      <TouchableOpacity 
-        style={styles.actionButton} 
-        onPress={onScanPress} 
+      <TouchableOpacity
+        style={styles.actionButton}
+        onPress={onScanPress}
         activeOpacity={0.7}
       >
-        <SearchBarIcon/>
+        {
+          showFilter ? <FilterIcon /> : <SearchBarIcon />
+        }
+
+
       </TouchableOpacity>
     </View>
   );
@@ -59,7 +66,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.INPUT_BACKGROUND, 
+    backgroundColor: Colors.INPUT_BACKGROUND,
     // height: hp(48),
     borderRadius: 100,
     paddingHorizontal: wp(20),

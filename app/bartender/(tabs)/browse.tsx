@@ -1,93 +1,76 @@
 import { NotificationIcon } from '@/assets/images/icons/ProfileInfoIcons/NotificationIcon';
-import QRScannerModal from '@/components/QRScannerModal/QRScannerModal';
 import { Body1, Body3 } from '@/components/typo/Typography';
 import { IMAGE_COMPONENTS } from '@/constants/image.index';
 import { Colors } from '@/constants/theme';
-import { useCameraScanner } from '@/hooks/useCameraScanner';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, FlatList, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { FlatList, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 import GigCard from '@/components/cardComponents/GigCard';
 import SearchBar from '@/components/CommonComponents/SearchBar';
-import { getJobs } from '@/constants/data/getJobs';
+// import { getJobs } from '@/constants/data/getJobs';
+import FilterModal from '@/components/QRScannerModal/FilterModal';
+import { useGetProfileQuery } from '@/redux/services/authApi';
+import { useGetAllJobsQuery } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
 
 // ... imports exactly same as yours
 
 const BrowseScreen: React.FC = () => {
-    const [isScannerOpen, setIsScannerOpen] = useState<boolean>(false);
     const [query, setQuery] = useState<string>('')
-    const { checkPermission } = useCameraScanner();
+
     const router = useRouter();
+    const { data: profile } = useGetProfileQuery({});
+    const { data: jobsData, isLoading } = useGetAllJobsQuery({
+        searchTerm: query
+    })
 
-    const openJobs = getJobs.filter(job => job.status === "Open");
+    const [filterVisible, setFilterVisible] = useState(false);
+    const [selectedFilter, setSelectedFilter] = useState<string>('');
 
-    const handleOpenScanner = async () => {
-        const isAllowed = await checkPermission();
-        if (isAllowed) {
-            setIsScannerOpen(true);
-        }
-    };
+    const jobs = jobsData?.result || [];
 
-    const onScanSuccess = (qrData: string) => {
-        setIsScannerOpen(false);
-        Alert.alert("Success", `Venue QR Scanned: ${qrData}`);
-    };
 
-    // Header content exactly the same
-    const renderHeaderContent = () => (
-        <View style={[styles.headerContainer, { paddingHorizontal: wp(20) }]}>
-            <View style={styles.header}>
-                <View style={styles.userInfo}>
-                    <Image
-                        source={IMAGE_COMPONENTS.profileImg}
-                        style={styles.avatar}
-                    />
-                    <View style={{ marginLeft: 12 }}>
-                        <Body1 italic color={Colors.NEUTRAL0} weight="bold">Hello Florian</Body1>
-                        <Body3 italic style={{ marginTop: hp(8) }} color={Colors.PLACEHOLLDER_TEXT}>Welcome to FLÖNX</Body3>
-                    </View>
-                </View>
-                <TouchableOpacity
-                    onPress={() => router.push("/bartender/profile/notification")}
-                    style={styles.notificationBtn}>
-                    <NotificationIcon size={24} />
-                </TouchableOpacity>
-            </View>
 
-            <View style={{ marginTop: hp(20) }}>
-                <SearchBar
-                    placeholder="Search"
-                    value={query}
-                    onChangeText={setQuery}
-                    onScanPress={handleOpenScanner} 
-                />
-            </View>
-        </View>
-    );
+
 
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
             <StatusBar barStyle="light-content" />
 
-            <QRScannerModal
-                isVisible={isScannerOpen}
-                onClose={() => setIsScannerOpen(false)}
-                onScan={onScanSuccess}
-            />
-
-            {/* */}
-            {renderHeaderContent()}
-
             <FlatList
-                data={openJobs}
-                keyExtractor={(item) => item.id}
-                // ListHeaderComponent khati rakha hoyeche jate top e ektu gap thake
-                ListHeaderComponent={<View style={{ height: hp(10) }} />}
+                data={jobs}
+                keyExtractor={(item) => item._id}
+                ListHeaderComponent={
+                    <View style={[styles.headerContainer, { paddingTop: hp(20) }]}>
+                        <View style={styles.header}>
+                            <View style={styles.userInfo}>
+                                <Image source={IMAGE_COMPONENTS.profileImg} style={styles.avatar} />
+                                <View style={{ marginLeft: 12 }}>
+                                    <Body1 italic color={Colors.NEUTRAL0} weight="bold">Hello {profile?.name || "User"}</Body1>
+                                    <Body3 italic style={{ marginTop: hp(8) }} color={Colors.PLACEHOLLDER_TEXT}>Welcome to FLÖNX</Body3>
+                                </View>
+                            </View>
+                            <TouchableOpacity
+                                onPress={() => router.push("/bartender/profile/notification")}
+                                style={styles.notificationBtn}>
+                                <NotificationIcon size={24} />
+                            </TouchableOpacity>
+                        </View>
+                        <View style={{ marginTop: hp(20) }}>
+                            <SearchBar
+                                placeholder="Search"
+                                value={query}
+                                onChangeText={setQuery}
+                                showFilter={true}
+                                onScanPress={() => setFilterVisible(true)}
+                            />
+                        </View>
+                    </View>
+                }
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => (
@@ -96,12 +79,21 @@ const BrowseScreen: React.FC = () => {
                         onPress={() => {
                             router.push({
                                 pathname: '/bartender/jobs/browse-details',
-                                params: { id: item.id, initialTab: 'open' },
+                                params: { id: item._id },
                             });
                         }}
                     />
                 )}
             />
+
+            {/* filter modal */}
+            <FilterModal
+                visible={filterVisible}
+                onClose={() => setFilterVisible(false)}
+                onSelect={(option) => setSelectedFilter(option)}
+                selected={selectedFilter}
+            />
+            
         </SafeAreaView>
     );
 };

@@ -7,12 +7,15 @@ import { Body1, Body2, Caption1, Caption3 } from "@/components/typo/Typography";
 import { FORM_FIELDS, FORM_LABELS, FORM_PLACEHOLDERS } from "@/constants/form";
 import { Colors } from "@/constants/theme";
 import { useForm } from "@/hooks/useForm";
+import { useDeleteAccountMutation } from "@/redux/services/authApi";
 import { RootState } from "@/redux/store";
 import { fp, hp, wp } from "@/utils/responsive";
 import { validatePassword } from "@/utils/validation";
 import { useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import React, { useState } from 'react';
 import {
+    Alert,
     KeyboardAvoidingView,
     Platform,
     StyleSheet,
@@ -20,13 +23,12 @@ import {
     View
 } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 export default function DeleteAccountView() {
     const router = useRouter();
-    const dispatch = useDispatch();
 
-
+    const [deleteAccount, { isLoading: isDeleting }] = useDeleteAccountMutation();
     const userRole = useSelector((state: RootState) => state.auth.userRole);
 
     const [showConfirmModal, setShowConfirmModal] = useState<boolean>(true);
@@ -58,35 +60,27 @@ export default function DeleteAccountView() {
             [FORM_FIELDS.PASSWORD]: validatePassword,
         },
         onSubmit: async (formValues: Record<string, string>) => {
-            setLoading(true);
             try {
-
                 const payload = {
                     password: formValues[FORM_FIELDS.PASSWORD],
                     role: userRole,
                 };
 
-                console.log(`Deleting ${userRole} account with payload:`, payload);
+                const res = await deleteAccount(payload).unwrap();
 
+                if (res?.success) {
+                    await SecureStore.deleteItemAsync('accessToken');
 
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                    if (Platform.OS === 'android') {
+                        ToastAndroid.show(res.message || "Account deleted successfully", ToastAndroid.SHORT);
+                    }
 
-                if (Platform.OS === 'android') {
-                    ToastAndroid.show("Account deleted successfully", ToastAndroid.SHORT);
+                    setShowPasswordModal(false);
+                    router.replace("/(auth)/login");
                 }
-
-                setShowPasswordModal(false);
-
-
-                router.replace("/(auth)/login");
-
             } catch (error: any) {
-                const message = error?.data?.message || error?.message || "Something went wrong!";
-                if (Platform.OS === 'android') {
-                    ToastAndroid.show(message, ToastAndroid.LONG);
-                }
-            } finally {
-                setLoading(false);
+                const message = error?.data?.message || "Incorrect password or failed to delete account";
+                Platform.OS === 'android' ? ToastAndroid.show(message, ToastAndroid.LONG) : Alert.alert("Error", message);
             }
         },
     });
@@ -94,7 +88,7 @@ export default function DeleteAccountView() {
     return (
         <SafeAreaView style={styles.safeAreaContainer}>
             <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                behavior={Platform.OS === "ios" ? "padding" : undefined}
                 style={{ flex: 1 }}
             >
                 {/* ── Modal 1: Confirmation ── */}
@@ -186,7 +180,7 @@ export default function DeleteAccountView() {
                                 />
                             </View>
                             <View style={styles.flex1}>
-                                {loading ? (
+                                {isDeleting ? (
                                     <View style={styles.loaderWrapper}>
                                         <CustomLoader size={40} />
                                     </View>

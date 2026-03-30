@@ -5,6 +5,7 @@ import SectionTitle from '@/components/SectionTitle'
 import { FORM_FIELDS, FORM_LABELS, FORM_PLACEHOLDERS } from '@/constants/form'
 import { Colors } from '@/constants/theme'
 import { useForm } from '@/hooks/useForm'
+import { useChangePasswordMutation } from '@/redux/services/authApi'
 import { RootState } from '@/redux/store'
 import { hp, wp } from '@/utils/responsive'
 import { validatePassword } from '@/utils/validation'
@@ -17,6 +18,7 @@ import { useSelector } from 'react-redux'
 export default function ChangePasswordView() {
     const router = useRouter();
     const [loading, setLoading] = useState<boolean>(false);
+    const [changePassword, { isLoading: isUpdating }] = useChangePasswordMutation();
     const userRole = useSelector((state: RootState) => state.auth.userRole);
 
     const {
@@ -36,45 +38,40 @@ export default function ChangePasswordView() {
             [FORM_FIELDS.NEW_PASSWORD]: validatePassword,
             [FORM_FIELDS.CONFIRM_NEW_PASSWORD]: validatePassword,
         },
-        onSubmit: async (values) => {
-            if (values[FORM_FIELDS.NEW_PASSWORD] !== values[FORM_FIELDS.CONFIRM_NEW_PASSWORD]) {
-                if (Platform.OS === 'android') {
-                    ToastAndroid.show("New passwords do not match!", ToastAndroid.SHORT);
-                } else {
-                    Alert.alert("Error", "New passwords do not match!");
-                }
+        onSubmit: async (formValues) => {
+
+            if (formValues[FORM_FIELDS.NEW_PASSWORD] !== formValues[FORM_FIELDS.CONFIRM_NEW_PASSWORD]) {
+                const errorMsg = "New passwords do not match!";
+                Platform.OS === 'android' ? ToastAndroid.show(errorMsg, ToastAndroid.SHORT) : Alert.alert("Error", errorMsg);
                 return;
             }
 
-            setLoading(true);
             try {
-                const submitData = {
-                    oldPassword: values[FORM_FIELDS.OLD_PASSWORD],
-                    newPassword: values[FORM_FIELDS.NEW_PASSWORD]
+
+                const payload = {
+                    oldPassword: formValues[FORM_FIELDS.OLD_PASSWORD],
+                    newPassword: formValues[FORM_FIELDS.NEW_PASSWORD],
+                    confirmNewPassword: formValues[FORM_FIELDS.CONFIRM_NEW_PASSWORD]
+                };
+
+                // . API Call
+                const res = await changePassword(payload).unwrap();
+
+                if (res?.success) {
+                    if (Platform.OS === 'android') {
+                        ToastAndroid.show(res.message || "Password updated successfully!", ToastAndroid.SHORT);
+                    }
+
+
+                    const targetPath = userRole === 'bartender'
+                        ? "/bartender/(tabs)/profile" as Href
+                        : "/customer/profile" as Href;
+                    router.replace(targetPath);
                 }
-
-                console.log("Updating Password for:", userRole, submitData);
-
-                await new Promise(resolve => setTimeout(resolve, 1500));
-
-                if (Platform.OS === 'android') {
-                    ToastAndroid.show("Password updated successfully!", ToastAndroid.SHORT);
-                }
-
-                const targetPath = userRole === 'bartender'
-                    ? "/bartender/(tabs)/profile" as Href
-                    : "/customer/profile" as Href;
-
-                router.replace(targetPath);
             } catch (error: any) {
-                const message = error?.data?.message || error?.message || "Something went wrong!";
-                if (Platform.OS === 'android') {
-                    ToastAndroid.show(message, ToastAndroid.LONG);
-                } else {
-                    Alert.alert("Error", message);
-                }
-            } finally {
-                setLoading(false);
+                console.log("Change Password Error:", JSON.stringify(error, null, 2));
+                const message = error?.data?.message || "Failed to change password";
+                Platform.OS === 'android' ? ToastAndroid.show(message, ToastAndroid.LONG) : Alert.alert("Error", message);
             }
         },
     });
@@ -119,15 +116,14 @@ export default function ChangePasswordView() {
                 />
 
                 <View style={styles.buttonContainer}>
-                    {loading ? (
+                    {isUpdating ? (
                         <View style={{ alignItems: 'center' }}>
                             <CustomLoader size={45} />
                         </View>
                     ) : (
                         <CustomButton
                             title="Update Password"
-                            // onPress={handleSubmit}
-                            onPress={()=>router.back()}
+                            onPress={handleSubmit}
                             width="100%"
                             height={hp(44)}
                             borderRadius={100}
@@ -151,6 +147,6 @@ const styles = StyleSheet.create({
     buttonContainer: {
         marginTop: hp(20),
         // Changed from center to stretch so the 100% width button works correctly
-        alignItems: 'stretch' 
+        alignItems: 'stretch'
     }
 })

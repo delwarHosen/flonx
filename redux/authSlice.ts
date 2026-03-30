@@ -4,11 +4,17 @@ import * as SecureStore from 'expo-secure-store';
 interface AuthState {
     userRole: 'customer' | 'bartender' | null;
     token: string | null;
+    user: {
+        name: string;
+        email: string;
+        profileImage?: string;
+    } | null;  
 };
 
 const initialState: AuthState = {
     userRole: null,
-    token: null
+    token: null,
+    user: null, 
 };
 
 export const authSlice = createSlice({
@@ -28,6 +34,7 @@ export const authSlice = createSlice({
         logout: (state) => {
             state.userRole = null;
             state.token = null;
+            state.user = null;  
             SecureStore.deleteItemAsync('accessToken');
         },
     },
