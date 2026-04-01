@@ -1,41 +1,49 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
-import { FlatList, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { StarIcon } from '@/assets/images/icons/BarRelatedIcon/StarIcon';
 import SectionTitle from '@/components/SectionTitle';
 import { Body2, Caption1 } from '@/components/typo/Typography';
-import { jobPosts } from '@/constants/data/jobPosts';
+import { IMAGE_COMPONENTS } from '@/constants/image.index';
 import { Colors } from '@/constants/theme';
+import { useGetJobApplicantsQuery } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
 
 const ApplicantsList = () => {
     const { jobId } = useLocalSearchParams<{ jobId: string }>();
+    // console.log("jobId received:", jobId);
 
-    // console.log("Received jobId:", jobId);
-
-    const job = jobPosts.find(j => j.id === jobId);
-    const applicants = job?.applicants || [];
-    // console.log("Found applicants count:", applicants.length);
+    const { data: applicants = [], isLoading } = useGetJobApplicantsQuery(jobId, { skip: !jobId });
+    // console.log("applicants data:", applicants);
 
     const renderApplicantCard = ({ item }: { item: any }) => (
         <TouchableOpacity
             style={styles.card}
             onPress={() => router.push({
                 pathname: '/customer/gigs-related/applicant-details',
-                params: { applicantId: item.id, jobId: jobId }
+                params: { applicantId: item.bartender._id, jobId, applicationId: item._id }
             })}
         >
             <View style={styles.cardLeft}>
-                <Image source={item.profileImg} style={styles.avatar} />
+                <Image
+                    source={
+                        item.bartender.profile_image && item.bartender.profile_image.trim() !== ''
+                            ? { uri: item.bartender.profile_image }
+                            : IMAGE_COMPONENTS.profileImg
+                    }
+                    style={styles.avatar}
+                    contentFit="cover"
+                />
                 <View style={styles.info}>
-                    <Body2 color={Colors.NEUTRAL0} >{item.name}</Body2>
+                    <Body2 color={Colors.NEUTRAL0}>{item.bartender.name}</Body2>
                     <View style={styles.ratingRow}>
                         <StarIcon color='#FFB020' />
                         <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginLeft: 4 }}>
-                            {item.rating} ({item.reviewCount})
+                            {item.bartender.rating ?? '4.5'} ({item.bartender.reviewCount ?? 5})
                         </Caption1>
                     </View>
                 </View>
@@ -50,17 +58,23 @@ const ApplicantsList = () => {
                 <SectionTitle title="Applicants" />
             </View>
 
-            <FlatList
-                data={applicants}
-                renderItem={renderApplicantCard}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.listContent}
-                ListEmptyComponent={
-                    <Body2 color={Colors.PLACEHOLLDER_TEXT} style={styles.emptyText}>
-                        No applicants found for this job.
-                    </Body2>
-                }
-            />
+            {isLoading ? (
+                <View style={styles.loaderContainer}>
+                    <ActivityIndicator color={Colors.BRAND_PRIMARY} />
+                </View>
+            ) : (
+                <FlatList
+                    data={applicants}
+                    renderItem={renderApplicantCard}
+                    keyExtractor={(item) => item._id}
+                    contentContainerStyle={styles.listContent}
+                    ListEmptyComponent={
+                        <Body2 color={Colors.PLACEHOLLDER_TEXT} style={styles.emptyText}>
+                            No applicants found for this job.
+                        </Body2>
+                    }
+                />
+            )}
         </SafeAreaView>
     );
 };
@@ -68,10 +82,15 @@ const ApplicantsList = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: Colors.APP_BACKGROUND, //
+        backgroundColor: Colors.APP_BACKGROUND,
     },
     listContent: {
         padding: 20,
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     card: {
         flexDirection: 'row',

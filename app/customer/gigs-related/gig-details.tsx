@@ -7,8 +7,8 @@ import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
 import SectionTitle from '@/components/SectionTitle';
 import { Body1, Body2, Caption2, Caption3 } from '@/components/typo/Typography';
-import { jobPosts } from '@/constants/data/jobPosts';
 import { Colors } from '@/constants/theme';
+import { useGetSingleJobQuery } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
@@ -22,7 +22,17 @@ const GigDetails = () => {
     const [loading, setLoading] = useState(false);
 
     const { id, initialTab } = useLocalSearchParams<{ id: string; initialTab: string }>();
-    const item = jobPosts.find(j => j.id === id);
+    // const item = jobPosts.find(j => j.id === id);
+    const { data: item, isLoading } = useGetSingleJobQuery(id);
+    // console.log("Create Job", item)
+
+    if (isLoading) return (
+        <SafeAreaView style={styles.container}>
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                <CustomLoader size={55} />
+            </View>
+        </SafeAreaView>
+    )
 
     if (!item) return null;
 
@@ -96,30 +106,15 @@ const GigDetails = () => {
             case 'active':
                 return (
                     <>
-                        {/* <View style={styles.infoCard}>
-                            <View style={{ flex: 1 }}>
-                                <Body2 color={Colors.NEUTRAL0} >View Applicants</Body2>
-                                <Caption3 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: 8 }}>
-                                    See all candidates who applied for this job.
-                                </Caption3>
-                            </View>
-                            <TouchableOpacity
-                                style={styles.applicantIconBtn}
-                                onPress={() => router.push({
-                                    pathname: '/customer/gigs-related/applicants-list',
-                                    params: { jobId: item.id }
-                                })}
-                            >
-                                <ViewDetailsIcon />
-                            </TouchableOpacity>
-                        </View> */}
-
 
                         <View style={styles.actionRow}>
                             <View style={styles.buttonWrapper}>
                                 <CustomButton
-                                    onPress={() => router.push("/customer/gigs-related/update-gig")}
-                                    title='Update Listing'
+                                    onPress={() => router.push({
+                                        pathname: "/customer/gigs-related/update-gig",
+                                        params: { jobId: item._id },
+                                    })}
+                                    title='Update Gig'
                                     width="100%"
                                     height={hp(44)}
                                     borderRadius={100}
@@ -127,11 +122,13 @@ const GigDetails = () => {
                             </View>
                             <View style={styles.buttonWrapper}>
                                 <CustomButton
-                                    onPress={() => router.push({
-                                        pathname: '/customer/gigs-related/applicants-list',
-                                        params: { jobId: item.id }
-
-                                    })}
+                                    onPress={() => {
+                                        // console.log("Navigating with jobId:", item._id);
+                                        router.push({
+                                            pathname: '/customer/gigs-related/applicants-list',
+                                            params: { jobId: item._id }
+                                        });
+                                    }}
                                     title='View Applicants'
                                     width="100%"
                                     height={hp(44)}
@@ -376,44 +373,71 @@ const GigDetails = () => {
 // ---- Gig details----->
 const GigBasicDetails = ({ item }: { item: any }) => (
     <>
-        <DetailsCardComponents topLabel="Location" bottomLabel={item.location} />
-        <DetailsCardComponents topLabel="Date" bottomLabel={item.date} />
-        <DetailsCardComponents topLabel="Time" bottomLabel={item.time} />
+        <DetailsCardComponents topLabel="Location" bottomLabel={item.address} />
+        <DetailsCardComponents topLabel="Date" bottomLabel={item.startDateTime
+            ? new Date(item.startDateTime).toLocaleDateString('en-GB', {
+                day: 'numeric', month: 'long', year: 'numeric'
+            })
+            : 'N/A'
+        } />
+        <DetailsCardComponents topLabel="Time" bottomLabel={
+            item?.startDateTime
+                ? `${new Date(item.startDateTime).toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                    timeZone: 'UTC'
+                })}${item?.endDateTime ? ` - ${new Date(item?.endDateTime).toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                    timeZone: 'UTC'
+                })}` : ''}`
+                : 'N/A'
+        } />
         <DetailsCardComponents topLabel="Contact Number" bottomLabel={item.contactNumber} />
-        <DetailsCardComponents topLabel="Details" bottomLabel={item.details} />
+        <DetailsCardComponents topLabel="Details" bottomLabel={item.description} />
     </>
 );
 
 
 // <----------Payment Card-------->
 
-const PaymentInfoCard = ({ item }: { item: any }) => (
-    <View style={styles.paymentCard}>
-        <View style={styles.paymentTextcon}>
-            <View style={styles.iconContainer}>
-                <JobsBagIcon />
+const PaymentInfoCard = ({ item }: { item: any }) => {
+    const start = item.startDateTime ? new Date(item.startDateTime) : null;
+    const end = item.endDateTime ? new Date(item.endDateTime) : null;
+    const durationHours = start && end
+        ? (end.getTime() - start.getTime()) / (1000 * 60 * 60)
+        : 0;
+    const totalAmount = durationHours * (item.hourlyRate || 0);
+
+    return (
+        <View style={styles.paymentCard}>
+            <View style={styles.paymentTextcon}>
+                <View style={styles.iconContainer}>
+                    <JobsBagIcon />
+                </View>
+                <Body2 italic color={Colors.NEUTRAL0}> Payment Info</Body2>
             </View>
-            <Body2 italic color={Colors.NEUTRAL0}> Payment Info</Body2>
-        </View>
 
-        <View style={styles.payRow}>
-            <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Pay Rate (Per Hour)</Caption2>
-            <Body2 color={Colors.NEUTRAL0}>${item.payRate?.toFixed(2)}</Body2>
-        </View>
-        <View style={styles.payRow}>
-            <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Total Duration</Caption2>
-            <Body2 color={Colors.NEUTRAL0}>{item.totalDuration ?? '15 hours'}</Body2>
-        </View>
+            <View style={styles.payRow}>
+                <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Pay Rate (Per Hour)</Caption2>
+                <Body2 color={Colors.NEUTRAL0}>${item.hourlyRate?.toFixed(2)}</Body2>
+            </View>
+            <View style={styles.payRow}>
+                <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Total Duration</Caption2>
+                <Body2 color={Colors.NEUTRAL0}>{durationHours} hours</Body2>
+            </View>
 
-        <View style={{ height: 1.5, backgroundColor: Colors.BORDER_COLOR, marginVertical: hp(16) }} />
+            <View style={{ height: 1.5, backgroundColor: Colors.BORDER_COLOR, marginVertical: hp(16) }} />
 
-        <View style={styles.payRow}>
-            <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Total Amount</Caption2>
-            <Body2 color={Colors.NEUTRAL0}>$ {item.totalAmount ?? '375'}</Body2>
+            <View style={styles.payRow}>
+                <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Total Amount</Caption2>
+                <Body2 color={Colors.NEUTRAL0}>$ {totalAmount.toFixed(2)}</Body2>
+            </View>
         </View>
-    </View>
-);
-
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -469,7 +493,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    
+
     payRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -484,7 +508,7 @@ const styles = StyleSheet.create({
     buttonWrapper: {
         flex: 1,
     },
-    
+
     assignedRow: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 12,

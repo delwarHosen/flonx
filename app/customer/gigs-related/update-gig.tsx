@@ -3,55 +3,113 @@ import { FormInput } from '@/components/inputForm/InputForm';
 import SectionTitle from '@/components/SectionTitle';
 import { Body2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
-import { useForm } from '@/hooks/useForm';
+import { useGetSingleJobQuery, useUpdateJobMutation } from '@/redux/services/jobApi';
+import { hp, wp } from '@/utils/responsive';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    TextInput,
+    ToastAndroid,
+    TouchableOpacity,
+    View
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-
-interface GigFormValues {
-    [key: string]: string;
-    eventTitle: string;
-    eventLocation: string;
-    eventDate: string;
-    eventTime: string;
-    hourlyRate: string;
-    contactNumber: string;
-    eventDescription: string;
-}
-
 const UpdateGig: React.FC = () => {
-    const [description, setDescription] = useState<string>('');
+    const router = useRouter();
+    const { jobId } = useLocalSearchParams<{ jobId: string }>();
 
-    
-    const { values, handleChange, handleSubmit, errors, touched } = useForm<GigFormValues>({
-        initialValues: {
-            eventTitle: '',
-            eventLocation: '',
-            eventDate: '',
-            eventTime: '',
-            hourlyRate: '',
-            contactNumber: '',
-            eventDescription: '',
-        },
-        validationRules: {
-            eventTitle: (v) => (!v ? 'Event title is required' : ''),
-            eventLocation: (v) => (!v ? 'Location is required' : ''),
-            eventDate: (v) => (!v ? 'Date is required' : ''),
-            eventTime: (v) => (!v ? 'Time is required' : ''),
-            hourlyRate: (v) => (!v ? 'Hourly rate is required' : ''),
-            contactNumber: (v) => (!v ? 'Contact number is required' : ''),
-            eventDescription: (v) => (!v ? 'Description is required' : ''),
-        },
-        onSubmit: (finalValues: GigFormValues) => {
-            console.log('Publishing Event:', finalValues);
-        },
-    });
+    const { data: job, isLoading: jobLoading } = useGetSingleJobQuery(jobId, { skip: !jobId });
+    const [updateJob, { isLoading: updating }] = useUpdateJobMutation();
+
+    const [title, setTitle] = useState('');
+    const [address, setAddress] = useState('');
+    const [hourlyRate, setHourlyRate] = useState('');
+    const [contactNumber, setContactNumber] = useState('');
+    const [description, setDescription] = useState('');
+
+    const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+    const [startTime, setStartTime] = useState<Date>(new Date());
+    const [endTime, setEndTime] = useState<Date>(new Date());
+
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [showStartTimePicker, setShowStartTimePicker] = useState(false);
+    const [showEndTimePicker, setShowEndTimePicker] = useState(false);
+
+    // Pre-fill fields when job data loads
+    useEffect(() => {
+        if (job) {
+            setTitle(job.title ?? '');
+            setAddress(job.address ?? '');
+            setHourlyRate(job.hourlyRate?.toString() ?? '');
+            setContactNumber(job.contactNumber ?? '');
+            setDescription(job.description ?? '');
+            if (job.startDateTime) {
+                const s = new Date(job.startDateTime);
+                setSelectedDate(s);
+                setStartTime(s);
+            }
+            if (job.endDateTime) {
+                setEndTime(new Date(job.endDateTime));
+            }
+        }
+    }, [job]);
+
+    const formatDate = (date: Date) => date.toLocaleDateString('en-CA');
+    const formatTime = (date: Date) =>
+        date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    const buildISO = (date: Date, time: Date): string => {
+        const d = formatDate(date);
+        const t = formatTime(time);
+        return `${d}T${t}:00.000Z`;
+    };
+
+    const handleUpdate = async () => {
+        try {
+            const payload = {
+                jobId,
+                title,
+                address,
+                startDateTime: buildISO(selectedDate, startTime),
+                endDateTime: buildISO(selectedDate, endTime),
+                hourlyRate: Number(hourlyRate),
+                contactNumber,
+                description,
+            };
+            console.log("jobId:", jobId);
+            console.log("payload:", payload);
+            await updateJob(payload).unwrap();
+            ToastAndroid.show('Job updated successfully!', ToastAndroid.LONG);
+            router.back();
+        } catch (error: any) {
+            console.error("Update error full:", JSON.stringify(error));  // এটা দিয়ে replace করো
+            ToastAndroid.show(
+                error?.data?.message ?? 'Failed to update job.',
+                ToastAndroid.LONG
+            );
+        }
+    };
+
+    if (jobLoading) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator color={Colors.BRAND_PRIMARY} />
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={{marginVertical:"4%"}}>
+            <View style={{ marginVertical: '4%' }}>
                 <SectionTitle title="Update Gig" />
             </View>
 
@@ -60,62 +118,105 @@ const UpdateGig: React.FC = () => {
                 style={{ flex: 1 }}
             >
                 <ScrollView contentContainerStyle={styles.scrollContent}>
+
                     <FormInput
                         label="Event Title"
                         placeholder="Enter event title"
-                        value={values.eventTitle}
-                        onChangeText={(text: string) => handleChange('eventTitle', text)}
-                        error={errors.eventTitle}
-                        touched={touched.eventTitle}
+                        value={title}
+                        onChangeText={setTitle}
                     />
 
                     <FormInput
                         label="Event Location"
                         placeholder="Enter Event Location"
-                        value={values.eventLocation}
-                        onChangeText={(text: string) => handleChange('eventLocation', text)}
-                        error={errors.eventLocation}
-                        touched={touched.eventLocation}
+                        value={address}
+                        onChangeText={setAddress}
                     />
 
-                    <FormInput
-                        label="Event Date"
-                        placeholder="Select event date(s)"
-                        value={values.eventDate}
-                        onChangeText={(text: string) => handleChange('eventDate', text)}
-                        error={errors.eventDate}
-                        touched={touched.eventDate}
-                        rightIcon={<Ionicons name="calendar-outline" size={20} color={Colors.NEUTRAL0} />}
-                    />
+                    {/* Date Picker */}
+                    <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+                        <FormInput
+                            label="Event Date"
+                            placeholder="Select event date"
+                            value={formatDate(selectedDate)}
+                            onChangeText={() => { }}
+                            editable={false}
+                            rightIcon={<Ionicons name="calendar-outline" size={20} color={Colors.NEUTRAL0} />}
+                        />
+                    </TouchableOpacity>
+                    {showDatePicker && (
+                        <DateTimePicker
+                            value={selectedDate}
+                            mode="date"
+                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                            minimumDate={new Date()}
+                            onChange={(_, date) => {
+                                setShowDatePicker(false);
+                                if (date) setSelectedDate(date);
+                            }}
+                        />
+                    )}
 
-                    <FormInput
-                        label="Event Time"
-                        placeholder="Select start and end time"
-                        value={values.eventTime}
-                        onChangeText={(text: string) => handleChange('eventTime', text)}
-                        error={errors.eventTime}
-                        touched={touched.eventTime}
-                        rightIcon={<Ionicons name="time-outline" size={20} color={Colors.NEUTRAL0} />}
-                    />
+                    {/* Start Time */}
+                    <TouchableOpacity onPress={() => setShowStartTimePicker(true)}>
+                        <FormInput
+                            label="Start Time"
+                            placeholder="Select start time"
+                            value={formatTime(startTime)}
+                            onChangeText={() => { }}
+                            editable={false}
+                            rightIcon={<Ionicons name="time-outline" size={20} color={Colors.NEUTRAL0} />}
+                        />
+                    </TouchableOpacity>
+                    {showStartTimePicker && (
+                        <DateTimePicker
+                            value={startTime}
+                            mode="time"
+                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                            onChange={(_, time) => {
+                                setShowStartTimePicker(false);
+                                if (time) setStartTime(time);
+                            }}
+                        />
+                    )}
+
+                    {/* End Time */}
+                    <TouchableOpacity onPress={() => setShowEndTimePicker(true)}>
+                        <FormInput
+                            label="End Time"
+                            placeholder="Select end time"
+                            value={formatTime(endTime)}
+                            onChangeText={() => { }}
+                            editable={false}
+                            rightIcon={<Ionicons name="time-outline" size={20} color={Colors.NEUTRAL0} />}
+                        />
+                    </TouchableOpacity>
+                    {showEndTimePicker && (
+                        <DateTimePicker
+                            value={endTime}
+                            mode="time"
+                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                            onChange={(_, time) => {
+                                setShowEndTimePicker(false);
+                                if (time) setEndTime(time);
+                            }}
+                        />
+                    )}
 
                     <FormInput
                         label="Hourly Rate"
                         placeholder="Enter hourly rate"
                         type="number"
-                        value={values.hourlyRate}
-                        onChangeText={(text: string) => handleChange('hourlyRate', text)}
-                        error={errors.hourlyRate}
-                        touched={touched.hourlyRate}
+                        value={hourlyRate}
+                        onChangeText={setHourlyRate}
                     />
 
                     <FormInput
                         label="Contact Number"
                         placeholder="Enter contact number"
                         type="number"
-                        value={values.contactNumber}
-                        onChangeText={(text: string) => handleChange('contactNumber', text)}
-                        error={errors.contactNumber}
-                        touched={touched.contactNumber}
+                        value={contactNumber}
+                        onChangeText={setContactNumber}
                     />
 
                     <Body2 color={Colors.NEUTRAL0} style={styles.label}>Event Description</Body2>
@@ -129,13 +230,15 @@ const UpdateGig: React.FC = () => {
                         textAlignVertical="top"
                     />
 
-                    <View style={{  marginBottom: 20 }}>
+                    <View style={{ marginBottom: 20 }}>
                         <CustomButton
-                            title="Publish Event"
-                            onPress={handleSubmit}
+                            title={updating ? 'Updating...' : 'Update Event'}
+                            onPress={handleUpdate}
                             width="100%"
+                            disabled={updating}
                         />
                     </View>
+
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
@@ -145,30 +248,22 @@ const UpdateGig: React.FC = () => {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: Colors.APP_BACKGROUND },
     scrollContent: {
-        paddingHorizontal: '5%',
-        paddingBottom: 20,
-        marginTop: 16
+        paddingHorizontal: wp(20),
+        paddingBottom: hp(20),
+        marginTop: hp(16),
     },
     label: {
-        marginBottom: 10,
-        marginTop: 10
-    },
-    input: {
-        backgroundColor: Colors.INPUT_BACKGROUND,
-        borderRadius: 100,
-        borderWidth: 1,
-        borderColor: Colors.BORDER_COLOR,
-        color: '#FFFFFF',
-        fontSize: 14,
+        marginBottom: hp(10),
+        marginTop: hp(10),
     },
     textArea: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 14,
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
-        paddingHorizontal: 16,
-        paddingTop: 14,
-        paddingBottom: 14,
+        paddingHorizontal: wp(16),
+        paddingTop: hp(14),
+        paddingBottom: hp(14),
         color: '#FFFFFF',
         fontSize: 14,
         height: 150,

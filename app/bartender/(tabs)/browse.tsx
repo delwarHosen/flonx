@@ -34,9 +34,6 @@ const BrowseScreen: React.FC = () => {
     const jobs = jobsData?.result || [];
 
 
-
-
-
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
             <StatusBar barStyle="light-content" />
@@ -61,6 +58,7 @@ const BrowseScreen: React.FC = () => {
                             </TouchableOpacity>
                         </View>
                         <View style={{ marginTop: hp(20) }}>
+
                             <SearchBar
                                 placeholder="Search"
                                 value={query}

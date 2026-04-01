@@ -6,12 +6,13 @@ import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
 import SectionTitle from '@/components/SectionTitle';
 import { Body2, Caption2 } from '@/components/typo/Typography';
-import { jobPosts } from '@/constants/data/jobPosts';
+import { IMAGE_COMPONENTS } from '@/constants/image.index';
 import { Colors } from '@/constants/theme';
+import { useAcceptApplicationMutation, useGetSingleApplicationQuery } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { Image, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ApplicantDetails = () => {
@@ -19,14 +20,43 @@ const ApplicantDetails = () => {
     const [loading, setLoading] = React.useState(false);
     const router = useRouter();
 
-    const { applicantId, jobId } = useLocalSearchParams<{ applicantId: string, jobId: string }>();
+    const { applicantId, jobId, applicationId } = useLocalSearchParams<{
+        applicantId: string;
+        jobId: string;
+        applicationId: string;
+    }>();
 
-    const job = jobPosts.find(j => j.id === jobId);
+    const { data: applicationData, isLoading: appLoading } = useGetSingleApplicationQuery(
+        applicationId, { skip: !applicationId }
+    );
+    const [acceptApplication] = useAcceptApplicationMutation();
 
+    const bartender = applicationData?.bartender;
 
-    const applicant = job?.assignedTo?.id === applicantId
-        ? job.assignedTo
-        : job?.applicants.find(a => a.id === applicantId);
+    const applicant = bartender ? {
+        id: bartender._id,
+        name: bartender.name,
+        email: bartender.email,
+        phone: bartender.phone,
+        profileImg: bartender.profile_image && bartender.profile_image.trim() !== ''
+            ? { uri: bartender.profile_image }
+            : IMAGE_COMPONENTS.profileImg,
+        experience: bartender.experience ?? 'N/A',
+        totalJobs: bartender.totalCompletedJobs ?? 0,
+        rating: bartender.avgRating ?? 0,
+        reviewCount: bartender.totalRatingCount ?? 0,
+        bio: bartender.bio ?? 'No bio available',
+    } : null;
+
+    if (appLoading) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator color={Colors.BRAND_PRIMARY} />
+                </View>
+            </SafeAreaView>
+        );
+    }
 
 
     if (!applicant) {
@@ -42,15 +72,14 @@ const ApplicantDetails = () => {
 
     const handleAssignConfirm = () => {
         setShowAssignModal(false);
+        console.log("applicationId being sent:", applicationId); 
 
         setTimeout(async () => {
             setLoading(true);
             try {
-
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                await acceptApplication(applicationId).unwrap();
                 setLoading(false);
-                router.push("/customer/(tabs)/gigs")
-
+                router.push("/customer/(tabs)/gigs");
             } catch (error) {
                 setLoading(false);
                 console.error("Assignment failed", error);
@@ -174,4 +203,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default ApplicantDetails
+export default ApplicantDetails;

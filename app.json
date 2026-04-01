@@ -19,7 +19,8 @@
       "softwareKeyboardLayoutMode": "resize",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.delwarhosen.Flonx"
+      "package": "com.delwarhosen.Flonx",
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
     },
     "web": {
       "output": "static",
@@ -40,7 +41,8 @@
         }
       ],
       "expo-font",
-      "expo-secure-store"
+      "expo-secure-store",
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,
