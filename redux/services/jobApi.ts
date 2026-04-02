@@ -10,6 +10,7 @@ export const jobApi = baseApis.injectEndpoints({
                 body: jobData,
             }),
             transformResponse: (respons: any) => respons.data,
+            invalidatesTags: ['Jobs'],
         }),
         // update job
         updateJob: builder.mutation({
@@ -23,6 +24,25 @@ export const jobApi = baseApis.injectEndpoints({
                 };
             },
             transformResponse: (response: any) => response.data,
+            invalidatesTags: ['Jobs'],
+        }),
+        // Delete job
+        deleteJob: builder.mutation({
+            query: (jobId) => ({
+                url: `/job/delete/${jobId}`,
+                method: "DELETE",
+            }),
+            transformResponse: (respons: any) => respons.data,
+            invalidatesTags: ['Jobs'],
+        }),
+
+        // Mark as comolete job
+        markJobAsComplete: builder.mutation({
+            query: (jobId) => ({
+                url: `/job/mark-as-complete/${jobId},`,
+            }),
+            transformResponse: (respons: any) => respons.data,
+            invalidatesTags: ['Jobs']
         }),
         // get my job by (customers)
         getMyJobs: builder.query({
@@ -37,6 +57,7 @@ export const jobApi = baseApis.injectEndpoints({
                 },
             }),
             transformResponse: (respons: any) => respons.data,
+            providesTags: ['Jobs'],
         }),
         // get All job
         getAllJobs: builder.query({
@@ -53,14 +74,13 @@ export const jobApi = baseApis.injectEndpoints({
                 },
             }),
             transformResponse: (response: any) => response.data,
+            providesTags: ['Jobs'],
         }),
         // get single job
         getSingleJob: builder.query({
             query: (jobId) => `/job/get-single/${jobId}`,
-            transformResponse: (response: any) => {
-                // console.log("Single Job Response:", response);
-                return response.data;
-            },
+            transformResponse: (response: any) => response.data,
+            providesTags: ['Jobs'],
         }),
 
         // get job applicants
@@ -89,9 +109,16 @@ export const jobApi = baseApis.injectEndpoints({
             query: (jobId) => ({
                 url: `/job-application/apply/${jobId}`,
                 method: "POST",
-            })
+            }),
+            invalidatesTags: ['Jobs'],
         }),
 
+        // get bartender job apply  api
+        getMyApplications: builder.query({
+            query: () => '/job-application/my',
+            transformResponse: (response: any) => response.data,
+            providesTags: ['Jobs'],
+        }),
 
     }),
     overrideExisting: true,
@@ -106,5 +133,8 @@ export const {
     useGetMyJobsQuery,
     useGetJobApplicantsQuery,
     useGetSingleApplicationQuery,
-    useAcceptApplicationMutation
+    useAcceptApplicationMutation,
+    useDeleteJobMutation,
+    useMarkJobAsCompleteMutation,
+    useGetMyApplicationsQuery
 } = jobApi;

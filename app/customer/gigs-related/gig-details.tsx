@@ -7,8 +7,9 @@ import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
 import SectionTitle from '@/components/SectionTitle';
 import { Body1, Body2, Caption2, Caption3 } from '@/components/typo/Typography';
+import { IMAGE_COMPONENTS } from '@/constants/image.index';
 import { Colors } from '@/constants/theme';
-import { useGetSingleJobQuery } from '@/redux/services/jobApi';
+import { useDeleteJobMutation, useGetSingleJobQuery, useMarkJobAsCompleteMutation } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
@@ -24,6 +25,9 @@ const GigDetails = () => {
     const { id, initialTab } = useLocalSearchParams<{ id: string; initialTab: string }>();
     // const item = jobPosts.find(j => j.id === id);
     const { data: item, isLoading } = useGetSingleJobQuery(id);
+    const [deleteJob] = useDeleteJobMutation();
+    const [markJobAsComplete] = useMarkJobAsCompleteMutation();
+
     // console.log("Create Job", item)
 
     if (isLoading) return (
@@ -58,7 +62,7 @@ const GigDetails = () => {
             setLoading(true);
             try {
                 // API Call logic here
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                await markJobAsComplete(item._id).unwrap();
                 router.back();
             } catch (error) {
                 setLoading(false);
@@ -88,7 +92,8 @@ const GigDetails = () => {
             setLoading(true);
             try {
 
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                await deleteJob(item._id).unwrap();
+                setLoading(false);
                 router.back();
             } catch (error) {
                 setLoading(false);
@@ -140,7 +145,7 @@ const GigDetails = () => {
 
                         <CustomButton
                             onPress={() => setShowDeleteModal(true)}
-                            title='Delete listing'
+                            title='Delete Job'
                             width={'100%'}
                             height={hp(44)}
                             borderRadius={100}
@@ -156,21 +161,30 @@ const GigDetails = () => {
                     <>
                         <TouchableOpacity
                             style={styles.assignedRow}
-                            // pathname: '/customer/gigs-related/applicant-details',
-                            onPress={() => console.log("")}
+                            // onPress={() => router.push({
+                            //     pathname: '/customer/gigs-related/applicant-details',
+                            //     params: {
+                            //         applicantId: item.bartender?._id ?? item.bartender,
+                            //         jobId: item._id,
+                            //         applicationId: item.acceptedApplicationId ?? ''
+                            //     }
+                            // })}
                             activeOpacity={0.8}
                         >
                             <View style={styles.assignedLeft}>
-
                                 <View style={styles.assigneeInfo}>
                                     <Image
-                                        source={item.assignedTo?.profileImg}
+                                        source={
+                                            item.bartender?.profile_image && item.bartender.profile_image.trim() !== ''
+                                                ? { uri: item.bartender.profile_image }
+                                                : IMAGE_COMPONENTS.profileImg
+                                        }
                                         style={styles.avatar}
                                     />
                                     <View style={{ flexDirection: "column", gap: 10, marginLeft: wp(10) }}>
                                         <Caption3 color={Colors.PLACEHOLLDER_TEXT}>ASSIGNED TO</Caption3>
                                         <Body2 color={Colors.NEUTRAL0}>
-                                            {item.assignedTo?.name ?? '—'}
+                                            {item.bartender?.name ?? '—'}
                                         </Body2>
                                     </View>
                                 </View>
@@ -207,36 +221,46 @@ const GigDetails = () => {
                     <>
                         <TouchableOpacity
                             style={styles.assignedRow}
-                            onPress={() => router.push({
-                                pathname: '/customer/gigs-related/applicant-profile-details',
-                                params: { applicantId: item.assignedTo?.id, jobId: item.id }
-                            })}
+                            onPress={() => {
+                                router.push({
+                                    pathname: '/customer/gigs-related/applicant-profile-details',
+                                    params: {
+                                        bartenderId: item.bartender?._id,
+                                        jobId: item._id
+                                    }
+                                })
+                            }}
                             activeOpacity={0.8}
                         >
                             <View style={styles.assignedLeft}>
-
                                 <View style={styles.assigneeInfo}>
                                     <Image
-                                        source={item.assignedTo?.profileImg}
+                                        source={
+                                            item.bartender?.profile_image && item.bartender.profile_image.trim() !== ''
+                                                ? { uri: item.bartender.profile_image }
+                                                : IMAGE_COMPONENTS.profileImg
+                                        }
                                         style={styles.avatar}
                                     />
                                     <View style={{ flexDirection: "column", gap: 10, marginLeft: wp(10) }}>
-                                        <Caption3 color={Colors.PLACEHOLLDER_TEXT}>ASSIGNED TO</Caption3>
+                                        <Caption3 color={Colors.PLACEHOLLDER_TEXT}>Completed By</Caption3>
                                         <Body2 color={Colors.NEUTRAL0}>
-                                            {item.assignedTo?.name ?? '—'}
+                                            {item.bartender?.name ?? '—'}
                                         </Body2>
                                     </View>
                                 </View>
-
                             </View>
                             <Body2 color={Colors.NEUTRAL0}>›</Body2>
                         </TouchableOpacity>
 
                         <DetailsCardComponents
                             topLabel="Completed On"
-                            bottomLabel={item.completedOn ?? '—'}
+                            bottomLabel={item.updatedAt
+                                ? new Date(item.updatedAt).toLocaleDateString('en-GB', {
+                                    day: 'numeric', month: 'long', year: 'numeric'
+                                })
+                                : '—'}
                         />
-
                     </>
                 );
 
@@ -426,13 +450,13 @@ const PaymentInfoCard = ({ item }: { item: any }) => {
             </View>
             <View style={styles.payRow}>
                 <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Total Duration</Caption2>
-                <Body2 color={Colors.NEUTRAL0}>{durationHours} hours</Body2>
+                <Body2 color={Colors.NEUTRAL0}>{durationHours.toFixed(2)} hours</Body2>
             </View>
 
             <View style={{ height: 1.5, backgroundColor: Colors.BORDER_COLOR, marginVertical: hp(16) }} />
 
             <View style={styles.payRow}>
-                <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Total Amount</Caption2>
+                <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Total-Amount</Caption2>
                 <Body2 color={Colors.NEUTRAL0}>$ {totalAmount.toFixed(2)}</Body2>
             </View>
         </View>

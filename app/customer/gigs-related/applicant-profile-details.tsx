@@ -8,20 +8,35 @@ import { DetailsCardComponents } from '@/components/cardComponents/DetailsCardCo
 import { CustomButton } from '@/components/CustomButton';
 import SectionTitle from '@/components/SectionTitle';
 import { Body1, Body2, Body3, Caption2 } from '@/components/typo/Typography';
-import { jobPosts } from '@/constants/data/jobPosts';
+import { IMAGE_COMPONENTS } from '@/constants/image.index';
 import { Colors } from '@/constants/theme';
+import { useGetBartenderByIdQuery } from '@/redux/services/bartenderApi';
 import { hp, wp } from '@/utils/responsive';
 
 const ApplicantProfileDetails = () => {
-    const { applicantId, jobId } = useLocalSearchParams<{ applicantId: string, jobId: string }>();
+    const { bartenderId, jobId } = useLocalSearchParams<{ bartenderId: string, jobId: string }>();
     const [modalVisible, setModalVisible] = useState(false);
     const [rating, setRating] = useState(0);
     const [isRated, setIsRated] = useState(false);
 
-    const job = jobPosts.find(j => j.id === jobId);
-    const applicant = job?.assignedTo?.id === applicantId
-        ? job.assignedTo
-        : job?.applicants.find(a => a.id === applicantId);
+    const { data: bartender, isLoading } = useGetBartenderByIdQuery(
+        bartenderId, { skip: !bartenderId }
+    );
+
+    const applicant = bartender ? {
+        id: bartender._id,
+        name: bartender.name,
+        email: bartender.email,
+        phone: bartender.phone ?? '—',
+        profileImg: bartender.profile_image && bartender.profile_image.trim() !== ''
+            ? { uri: bartender.profile_image }
+            : IMAGE_COMPONENTS.profileImg,
+        experience: bartender.experience ?? 'N/A',
+        totalJobs: bartender.totalCompletedJobs ?? 0,
+        rating: bartender.averageRating ?? 0,
+        reviewCount: bartender.totalRatings ?? 0,
+        bio: bartender.bio ?? 'No bio available',
+    } : null;
 
     if (!applicant) {
         return (
@@ -44,14 +59,12 @@ const ApplicantProfileDetails = () => {
                 </View>
 
                 <View style={{ width: '100%', marginTop: hp(10) }}>
-                    <DetailsCardComponents topLabel="Name" bottomLabel={applicant.name} />
-                    <DetailsCardComponents topLabel="Email" bottomLabel={applicant.email} />
-                    <DetailsCardComponents topLabel="Contact Phone" bottomLabel={applicant.phone} />
-
-                    <DetailsCardComponents topLabel="Experience" bottomLabel={applicant.experience} />
-                    <DetailsCardComponents topLabel="Total Jobs Completed" bottomLabel={applicant.totalJobs.toString()} />
-
-                    <DetailsCardComponents topLabel="Bio" bottomLabel={applicant.bio} />
+                    <DetailsCardComponents topLabel="Name" bottomLabel={applicant?.name ?? '—'} />
+                    <DetailsCardComponents topLabel="Email" bottomLabel={applicant?.email ?? '—'} />
+                    <DetailsCardComponents topLabel="Contact Phone" bottomLabel={applicant?.phone ?? '—'} />
+                    <DetailsCardComponents topLabel="Experience" bottomLabel={applicant?.experience ?? '—'} />
+                    <DetailsCardComponents topLabel="Total Jobs Completed" bottomLabel={applicant?.totalJobs?.toString() ?? '—'} />
+                    <DetailsCardComponents topLabel="Bio" bottomLabel={applicant?.bio ?? '—'} />
 
                     <View style={styles.fieldBox}>
                         <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Overall Rating</Caption2>
@@ -71,30 +84,18 @@ const ApplicantProfileDetails = () => {
                             </Body3>
                         </View>
                     ) : (
-                        job?.status === 'Completed' ? (
-                            <CustomButton
-                                onPress={() => setModalVisible(true)}
-                                title='Leave A Rating'
-                                width="100%"
-                                height={hp(44)}
-                                borderRadius={100}
-                                style={{ marginTop: hp(10) }}
-                            />
-                        ) : (
-                            <CustomButton
-                                onPress={() => console.log("Assigned")}
-                                title='Accept & Assign Job'
-                                width="100%"
-                                height={hp(44)}
-                                borderRadius={100}
-                                style={{ marginTop: hp(10) }}
-                            />
-                        )
+                        <CustomButton
+                            onPress={() => setModalVisible(true)}
+                            title='Leave A Rating'
+                            width="100%"
+                            height={hp(44)}
+                            borderRadius={100}
+                            style={{ marginTop: hp(10) }}
+                        />
                     )}
                 </View>
             </ScrollView>
 
-            {/* Rating Modal */}
             <Modal
                 animationType="fade"
                 transparent={true}
@@ -130,10 +131,8 @@ const ApplicantProfileDetails = () => {
                                 backgroundColor={"transparent"}
                                 borderColor={Colors.COLOR_DANGER}
                             />
-
                             <CustomButton
                                 onPress={() => {
-                                    console.log("Rated:", rating);
                                     setIsRated(true);
                                     setModalVisible(false);
                                 }}
@@ -151,70 +150,30 @@ const ApplicantProfileDetails = () => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: Colors.APP_BACKGROUND
-    },
+    container: { flex: 1, backgroundColor: Colors.APP_BACKGROUND },
     imgWrapper: {
-        width: 100,
-        height: 100,
-        borderRadius: 20,
+        width: 100, height: 100, borderRadius: 20,
         backgroundColor: Colors.INPUT_BACKGROUND,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: Colors.BORDER_COLOR
+        overflow: 'hidden', borderWidth: 1, borderColor: Colors.BORDER_COLOR
     },
-    profileImg: {
-        width: '100%',
-        height: '100%',
-        backgroundColor: Colors.INPUT_BACKGROUND
-    },
-
+    profileImg: { width: '100%', height: '100%', backgroundColor: Colors.INPUT_BACKGROUND },
     ratingDisplayContainer: {
-        width: '100%',
-        height: hp(44),
+        width: '100%', height: hp(44),
         backgroundColor: Colors.INPUT_BACKGROUND,
-        borderRadius: 100,
-        borderWidth: 1,
-        borderColor: Colors.BORDER_COLOR,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: hp(10),
+        borderRadius: 100, borderWidth: 1, borderColor: Colors.BORDER_COLOR,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: hp(10),
     },
     fieldBox: {
-        width: '100%',
-        backgroundColor: Colors.INPUT_BACKGROUND,
-        padding: 14,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: Colors.BORDER_COLOR
+        width: '100%', backgroundColor: Colors.INPUT_BACKGROUND,
+        padding: 14, borderRadius: 10, borderWidth: 1, borderColor: Colors.BORDER_COLOR
     },
-
-    // Modal Styles
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.7)',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center' },
     modalContent: {
-        width: '85%',
-        backgroundColor: Colors.INPUT_BACKGROUND,
-        padding: 20,
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: Colors.BORDER_COLOR
+        width: '85%', backgroundColor: Colors.INPUT_BACKGROUND,
+        padding: 20, borderRadius: 16, borderWidth: 1, borderColor: Colors.BORDER_COLOR
     },
-    starRow: {
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        marginBottom: hp(30)
-    },
-    modalActions: {
-        flexDirection: "row"
-    },
-
+    starRow: { flexDirection: 'row', justifyContent: 'flex-start', marginBottom: hp(30) },
+    modalActions: { flexDirection: "row" },
 });
 
 export default ApplicantProfileDetails;

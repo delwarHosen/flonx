@@ -8,31 +8,32 @@ import React, { useState } from 'react';
 import { FlatList, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-
 import GigCard from '@/components/cardComponents/GigCard';
 import SearchBar from '@/components/CommonComponents/SearchBar';
-// import { getJobs } from '@/constants/data/getJobs';
 import FilterModal from '@/components/QRScannerModal/FilterModal';
 import { useGetProfileQuery } from '@/redux/services/authApi';
-import { useGetAllJobsQuery } from '@/redux/services/jobApi';
+import { useGetAllJobsQuery, useGetMyApplicationsQuery } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
-
-// ... imports exactly same as yours
 
 const BrowseScreen: React.FC = () => {
     const [query, setQuery] = useState<string>('')
-
-    const router = useRouter();
-    const { data: profile } = useGetProfileQuery({});
-    const { data: jobsData, isLoading } = useGetAllJobsQuery({
-        searchTerm: query
-    })
-
     const [filterVisible, setFilterVisible] = useState(false);
     const [selectedFilter, setSelectedFilter] = useState<string>('');
 
-    const jobs = jobsData?.result || [];
+    const router = useRouter();
+    const { data: profile } = useGetProfileQuery({});
+    const { data: jobsData } = useGetAllJobsQuery({ searchTerm: query });
+    const { data: applications = [] } = useGetMyApplicationsQuery(undefined);
 
+    const appliedJobIds = new Set(
+        applications
+            .filter((app: any) => app.job)
+            .map((app: any) => app.job._id)
+    );
+
+    const jobs = (jobsData?.result || []).filter(
+        (job: any) => job.status === 'Open' && !appliedJobIds.has(job._id)
+    );
 
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -58,7 +59,6 @@ const BrowseScreen: React.FC = () => {
                             </TouchableOpacity>
                         </View>
                         <View style={{ marginTop: hp(20) }}>
-
                             <SearchBar
                                 placeholder="Search"
                                 value={query}
@@ -84,19 +84,15 @@ const BrowseScreen: React.FC = () => {
                 )}
             />
 
-            {/* filter modal */}
             <FilterModal
                 visible={filterVisible}
                 onClose={() => setFilterVisible(false)}
                 onSelect={(option) => setSelectedFilter(option)}
                 selected={selectedFilter}
             />
-            
         </SafeAreaView>
     );
 };
-
-
 
 const styles = StyleSheet.create({
     container: {

@@ -2,27 +2,33 @@ import GigCard from '@/components/cardComponents/GigCard';
 import EmptyStateCard from '@/components/EmptyStateCardProps';
 import SectionTitle from '@/components/SectionTitle';
 import { Body2 } from '@/components/typo/Typography';
-import { getJobs } from '@/constants/data/getJobs';
 import { Colors } from '@/constants/theme';
+import { useGetMyApplicationsQuery } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const TABS = ["Active", "Assigned", "Completed", "Cancelled"];
+const TABS = ["Applied", "Assigned", "Completed", "Cancelled"];
 export default function JobsScreen() {
-  const [activeTab, setActiveTab] = useState("Active");
+  const [activeTab, setActiveTab] = useState("Applied");
   const router = useRouter();
 
   // const filteredData = jobPosts.filter(job => job.status === activeTab);
 
-  const filteredData = getJobs.filter(job => {
-    if (activeTab === "Active") {
-      return job.status === "Open";
-    }
-    return job.status === activeTab;
+  const { data: applications = [], isLoading } = useGetMyApplicationsQuery(undefined);
+
+  const filteredData = applications.filter((app: any) => {
+    if (!app.job) return false;
+    if (activeTab === "Applied") return app.job.status === "Open"; 
+    if (activeTab === "Assigned") return app.job.status === "Assigned" && app.isAccepted;
+    if (activeTab === "Completed") return app.job.status === "Completed";
+    if (activeTab === "Cancelled") return app.job.status === "Cancelled";
+    return false;
   });
+
+
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -54,24 +60,22 @@ export default function JobsScreen() {
       {/* Content List */}
       <FlatList
         data={filteredData}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         contentContainerStyle={styles.listContainer}
         renderItem={({ item }) => (
           <GigCard
-            item={item}
+            item={item.job}
             onPress={() => {
-              // mapping tab name to job-details switch case
               const tabMap: Record<string, string> = {
-                'Active': 'open',
+                'Applied': 'open',
                 'Assigned': 'assigned',
                 'Completed': 'completed',
                 'Cancelled': 'cancelled',
               };
-
               router.push({
                 pathname: '/bartender/jobs/job-details',
                 params: {
-                  id: item.id,
+                  id: item.job._id,
                   initialTab: tabMap[activeTab]
                 },
               });
@@ -98,9 +102,9 @@ const styles = StyleSheet.create({
   },
 
   tabList: {
-     paddingHorizontal: hp(20),
-      alignItems: 'center'
-     },
+    paddingHorizontal: hp(20),
+    alignItems: 'center'
+  },
   tabItem: {
     paddingHorizontal: wp(24),
     paddingVertical: hp(10),

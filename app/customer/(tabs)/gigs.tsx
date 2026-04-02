@@ -28,6 +28,8 @@ const GigsScreen = () => {
 
   const { data, isLoading } = useGetMyJobsQuery({
     type: tabTypeMap[activeTab],
+  }, {
+    refetchOnMountOrArgChange: true,
   });
 
   const filteredData = data?.result || [];

@@ -9,6 +9,7 @@ import { hp, wp } from '@/utils/responsive';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Location from 'expo-location';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
     KeyboardAvoidingView,
@@ -34,6 +35,7 @@ interface GigFormValues {
 const AddGig: React.FC = () => {
     const [description, setDescription] = useState<string>('');
     const [createJob, { isLoading }] = useCreateJobMutation();
+    const router = useRouter();
 
     // Date & Time states
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -101,12 +103,12 @@ const AddGig: React.FC = () => {
             contactNumber: (v) => (!v ? 'Contact number is required' : ''),
             eventDescription: (v) => (!v ? 'Description is required' : ''),
         },
-        onSubmit: () => { }, 
+        onSubmit: () => { },
     });
 
     const handlePublish = async () => {
-        console.log(' Button clicked!');
-        ToastAndroid.show('Button clicked!', ToastAndroid.SHORT);
+        // console.log(' Button clicked!');
+        // ToastAndroid.show('Button clicked!', ToastAndroid.SHORT);
 
         try {
             const payload = {
@@ -126,13 +128,13 @@ const AddGig: React.FC = () => {
                 description: description,
             };
 
-            console.log(' Payload:', JSON.stringify(payload, null, 2));
-            ToastAndroid.show('Submitting...', ToastAndroid.SHORT);
+            // console.log(' Payload:', JSON.stringify(payload, null, 2));
+            // ToastAndroid.show('Submitting...', ToastAndroid.SHORT);
 
             const result = await createJob(payload).unwrap();
             console.log(' Job created:', result);
             ToastAndroid.show('Job published successfully!', ToastAndroid.LONG);
-
+            router.back();
         } catch (error: any) {
             console.error(' Failed:', error);
             ToastAndroid.show(
