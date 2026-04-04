@@ -57,10 +57,7 @@ const HomeScreen: React.FC = () => {
         <View style={styles.header}>
           <View style={styles.userInfo}>
             <Image
-              source={profile?.profile_image
-                ? { uri: profile.profile_image }
-                : IMAGE_COMPONENTS.profileImg
-              }
+              source={profile?.profile_image ? { uri: profile.profile_image } : IMAGE_COMPONENTS.profileImg}
               style={styles.avatar}
             />
             <View style={{ marginLeft: 12 }}>

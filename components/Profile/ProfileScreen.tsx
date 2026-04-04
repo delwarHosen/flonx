@@ -11,6 +11,7 @@ import SectionTitle from '@/components/SectionTitle'
 import { Caption2 } from '@/components/typo/Typography'
 import { IMAGE_COMPONENTS } from '@/constants/image.index'
 import { Colors } from '@/constants/theme'
+import { useGetProfileQuery } from '@/redux/services/authApi'
 import { RootState } from '@/redux/store'
 import { hp, wp } from '@/utils/responsive'
 import { Href, useRouter } from 'expo-router'
@@ -22,7 +23,10 @@ import { useSelector } from 'react-redux'
 export default function ProfileScreen() {
   const router = useRouter();
   const userRole = useSelector((state: RootState) => state.auth.userRole);
+  const { data: profile } = useGetProfileQuery({});
 
+  // console.log("profile:", JSON.stringify(profile, null, 2));
+  // console.log("userRole from redux:", userRole);
 
   const getPath = (screenName: string): Href => {
     if (userRole === 'bartender') {
@@ -44,8 +48,12 @@ export default function ProfileScreen() {
         <View style={{ width: '100%', paddingHorizontal: wp(20), marginTop: hp(20) }}>
 
           <ProfileImageComponent
-            image={IMAGE_COMPONENTS.profileImg}
-            name="Roberts Junior"
+            image={
+              profile?.profile_image && profile.profile_image.trim() !== ''
+                ? { uri: profile.profile_image }
+                : IMAGE_COMPONENTS.profileImg
+            }
+            name={profile?.name ?? ''}
           />
 
           <ProfileCard

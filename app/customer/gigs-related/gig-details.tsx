@@ -9,7 +9,7 @@ import SectionTitle from '@/components/SectionTitle';
 import { Body1, Body2, Caption2, Caption3 } from '@/components/typo/Typography';
 import { IMAGE_COMPONENTS } from '@/constants/image.index';
 import { Colors } from '@/constants/theme';
-import { useDeleteJobMutation, useGetSingleJobQuery, useMarkJobAsCompleteMutation } from '@/redux/services/jobApi';
+import { useCancelJobMutation, useDeleteJobMutation, useGetSingleJobQuery, useMarkJobAsCompleteMutation } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
@@ -24,11 +24,18 @@ const GigDetails = () => {
 
     const { id, initialTab } = useLocalSearchParams<{ id: string; initialTab: string }>();
     // const item = jobPosts.find(j => j.id === id);
-    const { data: item, isLoading } = useGetSingleJobQuery(id);
+    const { data: item, isLoading } = useGetSingleJobQuery(id, {
+        refetchOnMountOrArgChange: true,
+    });
     const [deleteJob] = useDeleteJobMutation();
     const [markJobAsComplete] = useMarkJobAsCompleteMutation();
+    const [cancelJob] = useCancelJobMutation();
+
+    // console.log("from gig details", item)
 
     // console.log("Create Job", item)
+    // console.log("single job item:", JSON.stringify(item, null, 2))
+    // console.log("bartender data:", item.bartender);
 
     if (isLoading) return (
         <SafeAreaView style={styles.container}>
@@ -76,14 +83,20 @@ const GigDetails = () => {
         setTimeout(async () => {
             setLoading(true);
             try {
-                // API Call logic here
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                router.back();
-            } catch (error) {
+                const result = await cancelJob(item._id).unwrap();
+                // console.log("Cancel success:", result);
+                setLoading(false);
+                router.push({
+                    pathname: '/customer/(tabs)/gigs',
+                    params: { resetTab: 'Cancelled' }
+                });
+            } catch (error: any) {
+                // console.log("Cancel error:", error);
                 setLoading(false);
             }
         }, 300);
     };
+
     // delete modal
     const confirmDelete = () => {
         setShowDeleteModal(false);
@@ -103,7 +116,7 @@ const GigDetails = () => {
     };
 
     const renderBottomSection = () => {
-        console.log("Current initialTab:", initialTab);
+        // console.log("Current initialTab:", initialTab);
         switch (initialTab?.toLowerCase()) {
 
             // ─── 1st Page: Open ──────────
@@ -161,14 +174,6 @@ const GigDetails = () => {
                     <>
                         <TouchableOpacity
                             style={styles.assignedRow}
-                            // onPress={() => router.push({
-                            //     pathname: '/customer/gigs-related/applicant-details',
-                            //     params: {
-                            //         applicantId: item.bartender?._id ?? item.bartender,
-                            //         jobId: item._id,
-                            //         applicationId: item.acceptedApplicationId ?? ''
-                            //     }
-                            // })}
                             activeOpacity={0.8}
                         >
                             <View style={styles.assignedLeft}>
@@ -222,6 +227,7 @@ const GigDetails = () => {
                         <TouchableOpacity
                             style={styles.assignedRow}
                             onPress={() => {
+                                console.log("Job id:",item._id)
                                 router.push({
                                     pathname: '/customer/gigs-related/applicant-profile-details',
                                     params: {
@@ -278,7 +284,12 @@ const GigDetails = () => {
 
                             <DetailsCardComponents
                                 topLabel="Cancelled On"
-                                bottomLabel={item.cancelledOn ?? '—'}
+                                bottomLabel={item.updatedAt
+                                    ? new Date(item.updatedAt).toLocaleDateString('en-GB', {
+                                        day: 'numeric', month: 'long', year: 'numeric'
+                                    })
+                                    : '—'}
+
                             />
                         </View>
 

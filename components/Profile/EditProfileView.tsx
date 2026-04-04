@@ -8,52 +8,128 @@ import { FORM_FIELDS, FORM_LABELS } from '@/constants/form'
 import { IMAGE_COMPONENTS } from '@/constants/image.index'
 import { Colors } from '@/constants/theme'
 import { useForm } from '@/hooks/useForm'
+import { useGetProfileQuery, useUpdateProfileMutation } from '@/redux/services/authApi'
 import { RootState } from '@/redux/store'
 import { hp, wp } from '@/utils/responsive'
 import { validateExperience, validateName, validatePhoneNumber } from '@/utils/validation'
-import { useLocalSearchParams, useRouter } from 'expo-router'
-import React from 'react'
-import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native'
+import * as ImagePicker from 'expo-image-picker'
+import { useRouter } from 'expo-router'
+import React, { useEffect, useState } from 'react'
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, ToastAndroid, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
 import { Caption3 } from '../typo/Typography'
 
-
 export default function EditProfileView() {
     const router = useRouter();
-    const params = useLocalSearchParams();
     const userRole = useSelector((state: RootState) => state.auth.userRole);
     const isBartender = userRole === "bartender";
 
+    const { data: profile } = useGetProfileQuery({});
+    const [updateProfile, { isLoading }] = useUpdateProfileMutation();
+    const [localImage, setLocalImage] = useState<string | null>(null);
 
-    const {
-        values,
-        errors,
-        touched,
-        handleChange,
-        handleSubmit,
-    } = useForm({
+    const { values, errors, touched, handleChange, handleSubmit, setValues } = useForm({
+
         initialValues: {
-            [FORM_FIELDS.FULL_NAME]: (params[FORM_FIELDS.FULL_NAME] as string) || "",
-            [FORM_FIELDS.CONTACT_NO]: (params[FORM_FIELDS.CONTACT_NO] as string) || "",
-            [FORM_FIELDS.EXPERIENCE]: (params[FORM_FIELDS.EXPERIENCE] as string) || "",
+            [FORM_FIELDS.FULL_NAME]: "",
+            [FORM_FIELDS.CONTACT_NO]: "",
+            [FORM_FIELDS.EXPERIENCE]: "",
         },
         validationRules: {
             [FORM_FIELDS.FULL_NAME]: validateName,
-            [FORM_FIELDS.CONTACT_NO]: validatePhoneNumber,
-            [FORM_FIELDS.EXPERIENCE]: validateExperience,
-
+            [FORM_FIELDS.CONTACT_NO]: (value: string) => isBartender ? validatePhoneNumber(value) : "",
+            [FORM_FIELDS.EXPERIENCE]: (value: string) => isBartender ? validateExperience(value) : "",
         },
         onSubmit: async (formValues) => {
-            console.log("Updating Data:", formValues);
-            if (isBartender) {
-                router.push("/bartender/profile/my-profile");
-            } else {
-                router.push("/customer/my-profile")
-            }
+            // লগ চেক করুন সাবমিট কল হচ্ছে কি না
+            console.log("handleSubmit called with values:", JSON.stringify(formValues));
+            console.log("Local Image URI:", localImage);
 
+            try {
+                if (localImage) {
+
+                    const imageFormData = new FormData();
+
+
+                    const filename = localImage.split('/').pop() || 'profile_photo.jpg';
+                    const match = /\.(\w+)$/.exec(filename);
+                    const type = match ? `image/${match[1]}` : 'image/jpeg';
+
+
+                    const imageFile = {
+                        uri: localImage,
+                        name: filename,
+                        type,
+                    } as any;
+
+
+                    imageFormData.append('profile_image', imageFile);
+
+
+                    imageFormData.append('name', formValues[FORM_FIELDS.FULL_NAME]);
+                    imageFormData.append('phone', formValues[FORM_FIELDS.CONTACT_NO]);
+
+
+                    imageFormData.append('experience', formValues[FORM_FIELDS.EXPERIENCE]);
+
+                    console.log("Sending FormData with image...");
+
+                    await updateProfile(imageFormData).unwrap();
+
+                } else {
+
+                    const payload = {
+                        name: formValues[FORM_FIELDS.FULL_NAME],
+                        phone: formValues[FORM_FIELDS.CONTACT_NO],
+                        experience: Number(formValues[FORM_FIELDS.EXPERIENCE]),
+                    };
+                    console.log("Updating without image. Payload:", payload);
+                    await updateProfile(payload).unwrap();
+                }
+
+                ToastAndroid.show("Profile updated successfully!", ToastAndroid.SHORT);
+
+
+                if (isBartender) {
+                    router.push("/bartender/profile/my-profile");
+                } else {
+                    router.push("/customer/my-profile");
+                }
+
+            } catch (error: any) {
+                console.error("Update error detail:", JSON.stringify(error, null, 2));
+                ToastAndroid.show("Update failed! Please try again.", ToastAndroid.SHORT);
+            }
         },
     });
+
+    useEffect(() => {
+        if (profile) {
+            setValues({
+                [FORM_FIELDS.FULL_NAME]: profile.name || "",
+                [FORM_FIELDS.CONTACT_NO]: profile.phone || "",
+                [FORM_FIELDS.EXPERIENCE]: profile.experience?.toString() || "",
+            });
+        }
+    }, [profile]);
+
+    const handlePickImage = async () => {
+        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permission.granted) {
+            ToastAndroid.show("Permission required!", ToastAndroid.SHORT);
+            return;
+        }
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+        });
+        if (!result.canceled) {
+            setLocalImage(result.assets[0].uri);
+        }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -62,107 +138,101 @@ export default function EditProfileView() {
             </View>
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={{ paddingHorizontal: wp(20) }}
+                style={{ flex: 1 }}
+                keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
             >
-                <View style={{ marginTop: hp(10) }}>
-                    <ProfileImageComponent
-                        image={IMAGE_COMPONENTS.profileImg}
-                        icon={<CameraIcon />}
-                    />
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingHorizontal: wp(20), paddingBottom: hp(40) }}
+                >
+                    <View style={{ marginTop: hp(10) }}>
 
+                        <ProfileImageComponent
+                            image={
+                                localImage
+                                    ? { uri: localImage }
+                                    : profile?.profile_image?.trim()
+                                        ? { uri: profile.profile_image }
+                                        : IMAGE_COMPONENTS.profileImg
+                            }
+                            icon={<CameraIcon />}
+                            onIconPress={handlePickImage}
+                        />
 
-                    <FormInput
-                        label={FORM_LABELS[FORM_FIELDS.FULL_NAME]}
-                        value={values[FORM_FIELDS.FULL_NAME]}
-                        onChangeText={(text) => handleChange(FORM_FIELDS.FULL_NAME, text)}
-                        placeholder='Enter your name'
-                        error={errors[FORM_FIELDS.FULL_NAME]}
-                        touched={touched[FORM_FIELDS.FULL_NAME]}
-                    // required
-                    />
+                        <FormInput
+                            label={FORM_LABELS[FORM_FIELDS.FULL_NAME]}
+                            value={values[FORM_FIELDS.FULL_NAME]}
+                            onChangeText={(text) => handleChange(FORM_FIELDS.FULL_NAME, text)}
+                            placeholder='Enter your name'
+                            error={errors[FORM_FIELDS.FULL_NAME]}
+                            touched={touched[FORM_FIELDS.FULL_NAME]}
+                        />
 
+                        {isBartender && (
+                            <>
+                                <FormInput
+                                    label={FORM_LABELS[FORM_FIELDS.CONTACT_NO]}
+                                    value={values[FORM_FIELDS.CONTACT_NO]}
+                                    onChangeText={(text) => handleChange(FORM_FIELDS.CONTACT_NO, text)}
+                                    placeholder='Enter your phone number'
+                                    error={errors[FORM_FIELDS.CONTACT_NO]}
+                                    touched={touched[FORM_FIELDS.CONTACT_NO]}
+                                />
+                                <FormInput
+                                    label={FORM_LABELS[FORM_FIELDS.EXPERIENCE]}
+                                    value={values[FORM_FIELDS.EXPERIENCE]}
+                                    onChangeText={(text) => handleChange(FORM_FIELDS.EXPERIENCE, text)}
+                                    placeholder='Enter years of experience'
+                                    error={errors[FORM_FIELDS.EXPERIENCE]}
+                                    touched={touched[FORM_FIELDS.EXPERIENCE]}
+                                />
+                            </>
+                        )}
 
-                    {isBartender && (
-                        <>
-                            <FormInput
-                                label={FORM_LABELS[FORM_FIELDS.CONTACT_NO]}
-                                value={values[FORM_FIELDS.CONTACT_NO]}
-                                onChangeText={(text) => handleChange(FORM_FIELDS.CONTACT_NO, text)}
-                                placeholder='Enter your phone number'
-                                error={errors[FORM_FIELDS.CONTACT_NO]}
-                                touched={touched[FORM_FIELDS.CONTACT_NO]}
-                            />
-                            <FormInput
-                                label={FORM_LABELS[FORM_FIELDS.EXPERIENCE]}
-                                value={values[FORM_FIELDS.EXPERIENCE]}
-                                onChangeText={(text) => handleChange(FORM_FIELDS.EXPERIENCE, text)}
-                                placeholder='Enter your phone number'
-                                error={errors[FORM_FIELDS.EXPERIENCE]}
-                                touched={touched[FORM_FIELDS.EXPERIENCE]}
-                            />
-                        </>
-                    )}
+                        <CustomButton
+                            title={isLoading ? "Saving..." : "Save the changes"}
+                            onPress={handleSubmit}
+                            disabled={isLoading}
+                            width="100%"
+                            height={hp(44)}
+                            borderRadius={100}
+                            style={{ marginTop: hp(20) }}
+                        />
 
-                    <CustomButton
-                        title="Save the changes"
-                        // onPress={handleSubmit}
-                        onPress={
-                            () => isBartender ? router.push("/bartender/profile/my-profile") : router.push("/customer/my-profile")
-                        }
-                        width="100%"
-                        height={hp(44)}
-                        borderRadius={100}
-                        style={{ marginTop: hp(20) }}
-                    />
-
-         
-                    {/* Warning Section ... */}
-                    <View style={{
-                        flexDirection: "row",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        gap: 10,
-                        marginTop: hp(20),
-                        // paddingHorizontal: "4%" 
-                    }}>
                         <View style={{
+                            flexDirection: "row",
                             justifyContent: "center",
                             alignItems: "center",
-                            height: 26,
-                            width: 26,
-                            borderRadius: 10,
-                            backgroundColor: "#EF44441A"
+                            gap: 10,
+                            marginTop: hp(20),
                         }}>
-                            <WarningIcon />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Caption3 italic color={"#C9C6D6"}>
-                                Email updates are restricted as it is linked to authentication and system records.
-                            </Caption3>
+                            <View style={{
+                                justifyContent: "center",
+                                alignItems: "center",
+                                height: 26,
+                                width: 26,
+                                borderRadius: 10,
+                                backgroundColor: "#EF44441A"
+                            }}>
+                                <WarningIcon />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Caption3 italic color={"#C9C6D6"}>
+                                    Email updates are restricted as it is linked to authentication and system records.
+                                </Caption3>
+                            </View>
                         </View>
                     </View>
-                </View>
+                </ScrollView>
+
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
 }
-
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: Colors.APP_BACKGROUND
     },
-    warningContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 5,
-        marginTop: hp(16)
-    },
-    iconContainer: {
-        backgroundColor: "#EF44441A",
-        alignItems: "center",
-        justifyContent: "center",
-        height: 30, width: 30, borderRadius: 4,
-    }
 });

@@ -1,8 +1,3 @@
-import { useLocalSearchParams } from 'expo-router';
-import React, { useState } from 'react';
-import { Image, Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { StarIcon } from '@/assets/images/icons/BarRelatedIcon/StarIcon';
 import { DetailsCardComponents } from '@/components/cardComponents/DetailsCardComponents';
 import { CustomButton } from '@/components/CustomButton';
@@ -10,26 +5,41 @@ import SectionTitle from '@/components/SectionTitle';
 import { Body1, Body2, Body3, Caption2 } from '@/components/typo/Typography';
 import { IMAGE_COMPONENTS } from '@/constants/image.index';
 import { Colors } from '@/constants/theme';
+import { useGetProfileQuery } from '@/redux/services/authApi';
 import { useGetBartenderByIdQuery } from '@/redux/services/bartenderApi';
+import { useAddRatingMutation } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
+import { useLocalSearchParams } from 'expo-router';
+import React, { useState } from 'react';
+import { Image, Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ApplicantProfileDetails = () => {
     const { bartenderId, jobId } = useLocalSearchParams<{ bartenderId: string, jobId: string }>();
     const [modalVisible, setModalVisible] = useState(false);
     const [rating, setRating] = useState(0);
+    const [myRating, setMyRating] = useState(0);
     const [isRated, setIsRated] = useState(false);
 
     const { data: bartender, isLoading } = useGetBartenderByIdQuery(
         bartenderId, { skip: !bartenderId }
     );
 
+    const { data: profile } = useGetProfileQuery({});
+    console.log("customer id:", profile?._id);
+    // ratting endpoinds
+    const [addRating] = useAddRatingMutation();
+
+    console.log("bartenderId:", bartenderId);
+    console.log("rating:", rating);
+
     const applicant = bartender ? {
         id: bartender._id,
         name: bartender.name,
         email: bartender.email,
         phone: bartender.phone ?? '—',
-        profileImg: bartender.profile_image && bartender.profile_image.trim() !== ''
-            ? { uri: bartender.profile_image }
+        profileImg: bartender.profile_image?.trim()
+            ? bartender.profile_image
             : IMAGE_COMPONENTS.profileImg,
         experience: bartender.experience ?? 'N/A',
         totalJobs: bartender.totalCompletedJobs ?? 0,
@@ -37,6 +47,10 @@ const ApplicantProfileDetails = () => {
         reviewCount: bartender.totalRatings ?? 0,
         bio: bartender.bio ?? 'No bio available',
     } : null;
+
+    // console.log("profile_image:", bartender?.profile_image);
+    // console.log("profile_image trimmed:", bartender?.profile_image?.trim());
+    // console.log("full bartender data:", JSON.stringify(bartender, null, 2));
 
     if (!applicant) {
         return (
@@ -48,14 +62,24 @@ const ApplicantProfileDetails = () => {
         );
     }
 
+    
+
     return (
         <SafeAreaView style={styles.container}>
             <View style={{ marginVertical: hp(16) }}>
-                <SectionTitle title='Applicant detail' />
+                <SectionTitle title='Applicant details' />
             </View>
             <ScrollView contentContainerStyle={{ padding: "5%", alignItems: 'center' }}>
                 <View style={styles.imgWrapper}>
-                    <Image source={applicant.profileImg} style={styles.profileImg} />
+                    <Image
+                        source={
+                            bartender?.profile_image?.trim()
+                                ? { uri: bartender.profile_image }
+                                : IMAGE_COMPONENTS.profileImg
+                        }
+                        style={styles.profileImg}
+                    // contentFit="cover"
+                    />
                 </View>
 
                 <View style={{ width: '100%', marginTop: hp(10) }}>
@@ -80,7 +104,7 @@ const ApplicantProfileDetails = () => {
                         <View style={styles.ratingDisplayContainer}>
                             <StarIcon color={Colors.COLOR_ORANGE} size={14} />
                             <Body3 color={Colors.NEUTRAL0} style={{ marginLeft: wp(8) }}>
-                                {rating}.0 / 5
+                                {myRating}.0 / 5
                             </Body3>
                         </View>
                     ) : (
@@ -132,9 +156,25 @@ const ApplicantProfileDetails = () => {
                                 borderColor={Colors.COLOR_DANGER}
                             />
                             <CustomButton
-                                onPress={() => {
-                                    setIsRated(true);
-                                    setModalVisible(false);
+                                onPress={async () => {
+                                    try {
+                                        await addRating({
+                                            bartender: bartenderId,
+                                            job: jobId,
+                                            rating: rating,
+                                        }).unwrap();
+
+                                        setIsRated(true);
+                                        setMyRating(rating);
+                                        setModalVisible(false);
+
+                                    } catch (error: any) {
+                                        console.log("Rating error:", JSON.stringify(error, null, 2));
+                                        setModalVisible(false);
+                                        if (error?.data?.message?.includes('already exists')) {
+                                            setIsRated(true);
+                                        }
+                                    }
                                 }}
                                 title='Submit'
                                 width="90%"
@@ -150,30 +190,66 @@ const ApplicantProfileDetails = () => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: Colors.APP_BACKGROUND },
-    imgWrapper: {
-        width: 100, height: 100, borderRadius: 20,
-        backgroundColor: Colors.INPUT_BACKGROUND,
-        overflow: 'hidden', borderWidth: 1, borderColor: Colors.BORDER_COLOR
+    container: {
+        flex: 1,
+        backgroundColor: Colors.APP_BACKGROUND
     },
-    profileImg: { width: '100%', height: '100%', backgroundColor: Colors.INPUT_BACKGROUND },
-    ratingDisplayContainer: {
-        width: '100%', height: hp(44),
+    imgWrapper: {
+        width: 100,
+        height: 100,
+        borderRadius: 20,
         backgroundColor: Colors.INPUT_BACKGROUND,
-        borderRadius: 100, borderWidth: 1, borderColor: Colors.BORDER_COLOR,
-        flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: hp(10),
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: Colors.BRAND_PRIMARY
+    },
+    profileImg: {
+        width: '100%',
+        height: '100%',
+        backgroundColor: Colors.INPUT_BACKGROUND
+    },
+    ratingDisplayContainer: {
+        width: '100%',
+        height: hp(44),
+        backgroundColor: Colors.INPUT_BACKGROUND,
+        borderRadius: 100,
+        borderWidth: 1,
+        borderColor: Colors.BORDER_COLOR,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: hp(10),
     },
     fieldBox: {
-        width: '100%', backgroundColor: Colors.INPUT_BACKGROUND,
-        padding: 14, borderRadius: 10, borderWidth: 1, borderColor: Colors.BORDER_COLOR
+        width: '100%',
+        backgroundColor: Colors.INPUT_BACKGROUND,
+        padding: 14,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: Colors.BORDER_COLOR
     },
-    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center' },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
     modalContent: {
-        width: '85%', backgroundColor: Colors.INPUT_BACKGROUND,
-        padding: 20, borderRadius: 16, borderWidth: 1, borderColor: Colors.BORDER_COLOR
+        width: '85%',
+        backgroundColor: Colors.INPUT_BACKGROUND,
+        padding: 20,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: Colors.BORDER_COLOR
     },
-    starRow: { flexDirection: 'row', justifyContent: 'flex-start', marginBottom: hp(30) },
-    modalActions: { flexDirection: "row" },
+    starRow: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        marginBottom: hp(30)
+    },
+    modalActions: {
+        flexDirection: "row"
+    },
 });
 
 export default ApplicantProfileDetails;

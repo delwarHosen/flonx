@@ -9,9 +9,9 @@ import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
 import SectionTitle from '@/components/SectionTitle';
 import { Body1, Body2, Body3, Caption1, Caption2 } from '@/components/typo/Typography';
-import { getJobs } from '@/constants/data/getJobs';
 
 import { Colors } from '@/constants/theme';
+import { useCancelJobMutation, useGetSingleJobQuery } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
@@ -23,11 +23,25 @@ const JobDetails = () => {
     const [showCancelModal, setShowCancelModal] = useState(false);
     // Added a separate state for Cancel Assignment Modal
     const [showCancelAssignmentModal, setShowCancelAssignmentModal] = useState(false);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    // const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const { id, initialTab } = useLocalSearchParams<{ id: string; initialTab: string }>();
-    const item = getJobs.find(j => j.id === id);
+    const { data: item, isLoading } = useGetSingleJobQuery(id, {
+        refetchOnMountOrArgChange: true
+    })
+
+    const [cancelJob] = useCancelJobMutation();
+
+
+    // const item = getJobs.find(j => j.id === id);
+    if (isLoading) return (
+        <SafeAreaView style={styles.container}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <CustomLoader size={55} />
+            </View>
+        </SafeAreaView>
+    );
 
     if (!item) return null;
 
@@ -63,21 +77,31 @@ const JobDetails = () => {
 
 
     const confirmCancelAssignment = () => {
-        setShowCancelAssignmentModal(false); // Update to specific assignment state
-        setShowCancelModal(false); // For Application cancel
+        setShowCancelAssignmentModal(false);
+        setShowCancelModal(false);
+
         setTimeout(async () => {
             setLoading(true);
             try {
-                // API Call logic here
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                router.back();
-            } catch (error) {
+                console.log("item._id:", item._id);
+                const result = await cancelJob(item._id).unwrap();
+                console.log("Cancel success:", result);
+                setLoading(false);
+                router.push({
+                    pathname: '/bartender/(tabs)/my-jobs',
+                    params: { resetTab: 'Cancelled' }
+                });
+            } catch (error: any) {
+                console.log("Cancel error status:", error?.status);
+                console.log("Cancel error data:", error?.data);
+                console.log("Cancel error full:", JSON.stringify(error));
                 setLoading(false);
             }
         }, 300);
     };
 
-
+    // console.log("appliedOn:", item.appliedOn);
+    // console.log("full item:", JSON.stringify(item, null, 2));
 
 
     const renderBottomSection = () => {
@@ -90,16 +114,14 @@ const JobDetails = () => {
 
                         <StatusInfoCard
                             label="Applied on"
-                            value={item.appliedOn}
+                            value={item.createdAt}
                             statusText="Applied"
-                            // statusColors={statusColors}
                             statusColor={"#FFB020"}
                             statusBg={"#FFB02033"}
                         />
-
                         <CustomButton
                             onPress={() => setShowCancelModal(true)}
-                            title='Cancel Application'
+                            title='Cancel Job'
                             width={'100%'}
                             height={hp(44)}
                             borderRadius={100}
@@ -114,16 +136,13 @@ const JobDetails = () => {
             case 'assigned':
                 return (
                     <>
-
                         <StatusInfoCard
-                            label="Assignment on"
-                            value={item.assignedOn}
+                            label="Assigned on"
+                            value={item.createdAt}
                             statusText="Assigned"
-                            // statusColors={statusColors}
                             statusColor={"#22C55E"}
                             statusBg={"#22C55E33"}
                         />
-
                         <View style={{ marginBottom: 24 }}>
                             <CustomButton
                                 onPress={() => setShowCancelAssignmentModal(true)}
@@ -288,43 +307,62 @@ const JobDetails = () => {
 // ---- Gig details----->
 const GigBasicDetails = ({ item }: { item: any }) => (
     <>
-        <DetailsCardComponents topLabel="Location" bottomLabel={item.location} />
-        <DetailsCardComponents topLabel="Date" bottomLabel={item.date} />
-        <DetailsCardComponents topLabel="Time" bottomLabel={item.time} />
+        <DetailsCardComponents topLabel="Location" bottomLabel={item.address} />
+        <DetailsCardComponents topLabel="Date" bottomLabel={item.startDateTime
+            ? new Date(item.startDateTime).toLocaleDateString('en-GB', {
+                day: 'numeric', month: 'long', year: 'numeric'
+            })
+            : 'N/A'
+        } />
+        <DetailsCardComponents topLabel="Time" bottomLabel={
+            item?.startDateTime
+                ? `${new Date(item.startDateTime).toLocaleTimeString('en-US', {
+                    hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'UTC'
+                })}${item?.endDateTime ? ` - ${new Date(item?.endDateTime).toLocaleTimeString('en-US', {
+                    hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'UTC'
+                })}` : ''}`
+                : 'N/A'
+        } />
         <DetailsCardComponents topLabel="Contact Number" bottomLabel={item.contactNumber} />
-        <DetailsCardComponents topLabel="Details" bottomLabel={item.details} />
+        <DetailsCardComponents topLabel="Details" bottomLabel={item.description} />
     </>
 );
 
 
 // <----------Payment Card-------->
 
-const PaymentInfoCard = ({ item }: { item: any }) => (
-    <View style={styles.paymentCard}>
-        <View style={styles.paymentTextcon}>
-            <View style={styles.iconContainer}>
-                <JobsBagIcon />
+const PaymentInfoCard = ({ item }: { item: any }) => {
+    const start = item.startDateTime ? new Date(item.startDateTime) : null;
+    const end = item.endDateTime ? new Date(item.endDateTime) : null;
+    const durationHours = start && end
+        ? (end.getTime() - start.getTime()) / (1000 * 60 * 60)
+        : 0;
+    const totalAmount = durationHours * (item.hourlyRate || 0);
+
+    return (
+        <View style={styles.paymentCard}>
+            <View style={styles.paymentTextcon}>
+                <View style={styles.iconContainer}>
+                    <JobsBagIcon />
+                </View>
+                <Body2 italic color={Colors.NEUTRAL0}> Payment Info</Body2>
             </View>
-            <Body2 italic color={Colors.NEUTRAL0}> Payment Info</Body2>
+            <View style={styles.payRow}>
+                <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Pay Rate (Per Hour)</Caption2>
+                <Body2 color={Colors.NEUTRAL0}>${item.hourlyRate?.toFixed(2)}</Body2>
+            </View>
+            <View style={styles.payRow}>
+                <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Total Duration</Caption2>
+                <Body2 color={Colors.NEUTRAL0}>{durationHours.toFixed(2)} hours</Body2>
+            </View>
+            <View style={{ height: 1.5, backgroundColor: Colors.BORDER_COLOR, marginVertical: 16 }} />
+            <View style={styles.payRow}>
+                <Caption1 color={Colors.PLACEHOLLDER_TEXT}>Total Amount</Caption1>
+                <Body2 color={Colors.NEUTRAL0}>$ {totalAmount.toFixed(2)}</Body2>
+            </View>
         </View>
-
-        <View style={styles.payRow}>
-            <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Pay Rate (Per Hour)</Caption2>
-            <Body2 color={Colors.NEUTRAL0}>${item.payRate?.toFixed(2)}</Body2>
-        </View>
-        <View style={styles.payRow}>
-            <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Total Duration</Caption2>
-            <Body2 color={Colors.NEUTRAL0}>{item.totalDuration ?? '15 hours'}</Body2>
-        </View>
-
-        <View style={{ height: 1.5, backgroundColor: Colors.BORDER_COLOR, marginVertical: 16 }} />
-
-        <View style={styles.payRow}>
-            <Caption1 color={Colors.PLACEHOLLDER_TEXT}>Total Amount</Caption1>
-            <Body2 color={Colors.NEUTRAL0}>$ {item.totalAmount ?? '375'}</Body2>
-        </View>
-    </View>
-);
+    );
+};
 
 
 const styles = StyleSheet.create({
@@ -340,7 +378,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: wp(20),
         paddingVertical: hp(12),
     },
-    
+
     scrollContent: {
         paddingHorizontal: wp(20),
         paddingBottom: "20%",
@@ -364,8 +402,8 @@ const styles = StyleSheet.create({
         borderRadius: 2,
         marginRight: 6,
     },
-   
-    
+
+
     paymentCard: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 12,

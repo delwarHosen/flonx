@@ -46,6 +46,8 @@ const ApplicantDetails = () => {
         rating: bartender.avgRating ?? 0,
         reviewCount: bartender.totalRatingCount ?? 0,
         bio: bartender.bio ?? 'No bio available',
+        createdAt: bartender.createdAt
+
     } : null;
 
     if (appLoading) {
@@ -72,7 +74,7 @@ const ApplicantDetails = () => {
 
     const handleAssignConfirm = () => {
         setShowAssignModal(false);
-        console.log("applicationId being sent:", applicationId); 
+        console.log("applicationId being sent:", applicationId);
 
         setTimeout(async () => {
             setLoading(true);
@@ -186,7 +188,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.INPUT_BACKGROUND,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: Colors.BORDER_COLOR
+        borderColor: Colors.BRAND_PRIMARY
     },
     profileImg: {
         width: '100%',

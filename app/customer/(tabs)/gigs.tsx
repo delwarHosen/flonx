@@ -1,6 +1,6 @@
 import { Body2, Caption1 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -11,7 +11,7 @@ import EmptyStateCard from '@/components/EmptyStateCardProps';
 import SectionTitle from '@/components/SectionTitle';
 import { useGetMyJobsQuery } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 const TABS = ["Active", "Assigned", "Completed", "Cancelled"];
 
@@ -26,13 +26,31 @@ const GigsScreen = () => {
   const [activeTab, setActiveTab] = useState("Active");
   const router = useRouter();
 
+  // tab reset
+  const { resetTab } = useLocalSearchParams<{ resetTab?: string }>();
+  useEffect(() => {
+    if (resetTab) {
+      setActiveTab(resetTab);
+    }
+  }, [resetTab]);
+
+
   const { data, isLoading } = useGetMyJobsQuery({
     type: tabTypeMap[activeTab],
   }, {
     refetchOnMountOrArgChange: true,
   });
 
-  const filteredData = data?.result || [];
+  // console.log("my jobs list:", JSON.stringify(data, null, 2));
+  const filteredData = (data?.result || []).filter((job: any) => {
+    if (activeTab === 'Active') return job.status === 'Open';
+    if (activeTab === 'Assigned') return job.status === 'Assigned';
+    if (activeTab === 'Completed') return job.status === 'Completed';
+    if (activeTab === 'Cancelled') return job.status === 'Cancelled';
+    return true;
+  });
+  console.log("filteredData:", filteredData.map((j: any) => ({ id: j._id, status: j.status })));
+
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -55,6 +73,7 @@ const GigsScreen = () => {
           ))}
         </ScrollView>
       </View>
+
 
       {isLoading ? (
         <View style={styles.loaderContainer}>

@@ -17,11 +17,13 @@ export default function JobsScreen() {
 
   // const filteredData = jobPosts.filter(job => job.status === activeTab);
 
-  const { data: applications = [], isLoading } = useGetMyApplicationsQuery(undefined);
+  const { data: applications = [], isLoading } = useGetMyApplicationsQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
 
   const filteredData = applications.filter((app: any) => {
     if (!app.job) return false;
-    if (activeTab === "Applied") return app.job.status === "Open"; 
+    if (activeTab === "Applied") return app.job.status === "Open";
     if (activeTab === "Assigned") return app.job.status === "Assigned" && app.isAccepted;
     if (activeTab === "Completed") return app.job.status === "Completed";
     if (activeTab === "Cancelled") return app.job.status === "Cancelled";

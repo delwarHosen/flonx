@@ -1,4 +1,4 @@
-import { Body2, Caption1, Caption2 } from '@/components/typo/Typography';
+import { Body2, Caption2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { hp, wp } from '@/utils/responsive';
 import React from 'react';
@@ -6,12 +6,12 @@ import { StyleSheet, View, ViewStyle } from 'react-native';
 
 // Props Interface
 interface StatusInfoCardProps {
-  label: string;          
-  value?: string;         
-  statusText: string;      
-  statusColor: string;     
-  statusBg: string;       
-  style?: ViewStyle;      
+  label: string;
+  value?: string;
+  statusText: string;
+  statusColor: string;
+  statusBg: string;
+  style?: ViewStyle;
 }
 
 export const StatusInfoCard: React.FC<StatusInfoCardProps> = ({
@@ -27,20 +27,24 @@ export const StatusInfoCard: React.FC<StatusInfoCardProps> = ({
       <View style={{ flex: 1 }}>
         <Caption2 color={Colors.PLACEHOLLDER_TEXT}>{label}</Caption2>
         <Body2 italic color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: 8 }}>
-          {value ?? '—'}
+          {value
+            ? new Date(value).toLocaleDateString('en-GB', {
+              day: 'numeric', month: 'long', year: 'numeric'
+            })
+            : '—'}
         </Body2>
       </View>
 
       {/* Dynamic Badge: Background color updates here */}
-      <View style={[styles.statusBadgeType, { backgroundColor: statusBg }]}>
-        {/* Dynamic Dot: Background color updates here */}
-        <View style={[styles.dot, { backgroundColor: statusColor }]} />
-        
+      {/* <View style={[styles.statusBadgeType, { backgroundColor: statusBg }]}> */}
+       
+        {/* <View style={[styles.dot, { backgroundColor: statusColor }]} /> */}
+
         {/* Dynamic Text: Color updates here */}
-        <Caption1 color={statusColor}>
+        {/* <Caption1 color={statusColor}>
           {statusText}
-        </Caption1>
-      </View>
+        </Caption1> */}
+      {/* </View> */}
     </View>
   );
 };

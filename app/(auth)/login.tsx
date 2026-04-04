@@ -7,6 +7,7 @@ import { FORM_FIELDS, FORM_LABELS, FORM_PLACEHOLDERS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
 import { setCredentials } from '@/redux/authSlice'; // Credentials set korar action
+import { baseApis } from '@/redux/base';
 import { useLoginMutation } from '@/redux/services/authApi';
 import { RootState } from '@/redux/store';
 import { hp, wp } from '@/utils/responsive';
@@ -48,7 +49,7 @@ export default function LoginScreen() {
         const res = await loginSubmit({
           email: values[FORM_FIELDS.EMAIL],
           password: values[FORM_FIELDS.PASSWORD],
-          role: userRole,
+          // role: userRole,
         }).unwrap();
 
         // console.log("Login Response:", res.data);
@@ -64,6 +65,8 @@ export default function LoginScreen() {
           // console.log("Decoded Role from Token:", roleFromToken);
 
           if (roleFromToken) {
+            dispatch(baseApis.util.resetApiState()); 
+
             dispatch(setCredentials({
               role: roleFromToken,
               token: token
@@ -77,6 +80,7 @@ export default function LoginScreen() {
               router.replace("/customer/(tabs)/home");
             }
           }
+
         }
       } catch (error: any) {
         console.log("Forgot Password Error:", error);

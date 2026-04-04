@@ -31,6 +31,7 @@ export const authApi = baseApis.injectEndpoints({
                 method: 'POST',
                 body: data,
             }),
+            invalidatesTags: ['Profile'],
         }),
 
         // forgot password
@@ -84,7 +85,21 @@ export const authApi = baseApis.injectEndpoints({
                 method: 'GET',
             }),
             transformResponse: (response: any) => response.data,
+            providesTags: ['Profile'],
         }),
+
+        // update profile
+        updateProfile: builder.mutation({
+            query: (data) => ({
+                url: '/user/update-profile',
+                method: 'PATCH',
+                body: data,
+            }),
+            transformResponse: (response: any) => response.data,
+            invalidatesTags: ['Profile'],
+        }),
+
+
     }),
     overrideExisting: true,
 });
@@ -99,5 +114,6 @@ export const {
     useResetPasswordMutation,
     useChangePasswordMutation,
     useDeleteAccountMutation,
-    useGetProfileQuery
+    useGetProfileQuery,
+    useUpdateProfileMutation,
 } = authApi;

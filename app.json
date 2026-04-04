@@ -40,6 +40,12 @@
           }
         }
       ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow app to use your location."
+        }
+      ],
       "expo-font",
       "expo-secure-store",
       "@react-native-community/datetimepicker"

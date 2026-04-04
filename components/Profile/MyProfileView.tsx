@@ -10,6 +10,7 @@ import { ButtonText } from '@/components/typo/Typography'
 import { FORM_FIELDS } from '@/constants/form'
 import { IMAGE_COMPONENTS } from '@/constants/image.index'
 import { Colors } from '@/constants/theme'
+import { useGetProfileQuery } from '@/redux/services/authApi'
 import { RootState } from '@/redux/store'
 import { hp, wp } from '@/utils/responsive'
 import { Href, useRouter } from 'expo-router'
@@ -22,8 +23,9 @@ export default function MyProfileView() {
     const router = useRouter();
     const userRole = useSelector((state: RootState) => state.auth.userRole);
     const isBartander = userRole === "bartender";
+    const { data: profile } = useGetProfileQuery({});
 
-       const handleEdit = () => {
+    const handleEdit = () => {
         const path: Href = userRole === 'bartender'
             ? {
                 pathname: "/bartender/profile/edit-profile",
@@ -49,58 +51,35 @@ export default function MyProfileView() {
                 <SectionTitle title='My Profile' />
             </View>
             <View style={{ paddingHorizontal: wp(20), marginTop: hp(10) }}>
-                <ProfileImageComponent image={IMAGE_COMPONENTS.profileImg} />
 
-                {
-                    isBartander ?
-                        (
-                            <>
-                                <ProfileDetailsCard
-                                    // icon={<ProfileIcon />}
-                                    label="NAME"
-                                    value="Roberts Junior"
-                                />
-                                <ProfileDetailsCard
-                                    label="Email"
-                                    value="robert@canaletto.com"
-                                />
-                                <ProfileDetailsCard
-                                    label="Contact phone "
-                                    value="+1 (212) 555-0148"
-                                />
-                                <ProfileDetailsCard
-                                    label="Experience "
-                                    value="2 Years "
-                                />
-                                <ProfileDetailsCard
-                                    label="Total Jobs Completed "
-                                    value="256 "
-                                />
-                                <ProfileDetailsCard
-                                    label="Overall rating"
-                                    valueIcon={<StarIcon color='#FFB020' />}
-                                    value="4.4 (112)"
-                                />
-                            </>
-                        )
-                        :
-                        (
-                            <>
-                                <ProfileDetailsCard
-                                    icon={<ProfileIcon />}
-                                    label="NAME"
-                                    value="Roberts Junior"
-                                />
-                                <ProfileDetailsCard
-                                    icon={<EmailIcon />}
-                                    label="Email"
-                                    value="robert@canaletto.com"
-                                />
-                            </>
-                        )
-                }
+                {/*  dynamic image & name */}
+                <ProfileImageComponent
+                    image={
+                        profile?.profile_image?.trim()
+                            ? { uri: profile.profile_image }
+                            : IMAGE_COMPONENTS.profileImg
+                    }
+                />
 
-
+                {isBartander ? (
+                    <>
+                        <ProfileDetailsCard label="NAME" value={profile?.name ?? '—'} />
+                        <ProfileDetailsCard label="Email" value={profile?.email ?? '—'} />
+                        <ProfileDetailsCard label="Contact phone" value={profile?.phone ?? '—'} />
+                        <ProfileDetailsCard label="Experience" value={profile?.experience ?? '—'} />
+                        <ProfileDetailsCard label="Total Jobs Completed" value="256" />
+                        <ProfileDetailsCard
+                            label="Overall rating"
+                            valueIcon={<StarIcon color='#FFB020' />}
+                            value="4.4 (112)"
+                        />
+                    </>
+                ) : (
+                    <>
+                        <ProfileDetailsCard icon={<ProfileIcon />} label="NAME" value={profile?.name ?? '—'} />
+                        <ProfileDetailsCard icon={<EmailIcon />} label="Email" value={profile?.email ?? '—'} />
+                    </>
+                )}
 
                 <CustomButton
                     title=""
@@ -119,6 +98,7 @@ export default function MyProfileView() {
         </SafeAreaView>
     )
 }
+
 
 const styles = StyleSheet.create({
     container: {

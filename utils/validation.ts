@@ -26,14 +26,14 @@ export const validatePhoneNumber = (phone: string): string => {
 // export const validatePassword = (password: string): string => {
 //   if (!password.trim()) return 'Password is required';
 
-  // if (password.length < 8) {
-  //   return 'Password must be at least 8 characters';
-  // }
+// if (password.length < 8) {
+//   return 'Password must be at least 8 characters';
+// }
 
-  // Optional: Add more password strength requirements
-  // if (!/[A-Z]/.test(password)) return 'Password must contain at least one uppercase letter';
-  // if (!/[a-z]/.test(password)) return 'Password must contain at least one lowercase letter';
-  // if (!/\d/.test(password)) return 'Password must contain at least one number';
+// Optional: Add more password strength requirements
+// if (!/[A-Z]/.test(password)) return 'Password must contain at least one uppercase letter';
+// if (!/[a-z]/.test(password)) return 'Password must contain at least one lowercase letter';
+// if (!/\d/.test(password)) return 'Password must contain at least one number';
 
 //   return '';
 // };
@@ -88,15 +88,11 @@ export const validateSkills = (skills: string): string => {
 };
 
 export const validateExperience = (experience: string): string => {
-  if (!experience.trim()) return 'Experience details are required';
-
-  if (experience.trim().length < 10) {
-    return 'Please provide a brief detail of your experience (min 10 chars)';
-  }
-
+  if (!experience || !experience.trim()) return '';  // optional
+  if (isNaN(Number(experience))) return 'Experience must be a number';
+  if (Number(experience) < 0) return 'Experience cannot be negative';
   return '';
 };
-
 // export const validateName = (name: string): string => {
 //   if (!name.trim()) return 'Full name is required';
 

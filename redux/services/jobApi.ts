@@ -39,11 +39,33 @@ export const jobApi = baseApis.injectEndpoints({
         // Mark as comolete job
         markJobAsComplete: builder.mutation({
             query: (jobId) => ({
-                url: `/job/mark-as-complete/${jobId},`,
+                url: `/job/mark-as-complete/${jobId}`,
+                method: "PATCH",
             }),
             transformResponse: (respons: any) => respons.data,
             invalidatesTags: ['Jobs']
         }),
+
+        // add rating
+        addRating: builder.mutation({
+            query: (ratingData) => ({
+                url: '/rating/add-rating',
+                method: 'POST',
+                body: ratingData,
+            }),
+            transformResponse: (response: any) => response.data,
+        }),
+
+        // cancle job assisment
+        cancelJob: builder.mutation({
+            query: (jobId) => ({
+                url: `/job/cancel/${jobId}`,
+                method: "PATCH",
+            }),
+            transformResponse: (response: any) => response.data,
+            invalidatesTags: ['Jobs'],
+        }),
+
         // get my job by (customers)
         getMyJobs: builder.query({
             query: (params) => ({
@@ -59,6 +81,7 @@ export const jobApi = baseApis.injectEndpoints({
             transformResponse: (respons: any) => respons.data,
             providesTags: ['Jobs'],
         }),
+
         // get All job
         getAllJobs: builder.query({
             query: (params) => ({
@@ -76,6 +99,7 @@ export const jobApi = baseApis.injectEndpoints({
             transformResponse: (response: any) => response.data,
             providesTags: ['Jobs'],
         }),
+
         // get single job
         getSingleJob: builder.query({
             query: (jobId) => `/job/get-single/${jobId}`,
@@ -136,5 +160,7 @@ export const {
     useAcceptApplicationMutation,
     useDeleteJobMutation,
     useMarkJobAsCompleteMutation,
-    useGetMyApplicationsQuery
+    useAddRatingMutation,
+    useGetMyApplicationsQuery,
+    useCancelJobMutation,
 } = jobApi;
