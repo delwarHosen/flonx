@@ -26,10 +26,17 @@ const JobDetails = () => {
     // const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const { id, initialTab } = useLocalSearchParams<{ id: string; initialTab: string }>();
+    const { id, applicationId, jobId, initialTab } = useLocalSearchParams<{
+        id: string;
+        applicationId: string;
+        jobId: string;
+        initialTab: string
+    }>();
+
     const { data: item, isLoading } = useGetSingleJobQuery(id, {
         refetchOnMountOrArgChange: true
     })
+
 
     const [cancelJob] = useCancelJobMutation();
 
@@ -58,7 +65,7 @@ const JobDetails = () => {
         }
     };
 
-    const statusColors = getStatusColors(item.status);
+    const statusColors = getStatusColors(item?.status);
 
 
     const confirmComplete = () => {
@@ -84,7 +91,7 @@ const JobDetails = () => {
             setLoading(true);
             try {
                 console.log("item._id:", item._id);
-                const result = await cancelJob(item._id).unwrap();
+                const result = await cancelJob(jobId).unwrap(); 
                 console.log("Cancel success:", result);
                 setLoading(false);
                 router.push({
@@ -162,7 +169,7 @@ const JobDetails = () => {
                 return (
                     <>
                         <StatusInfoCard
-                            label="Assignment on"
+                            label="Assignmed on"
                             value={item.completedOn}
                             statusText="Assigned"
                             // statusColors={statusColors}
@@ -208,7 +215,7 @@ const JobDetails = () => {
 
                             <DetailsCardComponents
                                 topLabel="Cancelled On"
-                                bottomLabel={item.cancelledOn ?? '—'}
+                                bottomLabel={item.cancellationDate ?? '—'}
                             />
                         </View>
 
@@ -244,10 +251,10 @@ const JobDetails = () => {
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-                <Body1 color={Colors.NEUTRAL0} italic style={styles.title}>{item.title}</Body1>
+                <Body1 color={Colors.NEUTRAL0} italic style={styles.title}>{item?.title}</Body1>
                 <View style={[styles.statusBadge, { backgroundColor: statusColors.bg }]}>
                     <View style={[styles.dot, { backgroundColor: statusColors.text }]} />
-                    <Caption1 color={statusColors.text}>{item.status}</Caption1>
+                    <Caption1 color={statusColors.text}>{item?.status}</Caption1>
                 </View>
 
                 <GigBasicDetails item={item} />

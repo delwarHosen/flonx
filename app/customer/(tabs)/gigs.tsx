@@ -88,6 +88,7 @@ const GigsScreen = () => {
             <GigCard
               item={item}
               onPress={() => {
+                
                 router.push({
                   pathname: '/customer/gigs-related/gig-details',
                   params: {

@@ -165,7 +165,7 @@ const PaymentInfoCard = ({ item }: { item: any }) => {
             </View>
             <View style={styles.payRow}>
                 <Caption2 color={Colors.PLACEHOLLDER_TEXT}>Total Duration</Caption2>
-                <Body2 color={Colors.NEUTRAL0}>{durationHours} hours</Body2>
+                <Body2 color={Colors.NEUTRAL0}>{durationHours.toFixed(2)} hours</Body2>
             </View>
 
             <View style={{ height: 1.5, backgroundColor: Colors.BORDER_COLOR, marginVertical: 16 }} />

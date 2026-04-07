@@ -34,17 +34,6 @@ export const StatusInfoCard: React.FC<StatusInfoCardProps> = ({
             : '—'}
         </Body2>
       </View>
-
-      {/* Dynamic Badge: Background color updates here */}
-      {/* <View style={[styles.statusBadgeType, { backgroundColor: statusBg }]}> */}
-       
-        {/* <View style={[styles.dot, { backgroundColor: statusColor }]} /> */}
-
-        {/* Dynamic Text: Color updates here */}
-        {/* <Caption1 color={statusColor}>
-          {statusText}
-        </Caption1> */}
-      {/* </View> */}
     </View>
   );
 };

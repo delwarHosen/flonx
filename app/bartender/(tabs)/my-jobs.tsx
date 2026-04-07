@@ -21,10 +21,13 @@ export default function JobsScreen() {
     refetchOnMountOrArgChange: true,
   });
 
+  // console.log("applications:", JSON.stringify(applications, null, 2))
+
+
   const filteredData = applications.filter((app: any) => {
     if (!app.job) return false;
-    if (activeTab === "Applied") return app.job.status === "Open";
-    if (activeTab === "Assigned") return app.job.status === "Assigned" && app.isAccepted;
+    if (activeTab === "Applied") return !app.isAccepted && app.job.status === "Open";
+    if (activeTab === "Assigned") return app.isAccepted && app.job.status === "Assigned";  // ← Assigned status check
     if (activeTab === "Completed") return app.job.status === "Completed";
     if (activeTab === "Cancelled") return app.job.status === "Cancelled";
     return false;
@@ -77,7 +80,9 @@ export default function JobsScreen() {
               router.push({
                 pathname: '/bartender/jobs/job-details',
                 params: {
-                  id: item.job._id,
+                  id: item.job._id,         
+                  applicationId: item._id,   
+                  jobId: item.job._id,        
                   initialTab: tabMap[activeTab]
                 },
               });

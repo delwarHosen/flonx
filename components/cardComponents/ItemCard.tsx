@@ -22,34 +22,43 @@ interface ItemCardProps {
 
 const ItemCard: React.FC<ItemCardProps> = ({ item, onAdd, onPress, isInCart }) => {
     return (
-        <TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={onPress}>
-            <Image
-                source={{ uri: item.img }}
-                style={styles.image}
-                contentFit="cover"
-            />
+        
+        <View style={styles.card}>
+          
+            <TouchableOpacity
+                style={styles.detailsContainer}
+                activeOpacity={0.7}
+                onPress={onPress}
+            >
+                <Image
+                    source={{ uri: item.img }}
+                    style={styles.image}
+                    contentFit="cover"
+                />
 
-            <View style={styles.details}>
-                <Body1 color={Colors.NEUTRAL0}>{item.name}</Body1>
-                <Caption1 italic color={Colors.OTP_COLOR} style={styles.itemDetails} numberOfLines={1}>
-                    {item.ingredients.join(', ')}
-                </Caption1>
-                <H6 color={Colors.NEUTRAL0} style={{ marginTop: 4 }}>${item.price}</H6>
-            </View>
+                <View style={styles.details}>
+                    <Body1 color={Colors.NEUTRAL0}>{item.name}</Body1>
+                    <Caption1 italic color={Colors.OTP_COLOR} style={styles.itemDetails} numberOfLines={1}>
+                        {item.ingredients.join(', ')}
+                    </Caption1>
+                    <H6 color={Colors.NEUTRAL0} style={{ marginTop: 4 }}>${item.price}</H6>
+                </View>
+            </TouchableOpacity>
 
+            
             <View style={styles.addButton}>
                 <CustomButton
-                    onPress={onAdd ?? (() => { })}
+                    disabled={isInCart}
+                    onPress={onAdd ?? onAdd as any}
                     icon={isInCart ? <OrderTabIcon /> : <PlusIcon />}
                     width={36}
                     height={36}
                     borderRadius={100}
                 />
             </View>
-        </TouchableOpacity>
+        </View>
     );
 };
-
 export default ItemCard;
 
 const styles = StyleSheet.create({
@@ -62,6 +71,11 @@ const styles = StyleSheet.create({
         marginBottom: hp(16),
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
+    },
+    detailsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
     },
     image: {
         borderWidth: 1,

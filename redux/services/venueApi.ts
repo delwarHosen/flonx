@@ -41,7 +41,7 @@ export const venueApi = baseApis.injectEndpoints({
                 params: {
                     ...(categoryId && { category: categoryId }),
                     ...(searchTerm && { searchTerm }),
-                    ...(sort && { sort }),        // e.g. "-price" descending, "price" ascending
+                    ...(sort && { sort }),        
                     ...(page && { page }),
                     ...(limit && { limit }),
                 },

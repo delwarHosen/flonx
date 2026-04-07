@@ -3,7 +3,7 @@ import { useGetAllVenuesQuery } from '@/redux/services/venueApi'
 import { hp, wp } from '@/utils/responsive'
 import { useRouter } from 'expo-router'
 import React, { useEffect, useState } from 'react'
-import { FlatList, StyleSheet } from 'react-native'
+import { FlatList, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import BarCardComponents from '../cardComponents/BarCardComponents'
 import CustomLoader from '../CustomLoader'
@@ -41,7 +41,9 @@ const VenueSearch: React.FC<VenueSearchProps> = ({ shopItemPath }) => {
             />
 
             {(isLoading || isFetching) && !venues.length ? (
-                <CustomLoader size={50} />
+                <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+                    <CustomLoader size={50} />
+                </View>
             ) : (
                 <FlatList
                     data={venues}

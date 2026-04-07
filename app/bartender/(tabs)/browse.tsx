@@ -25,7 +25,7 @@ const BrowseScreen: React.FC = () => {
     const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
 
 
-     useEffect(() => {
+    useEffect(() => {
         (async () => {
             const { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') return;
@@ -41,13 +41,16 @@ const BrowseScreen: React.FC = () => {
     const { data: profile } = useGetProfileQuery({});
 
     const { data: jobsData, isLoading: jobsLoading } = useGetAllJobsQuery({
+        searchTerm: query,
         lat: coords?.lat,
         lng: coords?.lng,
         maxDistance: 50,
     }, {
         refetchOnMountOrArgChange: true,
-        skip: !coords, 
+        skip: !coords,
     });
+
+
 
     const { data: applications = [], isLoading: appsLoading } = useGetMyApplicationsQuery(undefined, {
         refetchOnMountOrArgChange: true,

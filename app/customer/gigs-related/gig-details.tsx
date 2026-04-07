@@ -261,8 +261,8 @@ const GigDetails = () => {
 
                         <DetailsCardComponents
                             topLabel="Completed On"
-                            bottomLabel={item.updatedAt
-                                ? new Date(item.updatedAt).toLocaleDateString('en-GB', {
+                            bottomLabel={item.completedDate
+                                ? new Date(item.completedDate).toLocaleDateString('en-GB', {
                                     day: 'numeric', month: 'long', year: 'numeric'
                                 })
                                 : '—'}
@@ -284,8 +284,8 @@ const GigDetails = () => {
 
                             <DetailsCardComponents
                                 topLabel="Cancelled On"
-                                bottomLabel={item.updatedAt
-                                    ? new Date(item.updatedAt).toLocaleDateString('en-GB', {
+                                bottomLabel={item.cancellationDate
+                                    ? new Date(item.cancellationDate).toLocaleDateString('en-GB', {
                                         day: 'numeric', month: 'long', year: 'numeric'
                                     })
                                     : '—'}

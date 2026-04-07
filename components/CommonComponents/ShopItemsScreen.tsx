@@ -1,5 +1,8 @@
 import { OrderTabIcon } from '@/assets/images/icons/icon';
 import { Colors } from '@/constants/theme';
+import { addItem, removeItem } from '@/redux/cartSlice';
+import { useAddToCartMutation } from '@/redux/services/orderApi';
+import { RootState } from '@/redux/store';
 import { fp, hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -12,6 +15,7 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
 import EmptyStateCard from '../EmptyStateCardProps';
 import SectionTitle from '../SectionTitle';
 import BarCardComponents from '../cardComponents/BarCardComponents';
@@ -70,20 +74,46 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
 }) => {
     const router = useRouter();
     const insets = useSafeAreaInsets();
-    const [cart, setCart] = useState<{ [key: string]: number }>({});
-    const [showModal, setShowModal] = useState(false);
+    const dispatch = useDispatch();
 
-    const handleAddToCart = (item: VenueItem) => {
-        setCart(prev => ({ ...prev, [item._id]: (prev[item._id] || 0) + 1 }));
+    // only Redux cart, no local cart state
+    const cartItems = useSelector((state: RootState) => state.cart.items);
+    const [showModal, setShowModal] = useState(false);
+    const [addToCart] = useAddToCartMutation();
+
+    const handleAddToCart = async (item: VenueItem) => {
+        dispatch(addItem({ id: item._id, barId }));
         setShowModal(true);
+        try {
+            await addToCart({ productId: item._id, quantity: 1 }).unwrap();
+        } catch (error) {
+            dispatch(removeItem({ id: item._id }));
+            console.error('Add to cart failed:', error);
+        }
     };
 
-    const totalItems = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+    //  helper to build existingCart from cartItems
+    const buildExistingCart = () =>
+        items
+            .filter((i) => cartItems[i._id] > 0)
+            .map((i) => ({
+                _id: i._id,
+                productId: i._id,
+                name: i.name,
+                image: i.image,
+                price: i.price,
+                tags: i.tags ?? [],
+                description: i.description ?? '',
+                isAvailable: i.isAvailable ?? true,
+                quantity: cartItems[i._id],
+            }));
+
+    const totalItems = Object.values(cartItems).reduce((sum, qty) => sum + qty, 0);
     const totalPrice = items.reduce((sum, item) => {
-        return sum + (cart[item._id] || 0) * (item.price || 0);
+        return sum + (cartItems[item._id] || 0) * (item.price || 0);
     }, 0);
 
-    if (isLoading) return null; // parent এ CustomLoader দেখাবে
+    if (isLoading) return null;
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
@@ -102,9 +132,12 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                             price: item.price,
                             ingredients: item.tags?.length
                                 ? item.tags
-                                : [item.description].filter(Boolean),
+                                : item.description
+                                    ? [item.description]
+                                    : [],
                         }}
-                        isInCart={!!cart[item._id]}
+                        //  cartItems 
+                        isInCart={!!cartItems[item._id]}
                         onAdd={() => handleAddToCart(item)}
                         onPress={() =>
                             router.push({
@@ -119,6 +152,8 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                                         ? item.tags.join(', ')
                                         : item.description || '',
                                     itemStatus: item.isAvailable ? 'in_stock' : 'out_of_stock',
+                                    /// built from cartItems
+                                    existingCart: JSON.stringify(buildExistingCart()),
                                 },
                             })
                         }
@@ -130,9 +165,9 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                             <BarCardComponents
                                 item={{
                                     name: venue.name,
-                                    logo: venue.logo,
+                                    logo: venue.logo ?? '',
                                     status: 'open',
-                                    location: venue.address,
+                                    location: venue.address ?? '',
                                 }}
                                 onPress={() =>
                                     router.push({
@@ -192,7 +227,7 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
             {showModal && totalItems > 0 && (
                 <View style={[
                     styles.modalOverlay,
-                    { bottom: Platform.OS === 'ios' ? insets.bottom + 10 : '5%' },
+                    { bottom: Platform.OS === 'ios' ? insets.bottom + 10 : hp(55) },
                 ]}>
                     <View style={styles.modalContent}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -212,16 +247,24 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                         <TouchableOpacity
                             style={styles.checkoutBtn}
                             onPress={() => {
-                                const cartItems = items
-                                    .filter((item) => cart[item._id])
+                                
+                                const cartData = items
+                                    .filter((item) => cartItems[item._id] > 0)
                                     .map((item) => ({
-                                        ...item,
-                                        quantity: cart[item._id],
+                                        _id: item._id,
+                                        productId: item._id,
+                                        name: item.name,
+                                        image: item.image,
+                                        price: item.price,
+                                        tags: item.tags ?? [],
+                                        description: item.description ?? '',
+                                        isAvailable: item.isAvailable ?? true,
+                                        quantity: cartItems[item._id],
                                     }));
                                 router.push({
                                     pathname: paths.checkout as any,
                                     params: {
-                                        cartData: JSON.stringify(cartItems),
+                                        cartData: JSON.stringify(cartData),
                                         barId,
                                     },
                                 });

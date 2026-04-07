@@ -12,6 +12,25 @@ export const jobApi = baseApis.injectEndpoints({
             transformResponse: (respons: any) => respons.data,
             invalidatesTags: ['Jobs'],
         }),
+
+        // get All job
+        getAllJobs: builder.query({
+            query: (params) => ({
+                url: "/job/get-all",
+                method: "GET",
+                params: {
+                    searchTerm: params?.searchTerm || '',
+                    lat: params?.lat,
+                    lng: params?.lng,
+                    maxDistance: params?.maxDistance || 10,
+                    page: params?.page || 1,
+                    limit: params?.limit || 10,
+                },
+            }),
+            transformResponse: (response: any) => response.data,
+            providesTags: ['Jobs'],
+        }),
+        
         // update job
         updateJob: builder.mutation({
             query: ({ jobId, ...jobData }) => {
@@ -82,23 +101,7 @@ export const jobApi = baseApis.injectEndpoints({
             providesTags: ['Jobs'],
         }),
 
-        // get All job
-        getAllJobs: builder.query({
-            query: (params) => ({
-                url: "/job/get-all",
-                method: "GET",
-                params: {
-                    searchTerm: params?.searchTerm || '',
-                    lat: params?.lat,
-                    lng: params?.lng,
-                    maxDistance: params?.maxDistance || 10,
-                    page: params?.page || 1,
-                    limit: params?.limit || 10,
-                },
-            }),
-            transformResponse: (response: any) => response.data,
-            providesTags: ['Jobs'],
-        }),
+
 
         // get single job
         getSingleJob: builder.query({
@@ -150,8 +153,8 @@ export const jobApi = baseApis.injectEndpoints({
 
 export const {
     useCreateJobMutation,
-    useUpdateJobMutation,
     useGetAllJobsQuery,
+    useUpdateJobMutation,
     useGetSingleJobQuery,
     useApplyForJobMutation,
     useGetMyJobsQuery,

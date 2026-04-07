@@ -34,6 +34,7 @@ export const CustomButton = ({
     height = hp(44),
     borderRadius = 100,
     borderColor,
+    disabled
 }: CustomButtonProps) => {
 
     // Logic for background colors (ensuring tuple for TS)
@@ -45,7 +46,7 @@ export const CustomButton = ({
     const finalTextColor = color || Colors.NEUTRAL0;
 
     return (
-        <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={{ borderRadius }}>
+        <TouchableOpacity disabled={disabled} onPress={onPress} activeOpacity={0.8} style={{ borderRadius }}>
             <LinearGradient
                 colors={finalColors}
                 start={{ x: 0.5, y: 1 }}
