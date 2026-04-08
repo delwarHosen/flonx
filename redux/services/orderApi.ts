@@ -4,15 +4,26 @@ export const orderApi = baseApis.injectEndpoints({
     endpoints: (builder) => ({
         // POST /order/create-order
         createOrder: builder.mutation({
-            query: (orderData) => ({
+            query: () => ({
                 url: "/order/create-order",
-                method: "POST",
-                body: orderData
+                method: "POST"
             }),
-            transformResponse: (respons: any) => respons.data,
-            invalidatesTags: ["order"],
+            invalidatesTags: ["order", "Cart"],
         }),
 
+        // get All Order
+        getOrder: builder.query({
+            query: (orderData) => ({
+                url: "/order/get-my-orders",
+                method: "GET",
+                params: {
+                    page: orderData?.page || 1,
+                    limit: orderData?.limit || 10,
+                }
+            }),
+            transformResponse: (response: any) => response.data,
+            providesTags: ["order"],  
+        }),
 
         // add to cart
         addToCart: builder.mutation({
@@ -74,6 +85,7 @@ export const orderApi = baseApis.injectEndpoints({
 
 export const {
     useCreateOrderMutation,
+    useGetOrderQuery,
     useAddToCartMutation,
     useViewCartQuery,
     useRemoveCartItemMutation,

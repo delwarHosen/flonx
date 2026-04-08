@@ -10,6 +10,7 @@ import {
     ActivityIndicator,
     FlatList,
     Platform,
+    RefreshControl,
     StyleSheet,
     TouchableOpacity,
     View,
@@ -50,6 +51,7 @@ interface ShopItemsScreenProps {
     categories?: VenueCategory[];
     items: VenueItem[];
     isLoading?: boolean;
+    refetch?: () => void,
     isCatLoading?: boolean;
     isProdLoading?: boolean;
     selectedCategory: string | null;
@@ -59,6 +61,7 @@ interface ShopItemsScreenProps {
         shopDetails: string;
         checkout: string;
     };
+
 }
 
 const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
@@ -67,6 +70,7 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
     categories,
     items,
     isLoading,
+    refetch,
     isProdLoading,
     selectedCategory,
     onCategorySelect,
@@ -81,6 +85,17 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
     const [showModal, setShowModal] = useState(false);
     const [addToCart] = useAddToCartMutation();
 
+    // const handleAddToCart = async (item: VenueItem) => {
+    //     dispatch(addItem({ id: item._id, barId }));
+    //     setShowModal(true);
+    //     try {
+    //         await addToCart({ productId: item._id, quantity: 1 }).unwrap();
+    //     } catch (error) {
+    //         dispatch(removeItem({ id: item._id }));
+    //         console.error('Add to cart failed:', error);
+    //     }
+    // };
+
     const handleAddToCart = async (item: VenueItem) => {
         dispatch(addItem({ id: item._id, barId }));
         setShowModal(true);
@@ -88,7 +103,6 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
             await addToCart({ productId: item._id, quantity: 1 }).unwrap();
         } catch (error) {
             dispatch(removeItem({ id: item._id }));
-            console.error('Add to cart failed:', error);
         }
     };
 
@@ -108,10 +122,13 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                 quantity: cartItems[i._id],
             }));
 
+
     const totalItems = Object.values(cartItems).reduce((sum, qty) => sum + qty, 0);
     const totalPrice = items.reduce((sum, item) => {
         return sum + (cartItems[item._id] || 0) * (item.price || 0);
     }, 0);
+
+
 
     if (isLoading) return null;
 
@@ -137,6 +154,7 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                                     : [],
                         }}
                         //  cartItems 
+                        // isInCart={!!cartItems[item._id]}
                         isInCart={!!cartItems[item._id]}
                         onAdd={() => handleAddToCart(item)}
                         onPress={() =>
@@ -222,6 +240,7 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                     styles.listContent,
                     { paddingBottom: showModal ? 120 : 40 },
                 ]}
+                refreshControl={<RefreshControl refreshing={isLoading as boolean} onRefresh={refetch as any} />}
             />
 
             {showModal && totalItems > 0 && (
@@ -229,50 +248,55 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                     styles.modalOverlay,
                     { bottom: Platform.OS === 'ios' ? insets.bottom + 10 : hp(55) },
                 ]}>
-                    <View style={styles.modalContent}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                            <View style={styles.cartBadge}>
-                                <OrderTabIcon />
-                            </View>
-                            <View>
-                                <Body4 color="#FFF" style={{ marginBottom: 2 }}>
-                                    {totalItems} Items
-                                </Body4>
-                                <Caption1 color="#1D1733" style={styles.priceText}>
-                                    ${totalPrice}
-                                </Caption1>
-                            </View>
-                        </View>
+                    {
+                        totalItems > 0 && (
+                            <View style={styles.modalContent}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                                    <View style={styles.cartBadge}>
+                                        <OrderTabIcon />
+                                    </View>
+                                    <View>
+                                        <Body4 color="#FFF" style={{ marginBottom: 2 }}>
+                                            {totalItems} Items
+                                        </Body4>
+                                        <Caption1 color="#1D1733" style={styles.priceText}>
+                                            ${totalPrice}
+                                        </Caption1>
+                                    </View>
+                                </View>
 
-                        <TouchableOpacity
-                            style={styles.checkoutBtn}
-                            onPress={() => {
-                                
-                                const cartData = items
-                                    .filter((item) => cartItems[item._id] > 0)
-                                    .map((item) => ({
-                                        _id: item._id,
-                                        productId: item._id,
-                                        name: item.name,
-                                        image: item.image,
-                                        price: item.price,
-                                        tags: item.tags ?? [],
-                                        description: item.description ?? '',
-                                        isAvailable: item.isAvailable ?? true,
-                                        quantity: cartItems[item._id],
-                                    }));
-                                router.push({
-                                    pathname: paths.checkout as any,
-                                    params: {
-                                        cartData: JSON.stringify(cartData),
-                                        barId,
-                                    },
-                                });
-                            }}
-                        >
-                            <Caption4 color="#1D1733">Checkout</Caption4>
-                        </TouchableOpacity>
-                    </View>
+                                <TouchableOpacity
+                                    style={styles.checkoutBtn}
+                                    onPress={() => {
+
+                                        const cartData = items
+                                            .filter((item) => cartItems[item._id] > 0)
+                                            .map((item) => ({
+                                                _id: item._id,
+                                                productId: item._id,
+                                                name: item.name,
+                                                image: item.image,
+                                                price: item.price,
+                                                tags: item.tags ?? [],
+                                                description: item.description ?? '',
+                                                isAvailable: item.isAvailable ?? true,
+                                                quantity: cartItems[item._id],
+                                            }));
+                                        router.push({
+                                            pathname: paths.checkout as any,
+                                            params: {
+                                                cartData: JSON.stringify(cartData),
+                                                barId,
+                                            },
+                                        });
+                                    }}
+                                >
+                                    <Caption4 color="#1D1733">Checkout</Caption4>
+                                </TouchableOpacity>
+                            </View>
+                        )
+                    }
+
                 </View>
             )}
         </SafeAreaView>

@@ -5,52 +5,36 @@ import { Body2 } from '@/components/typo/Typography';
 import { FORM_FIELDS, FORM_LABELS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
+import { useUpdateProfileMutation } from '@/redux/services/authApi'; // আপনার API মেথড ইমপোর্ট করুন
 import { RootState } from '@/redux/store';
 import { hp, wp } from '@/utils/responsive';
 import { validateExperience, validateSkills } from '@/utils/validation';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import { Dimensions, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, ToastAndroid, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive helpers
-const isSmallDevice = width < 375;
-const isMediumDevice = width >= 375 && width < 414;
-const isLargeDevice = width >= 414;
-
-const responsiveSize = (small: number, medium: number, large: number) => {
-    if (isSmallDevice) return small;
-    if (isMediumDevice) return medium;
+// Responsive helper
+const rs = (small: number, medium: number, large: number) => {
+    if (width < 375) return small;
+    if (width >= 375 && width < 414) return medium;
     return large;
 };
 
-const responsiveFontSize = (base: number) => {
-    const scale = width / 375;
-    const scaled = base * scale;
-    return Math.round(Math.min(scaled, base * 1.3));
-};
-
-const responsiveSpacing = (base: number) => {
-    const scale = width / 375;
-    return Math.round(base * Math.min(scale, 1.4));
-};
-
-
 export default function BartenderInfoScreen() {
     const router = useRouter();
-    const [isRemembered, setIsRemembered] = React.useState(false);
-    const userRole = useSelector((state: RootState) => (state.auth.userRole));
-    const [description, setDescription] = React.useState<string>('');
-
-
+    const userRole = useSelector((state: RootState) => state.auth.userRole);
+    const [bio, setBio] = useState<string>('');
+    
+    // API Mutation hook
+    const [updateProfile, { isLoading }] = useUpdateProfileMutation();
 
     const {
         values,
         errors,
         touched,
-        isSubmitting,
         handleChange,
         handleBlur,
         handleSubmit,
@@ -59,54 +43,39 @@ export default function BartenderInfoScreen() {
             [FORM_FIELDS.EXPERIENCE]: "",
             [FORM_FIELDS.SKILL]: "",
         },
-
         validationRules: {
             [FORM_FIELDS.EXPERIENCE]: validateExperience,
             [FORM_FIELDS.SKILL]: validateSkills,
         },
-
-        onSubmit: async (values) => {
+        onSubmit: async (formValues) => {
             try {
-                const data = {
-                    experience: values.experience,
-                    skill: values.skill
+                
+                const skillArray = formValues[FORM_FIELDS.SKILL].split(',').map(s => s.trim());
+
+                const payload = {
+                    experience: formValues[FORM_FIELDS.EXPERIENCE],
+                    skills: skillArray,
+                    bio: bio,
+                };
+
+                const res = await updateProfile(payload).unwrap();
+
+                if (res?.success) {
+                    ToastAndroid.show("Profile updated successfully!", ToastAndroid.SHORT);
+                    
+                    
+                    if (userRole === 'bartender') {
+                        router.replace("/bartender/(tabs)/browse");
+                    } else {
+                        router.replace("/customer/(tabs)/home");
+                    }
                 }
-
-                // api call
-                // const res = await loginSubmit().unwrap()
-                // if (!res?.success) {
-                //   throw new Error(res?.message)
-                // }
-
-                // ToastAndroid.show()
-
-                if (userRole === 'bartender') {
-                    router.replace("/bartender/(tabs)/browse");
-                } else {
-                    router.replace("/customer/(tabs)/home");
-                }
-
-                // console.log("SignIn data from login Page", data)
-                // router.push("/(tabs)/home")
             } catch (error: any) {
-                const message = error?.data?.message || error?.message || "something eent wrong while signing!"
-
-                ToastAndroid.showWithGravityAndOffset(
-                    message,
-                    ToastAndroid.LONG,
-                    ToastAndroid.BOTTOM,
-                    25,
-                    50
-                )
+                const message = error?.data?.message || error?.message || "Something went wrong!";
+                ToastAndroid.show(message, ToastAndroid.LONG);
             }
-
         },
     });
-
-
-
-
-
 
     return (
         <KeyboardAvoidingView
@@ -118,31 +87,19 @@ export default function BartenderInfoScreen() {
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
-
-                <View style={{
-                    flex: 1,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    paddingHorizontal: responsiveSize(16, 20, 24),
-                    paddingVertical: responsiveSpacing(24),
-                    minHeight: height,
-                }}>
-
+                <View style={styles.containerStyle}>
                     <View style={{ width: '100%', maxWidth: 500 }}>
-
                         <AuthHeading
                             title="Complete Your Bartender Profile"
                             description="Help Venue owners understand your experience before sending shift requests."
                         />
 
-                        {/* ---Form--- */}
                         <View style={styles.form}>
-
                             <FormInput
                                 label={FORM_LABELS[FORM_FIELDS.EXPERIENCE]}
                                 value={values[FORM_FIELDS.EXPERIENCE]}
                                 onChangeText={(text) => handleChange(FORM_FIELDS.EXPERIENCE, text)}
-                                type="text"
+                                onBlur={() => handleBlur(FORM_FIELDS.EXPERIENCE)}
                                 placeholder='Enter your Years of Experience'
                                 error={errors[FORM_FIELDS.EXPERIENCE]}
                                 touched={touched[FORM_FIELDS.EXPERIENCE]}
@@ -152,67 +109,62 @@ export default function BartenderInfoScreen() {
                             <FormInput
                                 label={FORM_LABELS[FORM_FIELDS.SKILL]}
                                 value={values[FORM_FIELDS.SKILL]}
-                                onChangeText={(text) => handleChange(FORM_FIELDS.EXPERIENCE, text)}
-                                type="text"
+                                onChangeText={(text) => handleChange(FORM_FIELDS.SKILL, text)}
+                                onBlur={() => handleBlur(FORM_FIELDS.SKILL)}
                                 placeholder='e.g., Mixology, Inventory, High-Volume'
                                 error={errors[FORM_FIELDS.SKILL]}
                                 touched={touched[FORM_FIELDS.SKILL]}
                                 required
                             />
 
-                            <Body2 color={Colors.NEUTRAL0} style={styles.label}>Short Bio</Body2>
-                            <TextInput
-                                style={styles.textArea}
-                                value={description}
-                                onChangeText={setDescription}
-                                placeholder="A brief introduction about your bartending background"
-                                placeholderTextColor={"#8C88A3"}
-                                multiline
-                                textAlignVertical="top"
-                            />
+                            <View>
+                                <Body2 color={Colors.NEUTRAL0} style={styles.label}>Short Bio</Body2>
+                                <TextInput
+                                    style={styles.textArea}
+                                    value={bio}
+                                    onChangeText={setBio}
+                                    placeholder="A brief introduction about your bartending background"
+                                    placeholderTextColor={"#8C88A3"}
+                                    multiline
+                                    textAlignVertical="top"
+                                />
+                            </View>
 
-                            {/* ----Submit Button---- */}
                             <CustomButton
-                                title="Save & Continue"
-                                // onPress={handleSubmit}
-                                onPress={() =>
-                                    router.push("/onboarding")
-                                }
+                                title={isLoading ? "Saving..." : "Save & Continue"}
+                                onPress={handleSubmit}
+                                disabled={isLoading}
                                 width="100%"
-                                height={responsiveSize(44, 48, 52)}
+                                height={rs(44, 48, 52)}
                                 borderRadius={100}
-                            // icon={<DoubleRightArrowIcon />}
+                                style={{ marginTop: hp(20) }}
                             />
                         </View>
-
-
                     </View>
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>
-
-    )
+    );
 }
 
-
 const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1
-    },
     scrollContent: {
         flexGrow: 1,
-        justifyContent: "center",
         backgroundColor: Colors.APP_BACKGROUND,
-        paddingVertical:hp(30)
-        // minHeight: height,
+    },
+    containerStyle: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingHorizontal: rs(16, 20, 24),
+        paddingVertical: hp(20),
     },
     form: {
-        marginTop: responsiveSize(24, 16, 40),
-        gap: responsiveSpacing(4),
+        marginTop: rs(24, 16, 40),
+        gap: hp(15),
     },
     label: {
-        marginBottom: hp(4),
-        marginTop: hp(10)
+        marginBottom: hp(8),
     },
     textArea: {
         backgroundColor: Colors.INPUT_BACKGROUND,
@@ -220,10 +172,10 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
         paddingHorizontal: wp(16),
-        paddingTop: hp(10),
-        paddingBottom: hp(14),
+        paddingTop: hp(12),
+        paddingBottom: hp(12),
         color: '#FFFFFF',
         fontSize: 14,
-        height: hp(150),   
+        height: hp(120),
     },
-})
+});

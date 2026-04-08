@@ -16,7 +16,7 @@ export default function CustomerShopItems() {
         skip: !barId,
     });
 
-    const { data: productsData, isFetching: isProdLoading, isLoading: isProdFirstLoad } =
+    const { data: productsData, isFetching: isProdLoading, isLoading: isProdFirstLoad, refetch } =
         useGetProductsByVenueQuery({ venueId: barId }, { skip: !barId });
 
     useEffect(() => {
@@ -45,6 +45,8 @@ export default function CustomerShopItems() {
             isProdLoading={isProdLoading}
             selectedCategory={selectedCategory}
             onCategorySelect={setSelectedCategory}
+            isLoading={isCatLoading}
+            refetch={refetch}
             paths={{
                 itemDetails: '/customer/items/item-details',
                 shopDetails: '/customer/items/shop-details',

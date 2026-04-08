@@ -1,5 +1,5 @@
 import { PlusIcon } from '@/assets/images/icons/BarRelatedIcon/PlusIcon';
-import { OrderTabIcon } from '@/assets/images/icons/icon';
+// import { OrderTabIcon } from '@/assets/images/icons/icon';
 import { Colors } from '@/constants/theme';
 import { hp } from '@/utils/responsive';
 import { Image } from 'expo-image';
@@ -48,9 +48,10 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, onAdd, onPress, isInCart }) =
             
             <View style={styles.addButton}>
                 <CustomButton
-                    disabled={isInCart}
-                    onPress={onAdd ?? onAdd as any}
-                    icon={isInCart ? <OrderTabIcon /> : <PlusIcon />}
+                    // disabled={isInCart}
+                    onPress={onAdd ?? (() => {})}
+                    // icon={isInCart ? <OrderTabIcon /> : <PlusIcon />}
+                     icon={<PlusIcon />} 
                     width={36}
                     height={36}
                     borderRadius={100}

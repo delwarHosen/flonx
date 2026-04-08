@@ -173,9 +173,9 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({ checkoutPath }) =
                     </View>
 
                     <View style={styles.quantityRow}>
-                        <CustomButton onPress={handleAdd} icon={<PlusIcon />} width={56} height={56} borderRadius={100} color={Colors.NEUTRAL0} />
-                        <H6 color={Colors.NEUTRAL0} italic style={styles.qtyText}>{quantity}</H6>
                         <CustomButton onPress={handleRemove} icon={<MinusIcon />} width={56} height={56} borderRadius={100} color={Colors.NEUTRAL0} />
+                        <H6 color={Colors.NEUTRAL0} italic style={styles.qtyText}>{quantity}</H6>
+                        <CustomButton onPress={handleAdd} icon={<PlusIcon />} width={56} height={56} borderRadius={100} color={Colors.NEUTRAL0} />
                     </View>
 
                     <View style={styles.actionButtonContainer}>

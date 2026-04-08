@@ -51,7 +51,7 @@ export default function OnboardingScreen() {
     transform: [{ translateX: translateX.value }],
   }));
 
-  const navigateToHome = () => router.push(nextRoute);
+  const navigateToHome = () => router.replace(nextRoute);
 
   const handleNext = () => {
     if (currentIndex < data.length - 1) {

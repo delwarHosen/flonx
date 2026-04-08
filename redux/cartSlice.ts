@@ -24,9 +24,12 @@ const cartSlice = createSlice({
             if (state.items[id] > 1) state.items[id] -= 1;
             else delete state.items[id];
         },
+        deleteItemCompletely: (state, action: PayloadAction<{ id: string }>) => {
+            delete state.items[action.payload.id];
+        },
         clearCart: () => initialState,
     },
 });
 
-export const { addItem, removeItem, clearCart } = cartSlice.actions;
+export const { addItem, removeItem,deleteItemCompletely, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

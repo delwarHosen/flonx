@@ -99,9 +99,9 @@ export default function EmailVerifyOtp() {
         ToastAndroid.show(res.message || "Verification Successful!", ToastAndroid.SHORT);
 
         if (isBartender) {
-          router.push("/bartender-info");
+          router.replace("/bartender-info");
         } else {
-          router.push('/onboarding');
+          router.replace('/onboarding');
         }
       }
     } catch (error: any) {

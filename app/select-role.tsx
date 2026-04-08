@@ -47,7 +47,7 @@ export default function SelectRole() {
             router.push("/guest/(tabs)/search");
         } else if (selectedRole === 'customer' || selectedRole === 'bartender') {
             dispatch(setRole(selectedRole));
-            router.push("/(auth)/register");
+           router.replace("/(auth)/register");
         }
     };
 

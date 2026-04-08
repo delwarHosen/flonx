@@ -3,6 +3,7 @@ import { fp, hp, wp } from '@/utils/responsive';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
+import CustomLoader from './CustomLoader';
 
 interface CustomButtonProps {
     onPress: () => void;
@@ -34,7 +35,8 @@ export const CustomButton = ({
     height = hp(44),
     borderRadius = 100,
     borderColor,
-    disabled
+    disabled,
+    isLoading
 }: CustomButtonProps) => {
 
     // Logic for background colors (ensuring tuple for TS)
@@ -58,7 +60,7 @@ export const CustomButton = ({
                 } as any, style]}
             >
                 {/* 4. Pass the finalTextColor to ButtonText */}
-                {title ? <Text style={{ fontFamily: "Nunito_600SemiBold", color, fontSize: fp(14) }} >{title}</Text> : null}
+                {title ? <Text style={{ fontFamily: "Nunito_600SemiBold", color, fontSize: fp(14), alignSelf: "center" }} >{isLoading && <CustomLoader size={16} />} {title}</Text> : null}
                 {icon && icon}
             </LinearGradient>
         </TouchableOpacity>
