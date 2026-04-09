@@ -49,7 +49,6 @@ export default function LoginScreen() {
         const res = await loginSubmit({
           email: values[FORM_FIELDS.EMAIL],
           password: values[FORM_FIELDS.PASSWORD],
-          // role: userRole,
         }).unwrap();
 
         // console.log("Login Response:", res.data);

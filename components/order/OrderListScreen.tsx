@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { RightAngleIcon } from '@/assets/images/icons/ProfileInfoIcons/RightAngleIcon';
 import { CustomButton } from '@/components/CustomButton';
 import EmptyStateCard from '@/components/EmptyStateCardProps';
 import SectionTitle from '@/components/SectionTitle';
@@ -13,31 +12,29 @@ import { Colors } from '@/constants/theme';
 import { useGetOrderQuery } from '@/redux/services/orderApi';
 import { hp, wp } from '@/utils/responsive';
 
-// ── Status groups ──────────────────────────────
 const CURRENT_STATUSES = ['PENDING', 'QUEUED', 'IN_PROGRESS', 'READY_FOR_PIC'];
-const PAST_STATUSES    = ['PICKED', 'CANCELLED', 'DELIVERED', 'REJECTED'];
+const PAST_STATUSES = ['PICKED', 'CANCELLED', 'DELIVERED', 'REJECTED'];
 
-// ── Route config — caller  pass  ──
 export interface OrderRoutes {
-  currentOrder: string;   // e.g. '/guest/current-order' | '/customer/orders-details/current-order'
-  pastOrderDetail: string; // e.g. '/guest/orders-details/my-orders' | '/customer/orders-details/my-orders'
+  currentOrder: string;
+  pastOrderDetail: string;
+  pickupOrder: string;
 }
 
 interface OrderListScreenProps {
   routes: OrderRoutes;
 }
 
-// ── Status color ───────────────────────────────
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'PENDING':       return '#F97316';
-    case 'QUEUED':        return '#F59E0B';
-    case 'IN_PROGRESS':   return '#22C55E';
+    case 'PENDING': return '#F97316';
+    case 'QUEUED': return '#F59E0B';
+    case 'IN_PROGRESS': return '#22C55E';
     case 'READY_FOR_PIC': return '#3B82F6';
-    case 'PICKED':        return '#8B5CF6';
+    case 'PICKED': return '#8B5CF6';
     case 'CANCELLED':
-    case 'REJECTED':      return '#EF4444';
-    default:              return '#F97316';
+    case 'REJECTED': return '#EF4444';
+    default: return '#F97316';
   }
 };
 
@@ -47,7 +44,8 @@ const formatDate = (d: string) =>
 const formatTime = (d: string) =>
   new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-// ── Main reusable component ────────────────────
+const formatStatus = (status: string) => status.replace(/_/g, ' ');
+
 const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
   const [selectedTab, setSelectedTab] = useState<'Current Orders' | 'Past Orders'>('Current Orders');
   const router = useRouter();
@@ -62,12 +60,7 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
   );
 
   const renderOrderItem = ({ item }: { item: any }) => {
-    const isPast       = selectedTab === 'Past Orders';
-    const product      = item.items?.[0]?.product;
-    const productImage = product?.image || null;
-    const productName  = product?.name  || 'Unknown Item';
-    const extraCount   = (item.items?.length || 1) - 1;
-    const displayName  = extraCount > 0 ? `${productName} +${extraCount} more` : productName;
+    const isPast = selectedTab === 'Past Orders';
 
     const handlePress = () => {
       if (isPast) {
@@ -81,6 +74,18 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
             time: formatTime(item.createdAt),
             totalQuantity: item.totalQuantity,
             items: JSON.stringify(item.items),
+            venueId: typeof item.venue === 'object' ? item.venue._id : item.venue,
+            tipAmount: item.tipAmount || 0,
+          },
+        });
+      } else if (item.status === 'READY_FOR_PIC') {
+        router.push({
+          pathname: routes.pickupOrder as any,
+          params: {
+            orderCode: item.orderCode,
+            status: item.status,
+            id: item._id,
+            venueName: item.venue?.name || '',
           },
         });
       } else {
@@ -96,31 +101,62 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
 
     return (
       <TouchableOpacity onPress={handlePress} style={styles.orderCard} activeOpacity={0.8}>
-        <View style={styles.cardContent}>
-          {productImage ? (
-            <Image source={{ uri: productImage }} style={styles.itemImage} contentFit="cover" />
+
+        {/* ── Header: status/date + total price ── */}
+        <View style={styles.cardHeader}>
+          {!isPast ? (
+            <Body3 color={getStatusColor(item.status)} italic>
+              {formatStatus(item.status)}
+            </Body3>
           ) : (
-            <View style={[styles.itemImage, styles.imageFallback]} />
+            <Caption1 color={Colors.PLACEHOLLDER_TEXT}>
+              {formatDate(item.createdAt)} • {formatTime(item.createdAt)}
+            </Caption1>
           )}
-
-          <View style={styles.itemInfo}>
-            <Body1 color={Colors.NEUTRAL0}>{displayName}</Body1>
-
-            {!isPast ? (
-              <Body3 color={getStatusColor(item.status)} italic style={styles.metaText}>
-                {item.status}
-              </Body3>
-            ) : (
-              <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={styles.metaText}>
-                {formatDate(item.createdAt)} • {formatTime(item.createdAt)}
-              </Caption1>
-            )}
-
-            <H6 color={Colors.NEUTRAL0} style={{ marginTop: 4 }}>${item.totalPrice}</H6>
-          </View>
-
-          <RightAngleIcon />
+          <H6 color={Colors.NEUTRAL0}>${item.totalPrice}</H6>
         </View>
+
+        {/* ── Items list ── */}
+        {item.items?.map((orderItem: any, index: number) => {
+          const product = orderItem.product;
+          const productImage = product?.image || null;
+          const productName = product?.name || 'Unknown Item';
+
+          return (
+            <View
+              key={product?._id || index}
+              style={[
+                styles.itemRow,
+                index !== item.items.length - 1 && styles.itemRowBorder,
+              ]}
+            >
+              {productImage ? (
+                <Image source={{ uri: productImage }} style={styles.itemImage} contentFit="cover" />
+              ) : (
+                <View style={[styles.itemImage, styles.imageFallback]} />
+              )}
+              <View style={styles.itemInfo}>
+                <Body1 color={Colors.NEUTRAL0}>{productName}</Body1>
+                <View>
+                  <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: 2 }}>
+                    Quantity: {orderItem.quantity} 
+                  </Caption1>
+                  <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: 5 }}>
+                    Price: ${orderItem.price}
+                  </Caption1>
+                </View>
+
+              </View>
+            </View>
+          );
+        })}
+
+        {/* ── Footer: arrow ── */}
+        <View style={styles.cardFooter}>
+          {/* <RightAngleIcon /> */}
+          <Caption1 color={Colors.PLACEHOLLDER_TEXT}>See Details</Caption1>
+        </View>
+
       </TouchableOpacity>
     );
   };
@@ -172,21 +208,67 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
 };
 
 const styles = StyleSheet.create({
-  container:     { flex: 1, backgroundColor: Colors.APP_BACKGROUND },
-  tabWrapper:    { flexDirection: 'row', paddingHorizontal: wp(20), justifyContent: 'space-between' },
-  tabItem:       { width: '48%' },
-  listContent:   { paddingHorizontal: wp(20), paddingTop: hp(25) },
+  container: {
+    flex: 1,
+    backgroundColor: Colors.APP_BACKGROUND,
+  },
+  tabWrapper: {
+    flexDirection: 'row',
+    paddingHorizontal: wp(20),
+    justifyContent: 'space-between',
+  },
+  tabItem: {
+    width: '48%',
+  },
+  listContent: {
+    paddingHorizontal: wp(20),
+    paddingTop: hp(25),
+  },
   orderCard: {
     backgroundColor: Colors.INPUT_BACKGROUND,
-    borderRadius: 14, padding: 10, marginBottom: hp(16),
-    borderWidth: 1, borderColor: Colors.BORDER_COLOR,
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: hp(16),
+    borderWidth: 1,
+    borderColor: Colors.BORDER_COLOR,
   },
-  cardContent:   { flexDirection: 'row', alignItems: 'center' },
-  itemImage:     { width: 68, height: 68, borderRadius: 12, backgroundColor: '#FEE2E2' },
-  imageFallback: { backgroundColor: '#2D2459' },
-  itemInfo:      { flex: 1, marginLeft: wp(15) },
-  metaText:      { marginVertical: hp(6) },
-  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: hp(10),
+    paddingHorizontal: 4,
+  },
+  itemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: hp(8),
+  },
+  itemRowBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.BORDER_COLOR,
+  },
+  itemImage: {
+    width: 56,
+    height: 56,
+    borderRadius: 10,
+  },
+  imageFallback: {
+    backgroundColor: '#2D2459',
+  },
+  itemInfo: {
+    flex: 1,
+    marginLeft: wp(12),
+  },
+  cardFooter: {
+    alignItems: 'flex-end',
+    marginTop: hp(6),
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 export default OrderListScreen;

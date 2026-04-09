@@ -29,6 +29,7 @@ const iosSpacing = (small: number, medium: number, large: number) => {
     return large;
 };
 
+
 export default function SelectRole() {
     const router = useRouter();
     const dispatch = useDispatch();
@@ -44,10 +45,11 @@ export default function SelectRole() {
         setShowAgeModal(false);
 
         if (selectedRole === 'guest') {
-            router.push("/guest/(tabs)/search");
+            dispatch(setRole('guest'));
+            router.push("/guest/search" as any);
         } else if (selectedRole === 'customer' || selectedRole === 'bartender') {
             dispatch(setRole(selectedRole));
-           router.replace("/(auth)/register");
+            router.replace("/(auth)/register");
         }
     };
 

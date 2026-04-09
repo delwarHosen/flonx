@@ -2,28 +2,7 @@ import { baseApis } from "../base";
 
 export const orderApi = baseApis.injectEndpoints({
     endpoints: (builder) => ({
-        // POST /order/create-order
-        createOrder: builder.mutation({
-            query: () => ({
-                url: "/order/create-order",
-                method: "POST"
-            }),
-            invalidatesTags: ["order", "Cart"],
-        }),
 
-        // get All Order
-        getOrder: builder.query({
-            query: (orderData) => ({
-                url: "/order/get-my-orders",
-                method: "GET",
-                params: {
-                    page: orderData?.page || 1,
-                    limit: orderData?.limit || 10,
-                }
-            }),
-            transformResponse: (response: any) => response.data,
-            providesTags: ["order"],  
-        }),
 
         // add to cart
         addToCart: builder.mutation({
@@ -79,16 +58,65 @@ export const orderApi = baseApis.injectEndpoints({
         }),
 
 
+
+        // POST /order/create-order
+        createOrder: builder.mutation({
+            query: () => ({
+                url: "/order/create-order",
+                method: "POST"
+            }),
+            invalidatesTags: ["order", "Cart"],
+        }),
+
+        // get All Order
+        getOrder: builder.query({
+            query: (orderData) => ({
+                url: "/order/get-my-orders",
+                method: "GET",
+                params: {
+                    page: orderData?.page || 1,
+                    limit: orderData?.limit || 10,
+                }
+            }),
+            transformResponse: (response: any) => response.data,
+            providesTags: ["order"],
+        }),
+
+        // patch picked up order
+        updateOrderStatus: builder.mutation({
+            query: ({ id, status }) => ({
+                url: `/order/update-status/${id}`,
+                method: 'PATCH',
+                body: { status },
+            }),
+            transformResponse: (response: any) => response.data,
+            invalidatesTags: ['order'],
+        }),
+
+        // tip bartender 
+        tipToBartender: builder.mutation<any, { id: string; amount: number }>({
+            query: ({ id, amount }) => ({
+                url: `/order/tip-to-bartender/${id}`,
+                method: 'POST',
+                body: { amount },
+            }),
+            transformResponse: (response: any) => response.data,
+            invalidatesTags: ['order'],
+        }),
+
+       
     }),
     overrideExisting: true,
 });
 
 export const {
-    useCreateOrderMutation,
-    useGetOrderQuery,
     useAddToCartMutation,
     useViewCartQuery,
     useRemoveCartItemMutation,
     useUpdateCartQuantityMutation,
     useDeleteCartMutation,
+    useCreateOrderMutation,
+    useGetOrderQuery,
+    useUpdateOrderStatusMutation,
+    useTipToBartenderMutation,
 } = orderApi;

@@ -1,17 +1,17 @@
 import { Body1, Body2, Body3, ButtonText, H1, H6 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
+import { useUpdateOrderStatusMutation } from '@/redux/services/orderApi';
 import { fp, hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { Animated, Dimensions, PanResponder, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-// Responsive calculations based on screen width
 const SLIDER_TRACK_PADDING = 5;
-const HORIZONTAL_PADDING = 20; 
+const HORIZONTAL_PADDING = 20;
 const SLIDER_TRACK_WIDTH = SCREEN_WIDTH - (HORIZONTAL_PADDING * 2);
-const THUMB_WIDTH = 100; 
+const THUMB_WIDTH = 100;
 const MAX_TRANSLATION = SLIDER_TRACK_WIDTH - THUMB_WIDTH - (SLIDER_TRACK_PADDING * 2);
 
 enum PickupStatus { READY = 1, CONFIRMED = 2 }
@@ -20,16 +20,21 @@ interface PickupOrderContentProps {
     pickupCode: string;
     successRoute: string;
     venueName?: string;
+    orderId: string;
+    orderCode: string;
 }
 
 export const PickupOrderContent: React.FC<PickupOrderContentProps> = ({
     pickupCode,
     successRoute,
-    venueName = "Copper Alley Bar"
+    venueName = "Copper Alley Bar",
+    orderId,
+    orderCode,
 }) => {
     const [status, setStatus] = useState<PickupStatus>(PickupStatus.READY);
     const router = useRouter();
     const translateX = useRef(new Animated.Value(0)).current;
+    const [updateOrderStatus] = useUpdateOrderStatusMutation();
 
     const panResponder = useRef(
         PanResponder.create({
@@ -45,7 +50,14 @@ export const PickupOrderContent: React.FC<PickupOrderContentProps> = ({
                         toValue: MAX_TRANSLATION,
                         duration: 200,
                         useNativeDriver: true,
-                    }).start(() => setStatus(PickupStatus.CONFIRMED));
+                    }).start(async () => {
+                        try {
+                            await updateOrderStatus({ id: orderId, status: 'PICKED' }).unwrap();
+                        } catch (e) {
+                            console.log('Status update error:', e);
+                        }
+                        setStatus(PickupStatus.CONFIRMED);
+                    });
                 } else {
                     Animated.spring(translateX, {
                         toValue: 0,
@@ -67,11 +79,6 @@ export const PickupOrderContent: React.FC<PickupOrderContentProps> = ({
         <View style={styles.fullScreenReady}>
             <View style={styles.headerSection}>
                 <H6 color="white" italic style={styles.readyTitle}>Ready for pickup</H6>
-                {/* {status !== PickupStatus.CONFIRMED ? (
-                    <H6 color="white" italic style={styles.readyTitle}>Ready for pickup</H6>
-                ) : (
-                    <View style={styles.readyTitlePlaceholder} />
-                )} */}
             </View>
 
             <View style={styles.centerSection}>
@@ -82,7 +89,11 @@ export const PickupOrderContent: React.FC<PickupOrderContentProps> = ({
             <View style={styles.bottomSection}>
                 {status === PickupStatus.CONFIRMED ? (
                     <TouchableOpacity
-                        onPress={() => router.push(successRoute as any)}
+                        onPress={() => router.push({
+                            pathname: successRoute as any,
+                            params: { orderId: orderId }
+                        })}
+                        // onPress={() => router.push(successRoute as any)}
                         style={[styles.sliderTrack, styles.confirmedTrack]}>
                         <Body2 color="white">Pickup Confirmed.</Body2>
                     </TouchableOpacity>
@@ -100,9 +111,11 @@ export const PickupOrderContent: React.FC<PickupOrderContentProps> = ({
                     </View>
                 )}
 
+                {/* ── Order code + venue name ── */}
                 <View style={styles.footerInfo}>
                     <View style={styles.dot} />
                     <Body3 color="white">{venueName}</Body3>
+                    {/* <Body3 color="white" style={styles.orderCodeText}>• {orderCode}</Body3> */}
                 </View>
             </View>
         </View>
@@ -114,7 +127,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: Platform.OS === 'ios' ? hp(60) : hp(40), 
+        paddingVertical: Platform.OS === 'ios' ? hp(60) : hp(40),
         width: '100%'
     },
     headerSection: {
@@ -125,15 +138,12 @@ const styles = StyleSheet.create({
         height: hp(24),
         textAlign: 'center'
     },
-    readyTitlePlaceholder: {
-        height: hp(24)
-    },
     centerSection: {
         alignItems: 'center',
         justifyContent: 'center'
     },
     codeText: {
-        fontSize: SCREEN_WIDTH * 0.18, 
+        fontSize: SCREEN_WIDTH * 0.18,
         marginBottom: hp(12),
         textAlign: 'center'
     },
@@ -154,9 +164,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: SLIDER_TRACK_PADDING,
-        marginBottom: wp(20),
+        marginBottom: wp(12),   // ← reduced so orderCode fits nicely
         overflow: 'hidden',
-        position: 'relative' 
+        position: 'relative'
     },
     confirmedTrack: {
         backgroundColor: 'transparent',
@@ -193,6 +203,9 @@ const styles = StyleSheet.create({
         borderRadius: 3,
         backgroundColor: 'white',
         marginRight: wp(8)
+    },
+    orderCodeText: {
+        marginLeft: wp(8),
     },
 });
 

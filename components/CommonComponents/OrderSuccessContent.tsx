@@ -13,14 +13,24 @@ interface OrderSuccessProps {
     title?: string;
     tipRoute: string;
     orderAgainRoute: string;
+    orderId?: string;
 }
 
 export default function OrderSuccessContent({
     title = "Success",
     tipRoute,
-    orderAgainRoute
+    orderAgainRoute,
+    orderId
 }: OrderSuccessProps) {
     const router = useRouter();
+
+    // tip button press
+    const handleTip = () => {
+        router.push({
+            pathname: tipRoute as any,
+            params: orderId ? { orderId } : {}   // ← ADD
+        });
+    };
 
     return (
         <View style={styles.centerContainer}>
@@ -52,7 +62,7 @@ export default function OrderSuccessContent({
                 <View style={styles.buttonContainer}>
                     <CustomButton
                         title="Tip Bartender"
-                        onPress={() => router.push(tipRoute as any)}
+                       onPress={handleTip}
                         width="100%"
                         height={hp(44)}
                         borderRadius={100}

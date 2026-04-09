@@ -2,8 +2,10 @@
 import ShopItemsScreen from '@/components/CommonComponents/ShopItemsScreen';
 import CustomLoader from '@/components/CustomLoader';
 import { useGetAllVenuesQuery, useGetCategoriesByVenueQuery, useGetProductsByVenueQuery } from '@/redux/services/venueApi';
+import { hp } from '@/utils/responsive';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
+import { View } from 'react-native';
 
 export default function CustomerShopItems() {
     const { barId } = useLocalSearchParams<{ barId: string }>();
@@ -29,7 +31,9 @@ export default function CustomerShopItems() {
         !selectedCategory ? true : item.category?._id === selectedCategory
     );
 
-    if (isCatLoading || isProdFirstLoad) return <CustomLoader />;
+    if (isCatLoading || isProdFirstLoad) return <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center",marginTop:hp(100) }}>
+        <CustomLoader />
+    </View>;
 
     return (
         <ShopItemsScreen

@@ -9,7 +9,7 @@ import { Dimensions, Platform, StyleSheet, View } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
-// ── Backend থেকে আসা সব status ──
+// ──  all status from Backend ──
 export type BackendStatus =
   | 'PENDING'
   | 'QUEUED'

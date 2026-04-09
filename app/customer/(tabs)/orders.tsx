@@ -5,8 +5,9 @@ export default function CustomerOrderTab() {
   return (
     <OrderListScreen
       routes={{
-        currentOrder:    '/customer/orders-details/current-order',
+        currentOrder: '/customer/orders-details/current-order',
         pastOrderDetail: '/customer/orders-details/my-orders',
+        pickupOrder: '/customer/items/pickup-order',
       }}
     />
   );

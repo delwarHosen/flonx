@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as SecureStore from 'expo-secure-store';
 
 interface AuthState {
-    userRole: 'customer' | 'bartender' | null;
+    userRole: 'customer' | 'bartender' | 'guest' | null;  
     token: string | null;
     user: {
         name: string;
@@ -28,7 +28,7 @@ export const authSlice = createSlice({
             state.userRole = action.payload.role;
             state.token = action.payload.token;
         },
-        setRole: (state, action: PayloadAction<'customer' | 'bartender' | null>) => {
+        setRole: (state, action: PayloadAction<'customer' | 'bartender' | 'guest' | null>) => {  
             state.userRole = action.payload;
         },
         logout: (state) => {

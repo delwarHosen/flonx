@@ -1,12 +1,16 @@
 import TipSelectionContent from '@/components/CommonComponents/TipSelectionContent';
 import { Colors } from '@/constants/theme';
+import { useLocalSearchParams } from 'expo-router';
 
 export default function GuestTip() {
+    const { orderId } = useLocalSearchParams<{ orderId: string }>();
     return (
         <TipSelectionContent
-            customTipRoute="/guest/custom-tip-seleted" 
-            continueRoute="/guest/payment-type"
-            skipRoute="/guest/shop-item"
+            orderId={orderId}
+            // role="guest"
+            customTipRoute="/guest/custom-tip-seleted"
+            continueRoute="/guest/order"
+            skipRoute="/guest/(tabs)/search"
             primaryColor={Colors.BRAND_PRIMARY}
         />
     );

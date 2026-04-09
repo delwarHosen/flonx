@@ -41,13 +41,21 @@ export const venueApi = baseApis.injectEndpoints({
                 params: {
                     ...(categoryId && { category: categoryId }),
                     ...(searchTerm && { searchTerm }),
-                    ...(sort && { sort }),        
+                    ...(sort && { sort }),
                     ...(page && { page }),
                     ...(limit && { limit }),
                 },
             }),
             transformResponse: (response: any) => response?.data?.result ?? [],
             keepUnusedDataFor: 300,
+        }),
+        // get venue
+        getVenueById: builder.query({
+            query: (venueId) => ({
+                url: `/venue/get-single/${venueId}`,
+                method: 'GET',
+            }),
+            transformResponse: (response: any) => response.data,
         }),
     }),
     overrideExisting: true,
@@ -57,4 +65,5 @@ export const {
     useGetAllVenuesQuery,
     useGetCategoriesByVenueQuery,
     useGetProductsByVenueQuery,
+    useGetVenueByIdQuery
 } = venueApi;
