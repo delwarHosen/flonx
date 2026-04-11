@@ -6,7 +6,7 @@ import { Body2, Body3 } from '@/components/typo/Typography';
 import { FORM_FIELDS, FORM_LABELS, FORM_PLACEHOLDERS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
-import { setCredentials } from '@/redux/authSlice'; // Credentials set korar action
+import { setCredentials } from '@/redux/authSlice';
 import { baseApis } from '@/redux/base';
 import { useLoginMutation } from '@/redux/services/authApi';
 import { RootState } from '@/redux/store';

@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CustomButton } from '@/components/CustomButton';
@@ -10,7 +10,12 @@ import SectionTitle from '@/components/SectionTitle';
 import { Body1, Body3, Caption1, H6 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { useGetOrderQuery } from '@/redux/services/orderApi';
+import { RootState } from '@/redux/store';
 import { hp, wp } from '@/utils/responsive';
+import { useSelector } from 'react-redux';
+
+import * as SecureStore from 'expo-secure-store';
+import { jwtDecode } from 'jwt-decode';
 
 const CURRENT_STATUSES = ['PENDING', 'QUEUED', 'IN_PROGRESS', 'READY_FOR_PIC'];
 const PAST_STATUSES = ['PICKED', 'CANCELLED', 'DELIVERED', 'REJECTED'];
@@ -47,10 +52,30 @@ const formatTime = (d: string) =>
 const formatStatus = (status: string) => status.replace(/_/g, ' ');
 
 const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
+  const role = useSelector((state: RootState) => state.auth.userRole);
+  const [refreshing, setRefreshing] = useState(false);
+  // const isGuest = role === 'guest';
+
+
+  useEffect(() => {
+    const check = async () => {
+      const token = await SecureStore.getItemAsync('accessToken');
+      console.log("OrderList — role:", role);
+      console.log("OrderList — token decoded:", JSON.stringify(jwtDecode(token!), null, 2));
+    };
+    check();
+  }, []);
+
+
+
   const [selectedTab, setSelectedTab] = useState<'Current Orders' | 'Past Orders'>('Current Orders');
   const router = useRouter();
 
-  const { data, isLoading, isError } = useGetOrderQuery({ page: 1, limit: 50 });
+  const { data, isLoading, isError, refetch } = useGetOrderQuery(
+    { page: 1, limit: 50 },
+    { skip: false }
+  );
+
   const allOrders = data?.result || [];
 
   const filteredOrders = allOrders.filter((order: any) =>
@@ -58,6 +83,12 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
       ? CURRENT_STATUSES.includes(order.status)
       : PAST_STATUSES.includes(order.status)
   );
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
 
   const renderOrderItem = ({ item }: { item: any }) => {
     const isPast = selectedTab === 'Past Orders';
@@ -139,7 +170,7 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
                 <Body1 color={Colors.NEUTRAL0}>{productName}</Body1>
                 <View>
                   <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: 2 }}>
-                    Quantity: {orderItem.quantity} 
+                    Quantity: {orderItem.quantity}
                   </Caption1>
                   <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: 5 }}>
                     Price: ${orderItem.price}
@@ -194,6 +225,14 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
           keyExtractor={(item) => item._id}
           renderItem={renderOrderItem}
           contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={Colors.BRAND_PRIMARY}
+              colors={[Colors.BRAND_PRIMARY]}
+            />
+          }
           showsVerticalScrollIndicator={false}
         />
       ) : (

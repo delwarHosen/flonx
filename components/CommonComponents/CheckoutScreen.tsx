@@ -35,6 +35,7 @@ import {
     useViewCartQuery
 } from '@/redux/services/orderApi';
 import { useDispatch } from 'react-redux';
+import CustomLoader from '../CustomLoader';
 
 interface CheckoutScreenProps {
     paymentPath: '/customer/items/payment-type' | '/guest/payment-type';
@@ -44,22 +45,20 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const dispatch = useDispatch();
-    const [createPayment, { isLoading }] = useCreateOrderMutation(undefined)
+    const [createPayment, { isLoading: isPaymentLoading }] = useCreateOrderMutation(undefined)
 
-    const { data: cartData, isLoading: isCartLoading, refetch } = useViewCartQuery(undefined);
+    
+    const { data: cartData, isLoading: isCartLoading, isFetching, refetch } = useViewCartQuery(undefined);
     const [updateCartQuantity] = useUpdateCartQuantityMutation();
     const [removeCartItem, { isLoading: isCartRemoving }] = useRemoveCartItemMutation();
-    const [deleteCart] = useDeleteCartMutation();
+    const [deleteCart, { isLoading: isDeletingAll }] = useDeleteCartMutation();
 
     const [selectItem, setSelectItem] = useState<string | null>(null)
-    //  Local optimistic state for quantities
     const [localQuantities, setLocalQuantities] = useState<Record<string, number>>({});
-    //  Debounce timers per product
     const debounceTimers = React.useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
     const cartItems = cartData?.items || [];
 
-    //  Compute total from local quantities for instant feedback
     const totalPrice = cartItems.reduce((sum: number, item: any) => {
         const qty = localQuantities[item.product?._id] ?? item.quantity;
         return sum + item.price * qty;
@@ -70,9 +69,7 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
         const newQuantity = localQty + delta;
         if (newQuantity < 1) return;
 
-
         setLocalQuantities(prev => ({ ...prev, [productId]: newQuantity }));
-
 
         if (delta > 0) {
             dispatch(addItem({ id: productId }));
@@ -80,7 +77,6 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
             dispatch(removeLocalItem({ id: productId }));
         }
 
-        // API Call (Debounced)
         if (debounceTimers.current[productId]) {
             clearTimeout(debounceTimers.current[productId]);
         }
@@ -92,7 +88,6 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
             }
         }, 600);
     };
-
 
     const handleClearCart = async () => {
         Alert.alert('Clear Cart', 'Are you sure you want to remove all items?', [
@@ -113,7 +108,6 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
         ]);
     };
 
-
     const handleRemoveItem = async (productId: string) => {
         try {
             await removeCartItem(productId).unwrap();
@@ -123,9 +117,7 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
         }
     };
 
-
     const renderItem = ({ item }: { item: any }) => {
-        //  Use local quantity if available, fallback to server value
         const displayQty = localQuantities[item.product?._id] ?? item.quantity;
 
         return (
@@ -139,11 +131,19 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                         </Caption1>
                         <Body2 color={Colors.NEUTRAL0} style={styles.price}>${item.price}</Body2>
                     </View>
-                    <TouchableOpacity onPress={() => {
-                        setSelectItem(item?.product?._id)
-                        handleRemoveItem(item.product?._id)
-                    }} style={styles.deleteBtn}>
-                        {isCartRemoving &&  item.product?._id === selectItem ?   <ActivityIndicator size={'small'} color={'#EF4444'} /> :<DeleteIcon />}
+                    <TouchableOpacity 
+                        disabled={isCartRemoving}
+                        onPress={() => {
+                            setSelectItem(item?.product?._id)
+                            handleRemoveItem(item.product?._id)
+                        }} 
+                        style={styles.deleteBtn}
+                    >
+                        {isCartRemoving && item.product?._id === selectItem ? (
+                            <ActivityIndicator size={'small'} color={'#EF4444'} />
+                        ) : (
+                            <DeleteIcon />
+                        )}
                     </TouchableOpacity>
                 </View>
 
@@ -186,13 +186,15 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
             if (!res?.success) {
                 throw new Error(res?.message || "Something went wrong while creating order!")
             }
-
-            Linking.openURL(res?.data?.paymentUrl || "");
+            dispatch(clearCart());
+            if (res?.data?.paymentUrl) {
+                Linking.openURL(res?.data?.paymentUrl);
+            }
         } catch (error: any) {
             if (Platform.OS === "android") {
-                ToastAndroid.show(error?.data?.message || error?.message || 'Verification code sent again!', ToastAndroid.SHORT);
+                ToastAndroid.show(error?.data?.message || error?.message || 'Error occurred!', ToastAndroid.SHORT);
             } else {
-                Alert.alert("Error", error?.data?.message || error?.message || 'Verification code sent again!')
+                Alert.alert("Error", error?.data?.message || error?.message || 'Error occurred!')
             }
         }
     }
@@ -205,14 +207,25 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
 
             <View style={styles.clearHeader}>
                 {cartItems.length > 0 && (
-                    <TouchableOpacity onPress={handleClearCart} style={styles.buttonClear}>
-                        <Caption1 color={Colors.NEUTRAL0}>Clear Cart</Caption1>
+                    <TouchableOpacity 
+                        onPress={handleClearCart} 
+                        style={styles.buttonClear}
+                        disabled={isDeletingAll}
+                    >
+                        {isDeletingAll ? (
+                            <ActivityIndicator size="small" color={Colors.NEUTRAL0} />
+                        ) : (
+                            <Caption1 color={Colors.NEUTRAL0}>Clear Cart</Caption1>
+                        )}
                     </TouchableOpacity>
                 )}
             </View>
 
-            {isCartLoading ? (
-                <ActivityIndicator color={Colors.BRAND_PRIMARY} style={{ marginTop: hp(50) }} />
+            {/* মেইন ডাটা লোডিং এর সময় কাস্টম লোডার */}
+            {isCartLoading && !isFetching ? (
+                <View style={styles.loaderContainer}>
+                    <CustomLoader />
+                </View>
             ) : (
                 <FlatList
                     data={cartItems}
@@ -222,45 +235,46 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={<EmptyStateCard message='Your cart is empty' />}
                     refreshControl={
-                        <RefreshControl refreshing={isCartLoading} onRefresh={refetch} />
+                        <RefreshControl refreshing={isFetching} onRefresh={refetch} tintColor={Colors.BRAND_PRIMARY} />
                     }
                 />
             )}
 
-            {cartItems?.length > 0 && <View style={[styles.footer, { paddingBottom: Platform.OS === 'ios' ? insets.bottom + 15 : "12%" }]}>
-                <View style={styles.totalRow}>
-                    <Body4 color={Colors.NEUTRAL0}>Total</Body4>
-                    {/*  Total updates instantly too */}
-                    <H5 color={Colors.NEUTRAL0}>${totalPrice.toFixed(2)}</H5>
+            {cartItems?.length > 0 && (
+                <View style={[styles.footer, { paddingBottom: Platform.OS === 'ios' ? insets.bottom + 15 : "12%" }]}>
+                    <View style={styles.totalRow}>
+                        <Body4 color={Colors.NEUTRAL0}>Total</Body4>
+                        <H5 color={Colors.NEUTRAL0}>${totalPrice.toFixed(2)}</H5>
+                    </View>
+
+                    <CustomButton
+                        title="Checkout"
+                        isLoading={isPaymentLoading}
+                        onPress={() => handlerPayment()}
+                        width="100%"
+                        height={hp(48)}
+                        borderRadius={100}
+                        backgroundColor={Colors.NEUTRAL0}
+                        color={Colors.BRAND_PRIMARY}
+                    />
+                    <View style={{ height: 12 }} />
                 </View>
-
-                <CustomButton
-                    title="Checkout"
-                    isLoading={isLoading}
-                    onPress={() => handlerPayment()}
-                    width="100%"
-                    height={hp(48)}
-                    borderRadius={100}
-                    backgroundColor={Colors.NEUTRAL0}
-                    color={Colors.BRAND_PRIMARY}
-                />
-                <View style={{ height: 12 }} />
-
-                {/* <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={styles.stripeText}>
-                    Powered by Stripe • No signup required
-                </Caption1> */}
-            </View>}
+            )}
         </SafeAreaView>
     );
 };
 
 export default CheckoutScreen;
 
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: Colors.APP_BACKGROUND
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     headerWrapper: {
         paddingVertical: hp(8),
@@ -277,13 +291,15 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         paddingHorizontal: 15,
         paddingVertical: 8,
-        alignItems: 'center'
+        alignItems: 'center',
+        minWidth: 100, 
+        justifyContent: 'center'
     },
     listContent: {
-
         paddingHorizontal: wp(20),
         paddingBottom: hp(150)
     },
+    
     card: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 14,
@@ -373,11 +389,5 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: hp(15)
-    },
-    stripeText: {
-        textAlign: 'center',
-        marginTop: hp(15),
-        opacity: 0.7,
-        fontSize: 11
     },
 });

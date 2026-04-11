@@ -1,12 +1,13 @@
 import { Body2, Caption1 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FlatList, RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PlusWithBorderIcon } from '@/assets/images/icons/BarRelatedIcon/PlusWithBorderIcon';
 import GigCard from '@/components/cardComponents/GigCard';
 import { CustomButton } from '@/components/CustomButton';
+import CustomLoader from '@/components/CustomLoader';
 import EmptyStateCard from '@/components/EmptyStateCardProps';
 import SectionTitle from '@/components/SectionTitle';
 import { useGetMyJobsQuery } from '@/redux/services/jobApi';
@@ -24,6 +25,7 @@ const tabTypeMap: Record<string, string> = {
 
 const GigsScreen = () => {
   const [activeTab, setActiveTab] = useState("Active");
+  const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
   // tab reset
@@ -35,21 +37,32 @@ const GigsScreen = () => {
   }, [resetTab]);
 
 
-  const { data, isLoading } = useGetMyJobsQuery({
-    type: tabTypeMap[activeTab],
-  }, {
-    refetchOnMountOrArgChange: true,
-  });
+  const { data, isLoading, isFetching, refetch } = useGetMyJobsQuery(
+    { type: tabTypeMap[activeTab] },
+    { refetchOnMountOrArgChange: true }
+  );
 
-  // console.log("my jobs list:", JSON.stringify(data, null, 2));
-  const filteredData = (data?.result || []).filter((job: any) => {
-    if (activeTab === 'Active') return job.status === 'Open';
-    if (activeTab === 'Assigned') return job.status === 'Assigned';
-    if (activeTab === 'Completed') return job.status === 'Completed';
-    if (activeTab === 'Cancelled') return job.status === 'Cancelled';
-    return true;
-  });
-  console.log("filteredData:", filteredData.map((j: any) => ({ id: j._id, status: j.status })));
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
+
+
+
+  const filteredData = (data?.result || [])
+    .filter((job: any) => {
+      if (activeTab === 'Active') return job.status === 'Open';
+      if (activeTab === 'Assigned') return job.status === 'Assigned';
+      if (activeTab === 'Completed') return job.status === 'Completed';
+      if (activeTab === 'Cancelled') return job.status === 'Cancelled';
+      return true;
+    })
+    .sort((a: any, b: any) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+  // console.log("filteredData:", filteredData.map((j: any) => ({ id: j._id, status: j.status })));
 
 
   return (
@@ -75,20 +88,28 @@ const GigsScreen = () => {
       </View>
 
 
-      {isLoading ? (
+      {isLoading && !refreshing ? (
         <View style={styles.loaderContainer}>
-          <ActivityIndicator color={Colors.BRAND_PRIMARY} />
+          <CustomLoader />
         </View>
       ) : (
         <FlatList
           data={filteredData}
           keyExtractor={(item) => item._id}
           contentContainerStyle={styles.listContainer}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={Colors.BRAND_PRIMARY}
+              colors={[Colors.BRAND_PRIMARY]}
+            />
+          }
           renderItem={({ item }) => (
             <GigCard
               item={item}
               onPress={() => {
-                
+
                 router.push({
                   pathname: '/customer/gigs-related/gig-details',
                   params: {
@@ -100,9 +121,11 @@ const GigsScreen = () => {
             />
           )}
           ListEmptyComponent={
-            <EmptyStateCard message={`No ${activeTab} Gigs found`} />
+            !isLoading ? (
+              <EmptyStateCard message={`No ${activeTab} Gigs found`} />
+            ) : null
           }
-          ListFooterComponent={<CreatGig />}
+          ListFooterComponent={!isLoading ? <CreatGig /> : null}
         />
       )}
     </SafeAreaView>

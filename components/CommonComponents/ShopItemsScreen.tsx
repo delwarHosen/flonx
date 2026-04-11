@@ -5,7 +5,7 @@ import { useAddToCartMutation } from '@/redux/services/orderApi';
 import { RootState } from '@/redux/store';
 import { fp, hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     FlatList,
@@ -17,7 +17,6 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import EmptyStateCard from '../EmptyStateCardProps';
 import SectionTitle from '../SectionTitle';
 import BarCardComponents from '../cardComponents/BarCardComponents';
 import ItemCard from '../cardComponents/ItemCard';
@@ -45,14 +44,13 @@ export interface VenueInfo {
     address?: string;
 }
 
-interface ShopItemsScreenProps {
+export interface ShopItemsScreenProps {
     barId: string;
     venue?: VenueInfo;
     categories?: VenueCategory[];
     items: VenueItem[];
     isLoading?: boolean;
-    refetch?: () => void,
-    isCatLoading?: boolean;
+    refetch?: () => void;
     isProdLoading?: boolean;
     selectedCategory: string | null;
     onCategorySelect: (id: string) => void;
@@ -61,7 +59,6 @@ interface ShopItemsScreenProps {
         shopDetails: string;
         checkout: string;
     };
-
 }
 
 const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
@@ -80,21 +77,33 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
     const insets = useSafeAreaInsets();
     const dispatch = useDispatch();
 
-    // only Redux cart, no local cart state
+
     const cartItems = useSelector((state: RootState) => state.cart.items);
-    const [showModal, setShowModal] = useState(false);
+    const totalItems = Object.values(cartItems).reduce((sum, qty) => sum + qty, 0);
+
+    const [showModal, setShowModal] = useState(totalItems > 0);
     const [addToCart] = useAddToCartMutation();
 
-    // const handleAddToCart = async (item: VenueItem) => {
-    //     dispatch(addItem({ id: item._id, barId }));
-    //     setShowModal(true);
-    //     try {
-    //         await addToCart({ productId: item._id, quantity: 1 }).unwrap();
-    //     } catch (error) {
-    //         dispatch(removeItem({ id: item._id }));
-    //         console.error('Add to cart failed:', error);
-    //     }
-    // };
+
+    useEffect(() => {
+        if (totalItems > 0) {
+            setShowModal(true);
+        } else {
+            setShowModal(false);
+        }
+    }, [totalItems]);
+    
+
+    React.useEffect(() => {
+        if (totalItems === 0) {
+            setShowModal(false);
+        }
+    }, [totalItems]);
+
+
+    const totalPrice = items.reduce((sum, item) => {
+        return sum + (cartItems[item._id] || 0) * (item.price || 0);
+    }, 0);
 
     const handleAddToCart = async (item: VenueItem) => {
         dispatch(addItem({ id: item._id, barId }));
@@ -106,7 +115,6 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
         }
     };
 
-    //  helper to build existingCart from cartItems
     const buildExistingCart = () =>
         items
             .filter((i) => cartItems[i._id] > 0)
@@ -116,21 +124,8 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                 name: i.name,
                 image: i.image,
                 price: i.price,
-                tags: i.tags ?? [],
-                description: i.description ?? '',
-                isAvailable: i.isAvailable ?? true,
                 quantity: cartItems[i._id],
             }));
-
-
-    const totalItems = Object.values(cartItems).reduce((sum, qty) => sum + qty, 0);
-    const totalPrice = items.reduce((sum, item) => {
-        return sum + (cartItems[item._id] || 0) * (item.price || 0);
-    }, 0);
-
-
-
-    if (isLoading) return null;
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
@@ -147,14 +142,8 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                             name: item.name,
                             img: item.image,
                             price: item.price,
-                            ingredients: item.tags?.length
-                                ? item.tags
-                                : item.description
-                                    ? [item.description]
-                                    : [],
+                            ingredients: item.tags?.length ? item.tags : (item.description ? [item.description] : []),
                         }}
-                        //  cartItems 
-                        // isInCart={!!cartItems[item._id]}
                         isInCart={!!cartItems[item._id]}
                         onAdd={() => handleAddToCart(item)}
                         onPress={() =>
@@ -166,11 +155,7 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                                     itemName: item.name,
                                     itemImg: item.image,
                                     itemPrice: String(item.price),
-                                    itemIngredients: item.tags?.length
-                                        ? item.tags.join(', ')
-                                        : item.description || '',
                                     itemStatus: item.isAvailable ? 'in_stock' : 'out_of_stock',
-                                    /// built from cartItems
                                     existingCart: JSON.stringify(buildExistingCart()),
                                 },
                             })
@@ -187,12 +172,7 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                                     status: 'open',
                                     location: venue.address ?? '',
                                 }}
-                                onPress={() =>
-                                    router.push({
-                                        pathname: paths.shopDetails as any,
-                                        params: { barId: venue._id },
-                                    })
-                                }
+                                onPress={() => router.push({ pathname: paths.shopDetails as any, params: { barId: venue._id } })}
                             />
                         )}
 
@@ -203,7 +183,6 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                                     data={categories}
                                     showsHorizontalScrollIndicator={false}
                                     keyExtractor={(cat) => cat._id}
-                                    contentContainerStyle={{ paddingRight: wp(20) }}
                                     renderItem={({ item: cat }) => {
                                         const isSelected = selectedCategory === cat._id;
                                         return (
@@ -221,82 +200,48 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                             </View>
                         )}
 
-                        {isProdLoading && (
-                            <ActivityIndicator
-                                color={Colors.BRAND_PRIMARY}
-                                style={{ marginVertical: hp(10) }}
-                            />
+
+                        {isProdLoading && !isLoading && (
+                            <ActivityIndicator color={Colors.BRAND_PRIMARY} style={{ marginVertical: hp(20) }} />
                         )}
                     </View>
                 }
-                ListEmptyComponent={
-                    !isProdLoading ? (
-                        <View style={{ marginTop: 20 }}>
-                            <EmptyStateCard message="No Items Found" />
-                        </View>
-                    ) : null
+                refreshControl={
+                    <RefreshControl
+                        refreshing={!!isLoading}
+                        onRefresh={refetch}
+                        tintColor={Colors.BRAND_PRIMARY}
+                        colors={[Colors.BRAND_PRIMARY]}
+                    />
                 }
-                contentContainerStyle={[
-                    styles.listContent,
-                    { paddingBottom: showModal ? 120 : 40 },
-                ]}
-                refreshControl={<RefreshControl refreshing={isLoading as boolean} onRefresh={refetch as any} />}
             />
 
+
             {showModal && totalItems > 0 && (
-                <View style={[
-                    styles.modalOverlay,
-                    { bottom: Platform.OS === 'ios' ? insets.bottom + 10 : hp(55) },
-                ]}>
-                    {
-                        totalItems > 0 && (
-                            <View style={styles.modalContent}>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                                    <View style={styles.cartBadge}>
-                                        <OrderTabIcon />
-                                    </View>
-                                    <View>
-                                        <Body4 color="#FFF" style={{ marginBottom: 2 }}>
-                                            {totalItems} Items
-                                        </Body4>
-                                        <Caption1 color="#1D1733" style={styles.priceText}>
-                                            ${totalPrice}
-                                        </Caption1>
-                                    </View>
-                                </View>
-
-                                <TouchableOpacity
-                                    style={styles.checkoutBtn}
-                                    onPress={() => {
-
-                                        const cartData = items
-                                            .filter((item) => cartItems[item._id] > 0)
-                                            .map((item) => ({
-                                                _id: item._id,
-                                                productId: item._id,
-                                                name: item.name,
-                                                image: item.image,
-                                                price: item.price,
-                                                tags: item.tags ?? [],
-                                                description: item.description ?? '',
-                                                isAvailable: item.isAvailable ?? true,
-                                                quantity: cartItems[item._id],
-                                            }));
-                                        router.push({
-                                            pathname: paths.checkout as any,
-                                            params: {
-                                                cartData: JSON.stringify(cartData),
-                                                barId,
-                                            },
-                                        });
-                                    }}
-                                >
-                                    <Caption4 color="#1D1733">Checkout</Caption4>
-                                </TouchableOpacity>
+                <View style={[styles.modalOverlay, { bottom: Platform.OS === 'ios' ? insets.bottom + 10 : hp(55) }]}>
+                    <View style={styles.modalContent}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                            <View style={styles.cartBadge}><OrderTabIcon /></View>
+                            <View>
+                                <Body4 color="#FFF">{totalItems} Items</Body4>
+                                <Caption1 color="#1D1733" style={styles.priceText}>
+                                    ${totalPrice.toFixed(2)}
+                                </Caption1>
                             </View>
-                        )
-                    }
+                        </View>
 
+                        <TouchableOpacity
+                            style={styles.checkoutBtn}
+                            onPress={() => {
+                                router.push({
+                                    pathname: paths.checkout as any,
+                                    params: { barId },
+                                });
+                            }}
+                        >
+                            <Caption4 color="#1D1733">Checkout</Caption4>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             )}
         </SafeAreaView>

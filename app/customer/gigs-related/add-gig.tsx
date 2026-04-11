@@ -5,6 +5,7 @@ import { Body2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
 import { useCreateJobMutation } from '@/redux/services/jobApi';
+import { getPlaceDetails, getPlaceSuggestions } from '@/utils/getPlaceApi';
 import { hp, wp } from '@/utils/responsive';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -37,7 +38,6 @@ const AddGig: React.FC = () => {
     const [createJob, { isLoading }] = useCreateJobMutation();
     const router = useRouter();
 
-    // Date & Time states
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [startTime, setStartTime] = useState<Date>(new Date());
     const [endTime, setEndTime] = useState<Date>(new Date());
@@ -46,14 +46,14 @@ const AddGig: React.FC = () => {
     const [showStartTimePicker, setShowStartTimePicker] = useState(false);
     const [showEndTimePicker, setShowEndTimePicker] = useState(false);
 
-    // Location states
     const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
     const [locationLoading, setLocationLoading] = useState(false);
 
-    // Format helpers
-    const formatDate = (date: Date) =>
-        date.toLocaleDateString('en-CA');
+    // Suggestion states
+    const [suggestions, setSuggestions] = useState<{ name: string; placeId: string }[]>([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
 
+    const formatDate = (date: Date) => date.toLocaleDateString('en-CA');
     const formatTime = (date: Date) =>
         date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
@@ -63,15 +63,12 @@ const AddGig: React.FC = () => {
         return `${d}T${t}:00.000Z`;
     };
 
-    // GPS location detect
     const handleDetectLocation = async () => {
         setLocationLoading(true);
         try {
             const { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                setLocationLoading(false);
-                return;
-            }
+            if (status !== 'granted') return;
+
             const loc = await Location.getCurrentPositionAsync({});
             const { latitude, longitude } = loc.coords;
             setCoords({ lat: latitude, lng: longitude });
@@ -81,10 +78,39 @@ const AddGig: React.FC = () => {
                 .filter(Boolean)
                 .join(', ');
             handleChange('eventLocation', address);
+            setSuggestions([]);
+            setShowSuggestions(false);
         } catch (err) {
-            console.log('GPS failed, use manual input');
+            console.log('GPS failed');
         } finally {
             setLocationLoading(false);
+        }
+    };
+
+    // Location typing handler
+    const handleLocationChange = async (text: string) => {
+        handleChange('eventLocation', text);
+        setCoords(null);
+        if (text.length < 2) {
+            setSuggestions([]);
+            setShowSuggestions(false);
+            return;
+        }
+        const results = await getPlaceSuggestions(text);
+
+        setSuggestions(results);
+        setShowSuggestions(true);
+    };
+
+    // Suggestion select handler
+    const handleSelectSuggestion = async (s: { name: string; placeId: string }) => {
+        handleChange('eventLocation', s.name);
+        setShowSuggestions(false);
+        setSuggestions([]);
+
+        const details = await getPlaceDetails(s.placeId);
+        if (details?.latitude && details?.longitude) {
+            setCoords({ lat: details.latitude, lng: details.longitude });
         }
     };
 
@@ -107,9 +133,6 @@ const AddGig: React.FC = () => {
     });
 
     const handlePublish = async () => {
-        // console.log(' Button clicked!');
-        // ToastAndroid.show('Button clicked!', ToastAndroid.SHORT);
-
         try {
             const payload = {
                 title: values.eventTitle,
@@ -128,15 +151,12 @@ const AddGig: React.FC = () => {
                 description: description,
             };
 
-            // console.log(' Payload:', JSON.stringify(payload, null, 2));
-            // ToastAndroid.show('Submitting...', ToastAndroid.SHORT);
-
             const result = await createJob(payload).unwrap();
-            console.log(' Job created:', result);
+            console.log('Job created:', result);
             ToastAndroid.show('Job published successfully!', ToastAndroid.LONG);
             router.back();
         } catch (error: any) {
-            console.error(' Failed:', error);
+            console.error('Failed:', error);
             ToastAndroid.show(
                 error?.data?.message ?? 'Failed to publish job.',
                 ToastAndroid.LONG
@@ -154,8 +174,10 @@ const AddGig: React.FC = () => {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
             >
-                <ScrollView contentContainerStyle={styles.scrollContent}>
-
+                <ScrollView
+                    contentContainerStyle={styles.scrollContent}
+                    keyboardShouldPersistTaps="handled"  
+                >
                     <FormInput
                         label="Event Title"
                         placeholder="Enter event title"
@@ -165,26 +187,50 @@ const AddGig: React.FC = () => {
                         touched={touched.eventTitle}
                     />
 
-                    <FormInput
-                        label="Event Location"
-                        placeholder="Type your location manually"
-                        value={values.eventLocation}
-                        onChangeText={(text) => {
-                            handleChange('eventLocation', text);
-                            setCoords(null);
-                        }}
-                        error={errors.eventLocation}
-                        touched={touched.eventLocation}
-                        rightIcon={
-                            <TouchableOpacity onPress={handleDetectLocation} disabled={locationLoading}>
-                                <Ionicons
-                                    name={locationLoading ? 'reload-outline' : 'location-outline'}
-                                    size={20}
-                                    color={coords ? Colors.BRAND_PRIMARY : Colors.NEUTRAL0}
-                                />
-                            </TouchableOpacity>
-                        }
-                    />
+                    {/* Location Field with Suggestions */}
+                    <View>
+                        <FormInput
+                            label="Event Location"
+                            placeholder="Type your location"
+                            value={values.eventLocation}
+                            onChangeText={handleLocationChange}
+                            error={errors.eventLocation}
+                            touched={touched.eventLocation}
+                            rightIcon={
+                                <TouchableOpacity onPress={handleDetectLocation} disabled={locationLoading}>
+                                    <Ionicons
+                                        name={locationLoading ? 'reload-outline' : 'location-outline'}
+                                        size={20}
+                                        color={coords ? Colors.BRAND_PRIMARY : Colors.NEUTRAL0}
+                                    />
+                                </TouchableOpacity>
+                            }
+                        />
+
+                        {showSuggestions && suggestions.length > 0 && (
+                            <View style={styles.suggestionBox}>
+                                {suggestions.map((s) => (
+                                    <TouchableOpacity
+                                        key={s.placeId}
+                                        onPress={() => handleSelectSuggestion(s)}
+                                        style={styles.suggestionItem}
+                                    >
+                                        <Ionicons
+                                            name="location-outline"
+                                            size={16}
+                                            color={Colors.PLACEHOLLDER_TEXT}
+                                        />
+                                        <Body2
+                                            color={Colors.NEUTRAL0}
+                                            style={{ marginLeft: 8, flex: 1 }}
+                                        >
+                                            {s.name}
+                                        </Body2>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        )}
+                    </View>
 
                     {/* Date Picker */}
                     <TouchableOpacity onPress={() => setShowDatePicker(true)}>
@@ -298,7 +344,6 @@ const AddGig: React.FC = () => {
                             disabled={isLoading}
                         />
                     </View>
-
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
@@ -327,6 +372,23 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 14,
         height: 150,
+    },
+    suggestionBox: {
+        backgroundColor: Colors.INPUT_BACKGROUND,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: Colors.BORDER_COLOR,
+        marginTop: -hp(8),
+        marginBottom: hp(12),
+        overflow: 'hidden',
+    },
+    suggestionItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: wp(16),
+        paddingVertical: hp(12),
+        borderBottomWidth: 1,
+        borderBottomColor: Colors.BORDER_COLOR,
     },
 });
 

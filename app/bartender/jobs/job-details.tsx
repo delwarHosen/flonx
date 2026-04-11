@@ -14,8 +14,8 @@ import { Colors } from '@/constants/theme';
 import { useCancelJobMutation, useGetSingleJobQuery } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const JobDetails = () => {
@@ -24,6 +24,7 @@ const JobDetails = () => {
     // Added a separate state for Cancel Assignment Modal
     const [showCancelAssignmentModal, setShowCancelAssignmentModal] = useState(false);
     // const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const { id, applicationId, jobId, initialTab } = useLocalSearchParams<{
@@ -33,16 +34,24 @@ const JobDetails = () => {
         initialTab: string
     }>();
 
-    const { data: item, isLoading } = useGetSingleJobQuery(id, {
-        refetchOnMountOrArgChange: true
-    })
+    const { currentData: item, isLoading, isFetching, refetch } = useGetSingleJobQuery(id, {
+        refetchOnMountOrArgChange: true,
+        refetchOnFocus: true,
+    });
+    console.log("item.rating:", item?.rating);
+    console.log("item full:", JSON.stringify(item, null, 2));
 
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await refetch();
+        setRefreshing(false);
+    }, [refetch]);
 
     const [cancelJob] = useCancelJobMutation();
 
-
     // const item = getJobs.find(j => j.id === id);
-    if (isLoading) return (
+    if (isLoading || (isFetching && !refreshing)) return (
         <SafeAreaView style={styles.container}>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <CustomLoader size={55} />
@@ -91,8 +100,8 @@ const JobDetails = () => {
             setLoading(true);
             try {
                 console.log("item._id:", item._id);
-                const result = await cancelJob(jobId).unwrap(); 
-                console.log("Cancel success:", result);
+                const result = await cancelJob(jobId).unwrap();
+                // console.log("Cancel success:", result);
                 setLoading(false);
                 router.push({
                     pathname: '/bartender/(tabs)/my-jobs',
@@ -145,7 +154,7 @@ const JobDetails = () => {
                     <>
                         <StatusInfoCard
                             label="Assigned on"
-                            value={item.createdAt}
+                            value={item.assignDate}
                             statusText="Assigned"
                             statusColor={"#22C55E"}
                             statusBg={"#22C55E33"}
@@ -170,7 +179,7 @@ const JobDetails = () => {
                     <>
                         <StatusInfoCard
                             label="Assignmed on"
-                            value={item.completedOn}
+                            value={item.completedDate}
                             statusText="Assigned"
                             // statusColors={statusColors}
                             statusColor={"#3D8BFF"}
@@ -182,11 +191,11 @@ const JobDetails = () => {
                             <View >
                                 <Caption2 style={{ marginBottom: hp(12) }} color={Colors.PLACEHOLLDER_TEXT}>Your Rating</Caption2>
                                 <View style={{ flexDirection: "row", gap: 5 }}>
-                                    {item?.applicants?.[0]?.rating ? (
+                                    {item?.rating ? (
                                         <>
                                             <StarIcon color="#FFB020" />
                                             <Body3 color={Colors.NEUTRAL0} style={{ lineHeight: 20 }}>
-                                                {item.applicants[0].rating}/5
+                                                {item?.rating}/5
                                             </Body3>
                                         </>
                                     ) : (
@@ -249,7 +258,18 @@ const JobDetails = () => {
                 <SectionTitle title='Job Details' />
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={Colors.BRAND_PRIMARY}
+                        colors={[Colors.BRAND_PRIMARY]}
+                    />
+                }
+            >
 
                 <Body1 color={Colors.NEUTRAL0} italic style={styles.title}>{item?.title}</Body1>
                 <View style={[styles.statusBadge, { backgroundColor: statusColors.bg }]}>

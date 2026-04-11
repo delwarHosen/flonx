@@ -7,8 +7,8 @@ import { useAddToCartMutation, useDeleteCartMutation } from '@/redux/services/or
 import { RootState } from '@/redux/store';
 import { hp, wp } from '@/utils/responsive';
 import { Image } from 'expo-image';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, ToastAndroid, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
@@ -68,6 +68,12 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({ checkoutPath }) =
         });
     };
 
+    // 
+    useFocusEffect(
+        useCallback(() => {
+            setQuantity(1);
+        }, [])
+    );
 
     const handleAddToCart = async () => {
         if (!itemId) return;
@@ -80,12 +86,9 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({ checkoutPath }) =
             const result = await addToCart({ productId: itemId, quantity }).unwrap();
             const cartItem = result?.items?.find((i: any) => i.product === itemId);
 
-            // Redux এ update করো
+
             dispatch(addItem({ id: itemId, barId }));
 
-            // existingCart এর বদলে Redux থেকে সব items নাও
-            // তোমার কাছে full item details নেই Redux এ, তাই
-            // এখানে শুধু current item টা merge করবো
             const previousItems: any[] = existingCart ? JSON.parse(existingCart) : [];
 
             const newItem = {
@@ -115,7 +118,7 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({ checkoutPath }) =
             if (message.includes('different venue')) {
                 try {
                     await deleteCart(undefined).unwrap();
-                    dispatch(clearCart()); // Redux ও clear করো
+                    dispatch(clearCart());
                 } catch (clearErr: any) {
                     if (clearErr?.status !== 404) {
                         ToastAndroid.show('Failed to clear cart.', ToastAndroid.SHORT);

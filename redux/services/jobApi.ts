@@ -10,7 +10,7 @@ export const jobApi = baseApis.injectEndpoints({
                 body: jobData,
             }),
             transformResponse: (respons: any) => respons.data,
-            invalidatesTags: ['Jobs'],
+            invalidatesTags: [{ type: 'Jobs', id: 'LIST' }],
         }),
 
         // get All job
@@ -30,7 +30,7 @@ export const jobApi = baseApis.injectEndpoints({
             transformResponse: (response: any) => response.data,
             providesTags: ['Jobs'],
         }),
-        
+
         // update job
         updateJob: builder.mutation({
             query: ({ jobId, ...jobData }) => {
@@ -43,7 +43,10 @@ export const jobApi = baseApis.injectEndpoints({
                 };
             },
             transformResponse: (response: any) => response.data,
-            invalidatesTags: ['Jobs'],
+            invalidatesTags: (result, error, { jobId }) => [
+                { type: 'Jobs', id: jobId },
+                { type: 'Jobs', id: 'LIST' },
+            ],
         }),
         // Delete job
         deleteJob: builder.mutation({
@@ -52,7 +55,10 @@ export const jobApi = baseApis.injectEndpoints({
                 method: "DELETE",
             }),
             transformResponse: (respons: any) => respons.data,
-            invalidatesTags: ['Jobs'],
+            invalidatesTags: (result, error, jobId) => [
+                { type: 'Jobs', id: jobId },
+                { type: 'Jobs', id: 'LIST' },
+            ],
         }),
 
         // Mark as comolete job
@@ -62,7 +68,10 @@ export const jobApi = baseApis.injectEndpoints({
                 method: "PATCH",
             }),
             transformResponse: (respons: any) => respons.data,
-            invalidatesTags: ['Jobs']
+            invalidatesTags: (result, error, jobId) => [
+                { type: 'Jobs', id: jobId },
+                { type: 'Jobs', id: 'LIST' },
+            ],
         }),
 
         // add rating
@@ -73,6 +82,9 @@ export const jobApi = baseApis.injectEndpoints({
                 body: ratingData,
             }),
             transformResponse: (response: any) => response.data,
+            invalidatesTags: (result, error, { job }) => [
+                { type: 'Jobs', id: job },  
+            ],
         }),
 
         // cancle job assisment
@@ -82,7 +94,10 @@ export const jobApi = baseApis.injectEndpoints({
                 method: "PATCH",
             }),
             transformResponse: (response: any) => response.data,
-            invalidatesTags: ['Jobs'],
+            invalidatesTags: (result, error, jobId) => [
+                { type: 'Jobs', id: jobId },
+                { type: 'Jobs', id: 'LIST' },
+            ],
         }),
 
         // get my job by (customers)
@@ -98,7 +113,13 @@ export const jobApi = baseApis.injectEndpoints({
                 },
             }),
             transformResponse: (respons: any) => respons.data,
-            providesTags: ['Jobs'],
+            providesTags: (result) =>
+                result?.result
+                    ? [
+                        ...result.result.map((job: any) => ({ type: 'Jobs' as const, id: job._id })),
+                        { type: 'Jobs', id: 'LIST' },
+                    ]
+                    : [{ type: 'Jobs', id: 'LIST' }],
         }),
 
 
@@ -107,7 +128,7 @@ export const jobApi = baseApis.injectEndpoints({
         getSingleJob: builder.query({
             query: (jobId) => `/job/get-single/${jobId}`,
             transformResponse: (response: any) => response.data,
-            providesTags: ['Jobs'],
+            providesTags: (result, error, jobId) => [{ type: 'Jobs', id: jobId }],
         }),
 
         // get job applicants
@@ -137,7 +158,7 @@ export const jobApi = baseApis.injectEndpoints({
                 url: `/job-application/apply/${jobId}`,
                 method: "POST",
             }),
-            invalidatesTags: ['Jobs'],
+            invalidatesTags: [{ type: 'Jobs', id: 'LIST' }],
         }),
 
         // get bartender job apply  api

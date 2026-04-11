@@ -5,7 +5,7 @@ import { Colors } from '@/constants/theme';
 import { Image } from 'expo-image';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { FlatList, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -16,13 +16,14 @@ import FilterModal from '@/components/QRScannerModal/FilterModal';
 import { useGetProfileQuery } from '@/redux/services/authApi';
 import { useGetAllJobsQuery, useGetMyApplicationsQuery } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, RefreshControl } from 'react-native';
 
 const BrowseScreen: React.FC = () => {
     const [query, setQuery] = useState<string>('')
     const [filterVisible, setFilterVisible] = useState(false);
     const [selectedFilter, setSelectedFilter] = useState<string>('');
     const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+    const [refreshing, setRefreshing] = useState(false);
 
 
     useEffect(() => {
@@ -40,17 +41,21 @@ const BrowseScreen: React.FC = () => {
     const router = useRouter();
     const { data: profile } = useGetProfileQuery({});
 
-    const { data: jobsData, isLoading: jobsLoading } = useGetAllJobsQuery({
+    const { data: jobsData, isLoading: jobsLoading, refetch } = useGetAllJobsQuery({
         searchTerm: query,
         lat: coords?.lat,
         lng: coords?.lng,
-        maxDistance: 50,
+        // maxDistance: 50,
     }, {
         refetchOnMountOrArgChange: true,
         skip: !coords,
     });
 
-
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await refetch();
+        setRefreshing(false);
+    }, [refetch]);
 
     const { data: applications = [], isLoading: appsLoading } = useGetMyApplicationsQuery(undefined, {
         refetchOnMountOrArgChange: true,
@@ -74,6 +79,11 @@ const BrowseScreen: React.FC = () => {
         return isOpen && notApplied && matchesSearch;
     });
 
+    console.log('coords:', coords);
+    console.log('jobsData:', jobsData);
+    console.log('jobs after filter:', jobs);
+    console.log('appliedJobIds:', appliedJobIds);
+    console.log('applications:', applications);
 
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -86,10 +96,13 @@ const BrowseScreen: React.FC = () => {
                     <View style={[styles.headerContainer, { paddingTop: hp(20) }]}>
                         <View style={styles.header}>
                             <View style={styles.userInfo}>
-                                <Image
-                                    source={profile?.profile_image ? { uri: profile.profile_image } : IMAGE_COMPONENTS.profileImg}
-                                    style={styles.avatar}
-                                />
+                                <TouchableOpacity onPress={() => router.push("/bartender/profile")}>
+                                    <Image
+                                        source={profile?.profile_image ? { uri: profile.profile_image } : IMAGE_COMPONENTS.profileImg}
+                                        style={styles.avatar}
+                                    />
+                                </TouchableOpacity>
+
                                 <View style={{ marginLeft: 12 }}>
                                     <Body1 italic color={Colors.NEUTRAL0} weight="bold">Hello {profile?.name || "User"}</Body1>
                                     <Body3 italic style={{ marginTop: hp(8) }} color={Colors.PLACEHOLLDER_TEXT}>Welcome to FLÖNX</Body3>
@@ -111,6 +124,14 @@ const BrowseScreen: React.FC = () => {
                             />
                         </View>
                     </View>
+                }
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={Colors.BRAND_PRIMARY}
+                        colors={[Colors.BRAND_PRIMARY]}
+                    />
                 }
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}

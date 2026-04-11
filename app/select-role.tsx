@@ -2,7 +2,7 @@ import { BartenderIcon, UserGuestIcon, UserIcon } from '@/assets/images/icons/ic
 import { CustomButton } from '@/components/CustomButton';
 import { Caption1, Caption2, H3 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
-import { setRole } from '@/redux/authSlice';
+import { setCredentials, setRole } from '@/redux/authSlice';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -10,9 +10,15 @@ import { Dimensions, Platform, Pressable, StyleSheet, View } from 'react-native'
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
+
+import * as SecureStore from 'expo-secure-store';
 // ConfirmationModal import
 import { ConfirmationModal } from "@/components/ConfirmationModalProps";
+import { baseApis } from '@/redux/base';
+import { useGuestLoginMutation } from '@/redux/services/authApi';
+import { getDeviceId } from '@/utils/deviceId';
 import { hp, wp } from '@/utils/responsive';
+import { jwtDecode } from 'jwt-decode';
 
 const { width, height } = Dimensions.get('window');
 const isIOS = Platform.OS === 'ios';
@@ -35,18 +41,57 @@ export default function SelectRole() {
     const dispatch = useDispatch();
     const [selectedRole, setSelectedRole] = useState<'guest' | 'customer' | 'bartender' | null>(null);
     const [showAgeModal, setShowAgeModal] = useState<boolean>(false);
+    const [guestLogin] = useGuestLoginMutation();
 
     const handleRole = () => {
         if (!selectedRole) return;
         setShowAgeModal(true);
     };
 
-    const confirmAge = () => {
+    const confirmAge = async () => {
         setShowAgeModal(false);
 
         if (selectedRole === 'guest') {
-            dispatch(setRole('guest'));
+            const existingToken = await SecureStore.getItemAsync('accessToken');
+
+            if (existingToken) {
+                try {
+                    const decoded: any = jwtDecode(existingToken);
+
+                    if (decoded.role === 'customer' || decoded.role === 'bartender') {
+
+                        const deviceId = await getDeviceId();
+                        const res = await guestLogin(deviceId).unwrap();
+                    
+                        if (res?.accessToken) {
+                            await SecureStore.setItemAsync('accessToken', res.accessToken);
+                            dispatch(setCredentials({ role: 'guest', token: res.accessToken }));
+                            dispatch(baseApis.util.resetApiState());
+                        }
+                        
+                    } else {
+
+                        dispatch(setRole('guest'));
+                    }
+                } catch (e) {
+                    console.log('Guest login error:', e);
+                    dispatch(setRole('guest'));
+                }
+            } else {
+
+                try {
+                    const deviceId = await getDeviceId();
+                    const res = await guestLogin(deviceId).unwrap();
+                    if (res?.accessToken) {
+                        await SecureStore.setItemAsync('accessToken', res.accessToken);
+                        dispatch(setCredentials({ role: 'guest', token: res.accessToken }));
+                    }
+                } catch (e) {
+                    console.log('Guest login error:', e);
+                }
+            }
             router.push("/guest/search" as any);
+
         } else if (selectedRole === 'customer' || selectedRole === 'bartender') {
             dispatch(setRole(selectedRole));
             router.replace("/(auth)/register");

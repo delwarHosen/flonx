@@ -2,19 +2,19 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as SecureStore from 'expo-secure-store';
 
 interface AuthState {
-    userRole: 'customer' | 'bartender' | 'guest' | null;  
+    userRole: 'customer' | 'bartender' | 'guest' | null;
     token: string | null;
     user: {
         name: string;
         email: string;
         profileImage?: string;
-    } | null;  
+    } | null;
 };
 
 const initialState: AuthState = {
     userRole: null,
     token: null,
-    user: null, 
+    user: null,
 };
 
 export const authSlice = createSlice({
@@ -23,18 +23,18 @@ export const authSlice = createSlice({
     reducers: {
         setCredentials: (
             state,
-            action: PayloadAction<{ role: 'customer' | 'bartender'; token: string }>
+            action: PayloadAction<{ role: 'customer' | 'bartender' | 'guest'; token: string }>
         ) => {
             state.userRole = action.payload.role;
             state.token = action.payload.token;
         },
-        setRole: (state, action: PayloadAction<'customer' | 'bartender' | 'guest' | null>) => {  
+        setRole: (state, action: PayloadAction<'customer' | 'bartender' | 'guest' | null>) => {
             state.userRole = action.payload;
         },
         logout: (state) => {
             state.userRole = null;
             state.token = null;
-            state.user = null;  
+            state.user = null;
             SecureStore.deleteItemAsync('accessToken');
         },
     },

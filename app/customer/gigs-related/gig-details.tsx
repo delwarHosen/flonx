@@ -12,8 +12,8 @@ import { Colors } from '@/constants/theme';
 import { useCancelJobMutation, useDeleteJobMutation, useGetSingleJobQuery, useMarkJobAsCompleteMutation } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useState } from 'react';
-import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { Image, RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const GigDetails = () => {
@@ -21,12 +21,15 @@ const GigDetails = () => {
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
     const { id, initialTab } = useLocalSearchParams<{ id: string; initialTab: string }>();
     // const item = jobPosts.find(j => j.id === id);
-    const { data: item, isLoading } = useGetSingleJobQuery(id, {
+    const { currentData: item, isLoading, isFetching, refetch } = useGetSingleJobQuery(id, {
         refetchOnMountOrArgChange: true,
+        refetchOnFocus: true,
     });
+
     const [deleteJob] = useDeleteJobMutation();
     const [markJobAsComplete] = useMarkJobAsCompleteMutation();
     const [cancelJob] = useCancelJobMutation();
@@ -36,14 +39,20 @@ const GigDetails = () => {
     // console.log("Create Job", item)
     // console.log("single job item:", JSON.stringify(item, null, 2))
     // console.log("bartender data:", item.bartender);
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await refetch();
+        setRefreshing(false);
+    }, [refetch]);
 
-    if (isLoading) return (
+
+    if ((isLoading || isFetching) && !item) return (
         <SafeAreaView style={styles.container}>
-            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <CustomLoader size={55} />
             </View>
         </SafeAreaView>
-    )
+    );
 
     if (!item) return null;
 
@@ -115,9 +124,17 @@ const GigDetails = () => {
         }, 300);
     };
 
+
+    // console.log("applicants:", JSON.stringify(item.applicants, null, 2));
+    // console.log("item.rating:", item.rating);
+    // console.log("item._id:", item._id);
+
     const renderBottomSection = () => {
         // console.log("Current initialTab:", initialTab);
-        switch (initialTab?.toLowerCase()) {
+        const currentStatus = item.status?.toLowerCase();
+        switch (currentStatus)
+        // switch (initialTab?.toLowerCase())
+        {
 
             // ─── 1st Page: Open ──────────
             case 'open':
@@ -227,12 +244,13 @@ const GigDetails = () => {
                         <TouchableOpacity
                             style={styles.assignedRow}
                             onPress={() => {
-                                console.log("Job id:",item._id)
+                                console.log("Job id:", item._id)
                                 router.push({
                                     pathname: '/customer/gigs-related/applicant-profile-details',
                                     params: {
                                         bartenderId: item.bartender?._id,
-                                        jobId: item._id
+                                        jobId: item._id,
+                                        existingRating: String(item.rating ?? 0),
                                     }
                                 })
                             }}
@@ -335,7 +353,18 @@ const GigDetails = () => {
                 <SectionTitle title='Gig Details' />
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={Colors.BRAND_PRIMARY}
+                        colors={[Colors.BRAND_PRIMARY]}
+                    />
+                }
+            >
 
                 <Body1 color={Colors.NEUTRAL0} italic style={styles.title}>{item.title}</Body1>
                 <View style={[styles.statusBadge, { backgroundColor: statusColors.bg }]}>

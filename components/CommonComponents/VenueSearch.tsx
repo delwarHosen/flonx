@@ -3,7 +3,7 @@ import { useGetAllVenuesQuery } from '@/redux/services/venueApi'
 import { hp, wp } from '@/utils/responsive'
 import { useRouter } from 'expo-router'
 import React, { useEffect, useState } from 'react'
-import { FlatList, StyleSheet, View } from 'react-native'
+import { FlatList, RefreshControl, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import BarCardComponents from '../cardComponents/BarCardComponents'
 import CustomLoader from '../CustomLoader'
@@ -19,17 +19,24 @@ const VenueSearch: React.FC<VenueSearchProps> = ({ shopItemPath }) => {
     const router = useRouter();
     const [query, setQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState('');
+    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         const handler = setTimeout(() => setDebouncedQuery(query), 500);
         return () => clearTimeout(handler);
     }, [query]);
 
-    const { data, isLoading, isFetching } = useGetAllVenuesQuery({
+    const { data, isLoading, isFetching, refetch } = useGetAllVenuesQuery({
         searchTerm: debouncedQuery,
     });
 
     const venues = data?.result || [];
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await refetch();
+        setRefreshing(false);
+    };
 
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -40,9 +47,10 @@ const VenueSearch: React.FC<VenueSearchProps> = ({ shopItemPath }) => {
                 onScanPress={() => console.log("Open Scanner")}
             />
 
-            {(isLoading || isFetching) && !venues.length ? (
-                <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
-                    <CustomLoader size={50} />
+          
+            {(isLoading || (isFetching && !refreshing)) && !venues.length ? (
+                <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: 20 }}>
+                    <CustomLoader size={30} />
                 </View>
             ) : (
                 <FlatList
@@ -63,10 +71,18 @@ const VenueSearch: React.FC<VenueSearchProps> = ({ shopItemPath }) => {
                         />
                     )}
                     ListEmptyComponent={
-                        <EmptyStateCard message="No venues found" />
+                        !isFetching ? <EmptyStateCard message="No venues found" /> : null
                     }
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            tintColor={Colors.BRAND_PRIMARY}
+                            colors={[Colors.BRAND_PRIMARY]}
+                        />
+                    }
                 />
             )}
         </SafeAreaView>

@@ -6,22 +6,27 @@ import { Colors } from '@/constants/theme';
 import { useGetMyApplicationsQuery } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { FlatList, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { FlatList, RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const TABS = ["Applied", "Assigned", "Completed", "Cancelled"];
 export default function JobsScreen() {
   const [activeTab, setActiveTab] = useState("Applied");
+  const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
   // const filteredData = jobPosts.filter(job => job.status === activeTab);
 
-  const { data: applications = [], isLoading } = useGetMyApplicationsQuery(undefined, {
+  const { data: applications = [], isLoading, refetch } = useGetMyApplicationsQuery(undefined, {
     refetchOnMountOrArgChange: true,
   });
 
-  // console.log("applications:", JSON.stringify(applications, null, 2))
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
 
 
   const filteredData = applications.filter((app: any) => {
@@ -67,6 +72,14 @@ export default function JobsScreen() {
         data={filteredData}
         keyExtractor={(item) => item._id}
         contentContainerStyle={styles.listContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={Colors.BRAND_PRIMARY}
+            colors={[Colors.BRAND_PRIMARY]}
+          />
+        }
         renderItem={({ item }) => (
           <GigCard
             item={item.job}
@@ -80,9 +93,9 @@ export default function JobsScreen() {
               router.push({
                 pathname: '/bartender/jobs/job-details',
                 params: {
-                  id: item.job._id,         
-                  applicationId: item._id,   
-                  jobId: item.job._id,        
+                  id: item.job._id,
+                  applicationId: item._id,
+                  jobId: item.job._id,
                   initialTab: tabMap[activeTab]
                 },
               });

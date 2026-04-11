@@ -9,17 +9,25 @@ import { useGetProfileQuery } from '@/redux/services/authApi';
 import { useGetBartenderByIdQuery } from '@/redux/services/bartenderApi';
 import { useAddRatingMutation } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ApplicantProfileDetails = () => {
-    const { bartenderId, jobId } = useLocalSearchParams<{ bartenderId: string, jobId: string }>();
+    const { bartenderId, jobId, existingRating } = useLocalSearchParams<{
+        bartenderId: string;
+        jobId: string;
+        existingRating: string;
+    }>();
+    const router = useRouter()
     const [modalVisible, setModalVisible] = useState(false);
     const [rating, setRating] = useState(0);
-    const [myRating, setMyRating] = useState(0);
-    const [isRated, setIsRated] = useState(false);
+    const [isRated, setIsRated] = useState(!!existingRating && Number(existingRating) > 0);
+    const [myRating, setMyRating] = useState(Number(existingRating) || 0);
+
+    console.log("existingRating param:", existingRating);
+    console.log("isRated initial:", !!existingRating && Number(existingRating) > 0);
 
     const { data: bartender, isLoading } = useGetBartenderByIdQuery(
         bartenderId, { skip: !bartenderId }
@@ -28,7 +36,7 @@ const ApplicantProfileDetails = () => {
     const { data: profile } = useGetProfileQuery({});
     console.log("customer id:", profile?._id);
     // ratting endpoinds
-    const [addRating] = useAddRatingMutation();
+    const [addRating, { isLoading: isRatingLoading }] = useAddRatingMutation();
 
     console.log("bartenderId:", bartenderId);
     console.log("rating:", rating);
@@ -51,6 +59,8 @@ const ApplicantProfileDetails = () => {
     // console.log("profile_image:", bartender?.profile_image);
     // console.log("profile_image trimmed:", bartender?.profile_image?.trim());
     // console.log("full bartender data:", JSON.stringify(bartender, null, 2));
+    console.log("jobId param:", jobId);
+    console.log("bartenderId param:", bartenderId);
 
     if (!applicant) {
         return (
@@ -62,7 +72,7 @@ const ApplicantProfileDetails = () => {
         );
     }
 
-    
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -135,10 +145,10 @@ const ApplicantProfileDetails = () => {
 
                         <View style={styles.starRow}>
                             {[1, 2, 3, 4, 5].map((star) => (
-                                <TouchableOpacity key={star} onPress={() => setRating(star)}>
+                                <TouchableOpacity key={star} onPress={() => setRating(star)} style={{ padding: 4 }}>
                                     <StarIcon
-                                        color={star <= rating ? Colors.COLOR_ORANGE : Colors.NEUTRAL0}
-                                        size={24}
+                                        color={star <= rating ? Colors.COLOR_ORANGE : Colors.PLACEHOLLDER_TEXT}
+                                        size={28}
                                     />
                                 </TouchableOpacity>
                             ))}
@@ -154,16 +164,27 @@ const ApplicantProfileDetails = () => {
                                 color={Colors.COLOR_DANGER}
                                 backgroundColor={"transparent"}
                                 borderColor={Colors.COLOR_DANGER}
+                                style={{ marginTop: 0 }}
                             />
                             <CustomButton
                                 onPress={async () => {
+                                    // console.log("Submit pressed, rating:", rating);
+                                    if (rating === 0) return;
+
+                                    // console.log("Submitting rating:", {
+                                    //     bartender: bartenderId,
+                                    //     job: jobId,
+                                    //     rating: rating,
+                                    // });
+
                                     try {
-                                        await addRating({
+                                        const result = await addRating({
                                             bartender: bartenderId,
                                             job: jobId,
                                             rating: rating,
                                         }).unwrap();
 
+                                        // console.log("Rating success:", result);
                                         setIsRated(true);
                                         setMyRating(rating);
                                         setModalVisible(false);
@@ -171,15 +192,20 @@ const ApplicantProfileDetails = () => {
                                     } catch (error: any) {
                                         console.log("Rating error:", JSON.stringify(error, null, 2));
                                         setModalVisible(false);
-                                        if (error?.data?.message?.includes('already exists')) {
+                                        if (
+                                            error?.data?.message?.includes('already exists') ||
+                                            error?.data?.message?.includes('duplicate')
+                                        ) {
                                             setIsRated(true);
+                                            setMyRating(rating);
                                         }
                                     }
                                 }}
-                                title='Submit'
+                                title={isRatingLoading ? 'Submitting...' : 'Submit'}
                                 width="90%"
                                 height={hp(44)}
                                 borderRadius={100}
+                                style={{ marginTop: 0 }}
                             />
                         </View>
                     </View>

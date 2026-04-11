@@ -99,6 +99,16 @@ export const authApi = baseApis.injectEndpoints({
             invalidatesTags: ['Profile'],
         }),
 
+        // guest login 
+        guestLogin: builder.mutation({
+            query: (deviceId: string) => ({
+                url: '/auth/guest',
+                method: 'POST',
+                body: { deviceId },
+            }),
+            transformResponse: (response: any) => response.data,
+        }),
+
 
     }),
     overrideExisting: true,
@@ -116,4 +126,5 @@ export const {
     useDeleteAccountMutation,
     useGetProfileQuery,
     useUpdateProfileMutation,
+    useGuestLoginMutation
 } = authApi;
