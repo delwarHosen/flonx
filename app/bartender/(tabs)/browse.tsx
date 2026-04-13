@@ -79,11 +79,7 @@ const BrowseScreen: React.FC = () => {
         return isOpen && notApplied && matchesSearch;
     });
 
-    console.log('coords:', coords);
-    console.log('jobsData:', jobsData);
-    console.log('jobs after filter:', jobs);
-    console.log('appliedJobIds:', appliedJobIds);
-    console.log('applications:', applications);
+   
 
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>

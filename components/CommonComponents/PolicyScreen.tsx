@@ -1,5 +1,5 @@
 import SectionTitle from '@/components/SectionTitle';
-import { Body1, Caption1 } from '@/components/typo/Typography';
+import { Body1 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import React from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
@@ -18,13 +18,13 @@ export default function PolicyScreen({ title, staticTitle, data, isLoading }: Po
 
     const htmlContent = data?.description || '<p>No content available.</p>';
 
-    const formattedDate = data?.createdAt
-        ? new Date(data.createdAt).toLocaleDateString('en-US', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-        })
-        : '';
+    // const formattedDate = data?.createdAt
+    //     ? new Date(data.createdAt).toLocaleDateString('en-US', {
+    //         day: 'numeric',
+    //         month: 'long',
+    //         year: 'numeric',
+    //     })
+    //     : '';
 
     return (
         <SafeAreaView style={styles.safeAreaContainer}>
@@ -47,9 +47,9 @@ export default function PolicyScreen({ title, staticTitle, data, isLoading }: Po
                         <Body1 color={Colors.NEUTRAL0} style={styles.textContent}>
                             {staticTitle}
                         </Body1>
-                        <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={styles.textContent}>
+                        {/* <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={styles.textContent}>
                             Last Updated: {formattedDate}
-                        </Caption1>
+                        </Caption1> */}
 
                         {/* ── HTML content ── */}
                         <RenderHtml

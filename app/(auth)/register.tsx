@@ -75,9 +75,11 @@ export default function RegisterScreen() {
           phone: isBartender ? formValues[FORM_FIELDS.CONTACT_NO] : "",
         };
 
-        console.log("Sending Payload:", payload);
+        // console.log("Sending Payload:", payload);
 
         const res = await registerUser(payload).unwrap();
+
+        // console.log('Register Response:', JSON.stringify(res, null, 2));
 
         if (res?.success) {
           ToastAndroid.show(res.message || "Registration Successful!", ToastAndroid.SHORT);

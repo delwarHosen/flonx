@@ -51,26 +51,22 @@ export default function LoginScreen() {
           password: values[FORM_FIELDS.PASSWORD],
         }).unwrap();
 
-        // console.log("Login Response:", res.data);
-
         if (res?.success && res?.data?.accessToken) {
           const token = res.data.accessToken;
+
+          
           await SecureStore.setItemAsync('accessToken', token);
+          await SecureStore.setItemAsync('refreshToken', res.data.refreshToken || '');
+
+          // Remember me status save 
+          await SecureStore.setItemAsync('rememberMe', isRemembered ? 'true' : 'false');
 
           const decoded: any = jwtDecode(token);
-          // console.log("Decoded Token:", decoded);
           const roleFromToken = decoded.role;
 
-          // console.log("Decoded Role from Token:", roleFromToken);
-
           if (roleFromToken) {
-            dispatch(baseApis.util.resetApiState()); 
-
-            dispatch(setCredentials({
-              role: roleFromToken,
-              token: token
-            }));
-
+            dispatch(baseApis.util.invalidateTags(['Profile']));
+            dispatch(setCredentials({ role: roleFromToken, token }));
             ToastAndroid.show("Login Successful!", ToastAndroid.SHORT);
 
             if (roleFromToken === 'bartender') {
@@ -79,14 +75,9 @@ export default function LoginScreen() {
               router.replace("/customer/(tabs)/home");
             }
           }
-
         }
       } catch (error: any) {
-        console.log("Forgot Password Error:", error);
-        const message =
-          error?.data?.message ||
-          error?.message ||
-          "Something went wrong!";
+        const message = error?.data?.message || error?.message || "Something went wrong!";
         ToastAndroid.show(message, ToastAndroid.LONG);
       }
     },

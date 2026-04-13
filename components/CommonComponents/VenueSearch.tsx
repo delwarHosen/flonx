@@ -30,7 +30,10 @@ const VenueSearch: React.FC<VenueSearchProps> = ({ shopItemPath }) => {
         searchTerm: debouncedQuery,
     });
 
+    // console.log("vanue search", data)
+
     const venues = data?.result || [];
+
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -44,10 +47,10 @@ const VenueSearch: React.FC<VenueSearchProps> = ({ shopItemPath }) => {
                 placeholder="Search"
                 value={query}
                 onChangeText={setQuery}
-                onScanPress={() => console.log("Open Scanner")}
+            // onScanPress={() => console.log("Open Scanner")}
             />
 
-          
+
             {(isLoading || (isFetching && !refreshing)) && !venues.length ? (
                 <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: 20 }}>
                     <CustomLoader size={30} />
@@ -61,7 +64,7 @@ const VenueSearch: React.FC<VenueSearchProps> = ({ shopItemPath }) => {
                             item={{
                                 name: item.name,
                                 logo: item.logo,
-                                status: 'close',
+                                status: 'open',
                                 location: item.address,
                             }}
                             onPress={() => router.push({

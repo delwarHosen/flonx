@@ -28,14 +28,12 @@ const GigsScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
-  // tab reset
   const { resetTab } = useLocalSearchParams<{ resetTab?: string }>();
   useEffect(() => {
     if (resetTab) {
       setActiveTab(resetTab);
     }
   }, [resetTab]);
-
 
   const { data, isLoading, isFetching, refetch } = useGetMyJobsQuery(
     { type: tabTypeMap[activeTab] },
@@ -47,8 +45,6 @@ const GigsScreen = () => {
     await refetch();
     setRefreshing(false);
   }, [refetch]);
-
-
 
   const filteredData = (data?.result || [])
     .filter((job: any) => {
@@ -62,8 +58,8 @@ const GigsScreen = () => {
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
-  // console.log("filteredData:", filteredData.map((j: any) => ({ id: j._id, status: j.status })));
 
+  const showLoader = isLoading && !refreshing;
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -87,8 +83,7 @@ const GigsScreen = () => {
         </ScrollView>
       </View>
 
-
-      {isLoading && !refreshing ? (
+      {showLoader ? (
         <View style={styles.loaderContainer}>
           <CustomLoader />
         </View>
@@ -109,7 +104,6 @@ const GigsScreen = () => {
             <GigCard
               item={item}
               onPress={() => {
-
                 router.push({
                   pathname: '/customer/gigs-related/gig-details',
                   params: {
@@ -121,16 +115,18 @@ const GigsScreen = () => {
             />
           )}
           ListEmptyComponent={
-            !isLoading ? (
+            !isFetching ? (
               <EmptyStateCard message={`No ${activeTab} Gigs found`} />
             ) : null
           }
-          ListFooterComponent={!isLoading ? <CreatGig /> : null}
+          ListFooterComponent={!isFetching ? <CreatGig /> : null}
         />
       )}
     </SafeAreaView>
   );
 };
+
+
 
 const CreatGig = () => {
   const router = useRouter();

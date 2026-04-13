@@ -15,6 +15,7 @@ import {
   useFonts
 } from "@expo-google-fonts/nunito";
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { useKeepAwake } from 'expo-keep-awake';
 import { Stack } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as SplashScreen from "expo-splash-screen";
@@ -34,44 +35,49 @@ function AppInit() {
   const [guestLogin] = useGuestLoginMutation();
 
   useEffect(() => {
-    const initAuth = async () => {
-      const existingToken = await SecureStore.getItemAsync('accessToken');
+   const initAuth = async () => {
+    const existingToken = await SecureStore.getItemAsync('accessToken');
+    const rememberMe = await SecureStore.getItemAsync('rememberMe');
 
-      if (existingToken) {
+    if (existingToken) {
         try {
-          const decoded: any = jwtDecode(existingToken);
-          
-          const roleFromToken = decoded.role;
+            const decoded: any = jwtDecode(existingToken);
+            const isExpired = decoded.exp * 1000 < Date.now();
 
-          const actualRole = decoded.isGuest ? 'guest' : roleFromToken;
-
-          if (roleFromToken && !role) {
-            // dispatch(setCredentials({
-            //   role: roleFromToken,
-            //   token: existingToken
-            // }));
-            dispatch(setCredentials({ role: actualRole, token: existingToken }));
-          }
+            if (isExpired) {
+               
+                await SecureStore.deleteItemAsync('accessToken');
+                await SecureStore.deleteItemAsync('rememberMe');
+            } else if (decoded.isGuest) {
+                
+                dispatch(setCredentials({ role: 'guest', token: existingToken }));
+                return;
+            } else if (rememberMe === 'true') {
+                
+                dispatch(setCredentials({ role: decoded.role, token: existingToken }));
+                return;
+            } else {
+                
+                await SecureStore.deleteItemAsync('accessToken');
+                await SecureStore.deleteItemAsync('rememberMe');
+            }
         } catch (e) {
-          console.log('Token decode error:', e);
+            await SecureStore.deleteItemAsync('accessToken');
         }
-        return;
-      }
+    }
 
-      try {
+    // Guest login
+    try {
         const deviceId = await getDeviceId();
         const res = await guestLogin(deviceId).unwrap();
         if (res?.accessToken) {
-          await SecureStore.setItemAsync('accessToken', res.accessToken);
-          dispatch(setCredentials({
-            role: 'guest',
-            token: res.accessToken
-          }));
+            await SecureStore.setItemAsync('accessToken', res.accessToken);
+            dispatch(setCredentials({ role: 'guest', token: res.accessToken }));
         }
-      } catch (e) {
+    } catch (e) {
         console.log('Auto guest login error:', e);
-      }
-    };
+    }
+};
 
     initAuth();
   }, []);
@@ -81,6 +87,7 @@ function AppInit() {
 // ── Root Layout ──
 function RootLayoutInner() {
   const colorScheme = useColorScheme();
+  useKeepAwake()
   const [fontsLoaded, fontError] = useFonts({
     Nunito_400Regular,
     Nunito_400Regular_Italic,

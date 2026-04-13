@@ -1,13 +1,14 @@
 import { RightAngleIcon } from '@/assets/images/icons/ProfileInfoIcons/RightAngleIcon';
 import { UpAngleIcon } from '@/assets/images/icons/ProfileInfoIcons/UpAngleIcon';
 import ContactForm from '@/components/ContactForm';
-import { Body2, Caption2 } from '@/components/typo/Typography';
+import { Body2 } from '@/components/typo/Typography';
 import { FAQItem } from '@/constants/faqData';
 import { Colors } from '@/constants/theme';
 import { hp, wp } from '@/utils/responsive';
 import React, { useState } from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import RenderHtml from 'react-native-render-html';
 
 interface FAQRowProps {
     item: FAQItem;
@@ -19,6 +20,7 @@ const FAQRow: React.FC<FAQRowProps> = ({ item, isOpen, onToggle }) => {
     const [contentHeight, setContentHeight] = useState(0);
     const animatedHeight = useSharedValue(0);
     const animatedOpacity = useSharedValue(0);
+    const { width } = useWindowDimensions();
 
     React.useEffect(() => {
         animatedHeight.value = withTiming(isOpen ? contentHeight : 0, { duration: 250 });
@@ -31,32 +33,55 @@ const FAQRow: React.FC<FAQRowProps> = ({ item, isOpen, onToggle }) => {
         overflow: 'hidden',
     }));
 
+    const tagsStyles = {
+        p: { color: Colors.PLACEHOLLDER_TEXT, fontSize: 13, lineHeight: 20, marginBottom: 12 },
+        h1: { color: Colors.NEUTRAL0, fontSize: 18, marginBottom: 10 },
+        h2: { color: Colors.NEUTRAL0, fontSize: 16, marginBottom: 8 },
+        h3: { color: Colors.NEUTRAL0, fontSize: 14, marginBottom: 6 },
+        li: { color: Colors.PLACEHOLLDER_TEXT, fontSize: 13, lineHeight: 20 },
+        strong: { color: Colors.NEUTRAL0 },
+        body: { color: Colors.PLACEHOLLDER_TEXT, fontSize: 13 },
+    };
+
+    const htmlSource = { html: item.answer || '<p></p>' };
+
     return (
         <View style={styles.itemCard}>
             <TouchableOpacity style={styles.itemHeader} onPress={onToggle} activeOpacity={0.75}>
-                <Body2 color={Colors.NEUTRAL0}>{item.question}</Body2>
+                <Body2 color={Colors.NEUTRAL0} style={{ flex: 1, marginRight: wp(10) }}>
+                    {item.question}
+                </Body2>
                 <View style={styles.chevron}>
                     {isOpen ? <UpAngleIcon /> : <RightAngleIcon color='#FFFFFF' />}
                 </View>
             </TouchableOpacity>
 
+            {/* Animated visible content */}
             <Animated.View style={animatedStyle}>
                 <View style={styles.answerInner}>
-                    <Caption2 color={Colors.PLACEHOLLDER_TEXT}>
-                        {item.answer}
-                    </Caption2>
+                    <RenderHtml
+                        contentWidth={width - wp(80)}
+                        source={htmlSource}
+                        tagsStyles={tagsStyles}
+                    />
                 </View>
             </Animated.View>
 
+            {/* Hidden measure view */}
             <View style={styles.hiddenMeasure} onLayout={e => {
                 const h = e.nativeEvent.layout.height;
                 if (h > 0) setContentHeight(h);
             }}>
-                <Caption2 color={Colors.NEUTRAL0}>{item.answer}</Caption2>
+                <RenderHtml
+                    contentWidth={width - wp(80)}
+                    source={htmlSource}
+                    tagsStyles={tagsStyles}
+                />
             </View>
         </View>
     );
 };
+
 
 export const HelpSupportContent = ({ data }: { data: FAQItem[] }) => {
     const [openId, setOpenId] = useState<string | null>(null);
@@ -68,7 +93,11 @@ export const HelpSupportContent = ({ data }: { data: FAQItem[] }) => {
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
                     <View style={{ paddingHorizontal: wp(20) }}>
-                        <FAQRow item={item} isOpen={openId === item.id} onToggle={() => setOpenId(openId === item.id ? null : item.id)} />
+                        <FAQRow
+                            item={item}
+                            isOpen={openId === item.id}
+                            onToggle={() => setOpenId(openId === item.id ? null : item.id)}
+                        />
                     </View>
                 )}
                 ListHeaderComponent={<View style={{ height: 10 }} />}
@@ -93,22 +122,22 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
         overflow: 'hidden',
-        paddingVertical: 10
+        paddingVertical: 10,
     },
     itemHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 16,
-        paddingVertical: 16
+        paddingVertical: 16,
     },
     chevron: {
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     answerInner: {
         paddingHorizontal: 16,
-        paddingBottom: 16
+        paddingBottom: 16,
     },
     hiddenMeasure: {
         position: 'absolute',
@@ -117,9 +146,9 @@ const styles = StyleSheet.create({
         right: 0,
         paddingHorizontal: 16,
         paddingBottom: 16,
-        opacity: 0
+        opacity: 0,
     },
     separator: {
-        height: 10
+        height: 10,
     },
 });

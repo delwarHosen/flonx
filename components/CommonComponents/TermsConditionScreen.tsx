@@ -1,5 +1,5 @@
 import SectionTitle from '@/components/SectionTitle';
-import { Body1, Caption1 } from '@/components/typo/Typography';
+import { Body1 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { useGetTermsConditionsQuery } from '@/redux/services/profile';
 import React from 'react';
@@ -13,13 +13,13 @@ export default function TermsConditionScreen() {
 
     const htmlContent = data?.description || '<p>No terms available.</p>';
 
-    const formattedDate = data?.createdAt
-        ? new Date(data.createdAt).toLocaleDateString('en-US', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-        })
-        : '';
+    // const formattedDate = data?.createdAt
+    //     ? new Date(data.createdAt).toLocaleDateString('en-US', {
+    //         day: 'numeric',
+    //         month: 'long',
+    //         year: 'numeric',
+    //     })
+    //     : '';
 
     return (
         <SafeAreaView style={styles.safeAreaContainer}>
@@ -42,9 +42,9 @@ export default function TermsConditionScreen() {
                         <Body1 color={Colors.NEUTRAL0} style={styles.textContent}>
                             Terms & Conditions
                         </Body1>
-                        <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={styles.textContent}>
+                        {/* <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={styles.textContent}>
                             Last Updated: {formattedDate}
-                        </Caption1>
+                        </Caption1> */}
 
                         {/* ── HTML content from API ── */}
                         <RenderHtml

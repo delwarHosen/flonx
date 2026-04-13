@@ -18,13 +18,14 @@ import React from 'react'
 import { StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
+import CustomLoader from '../CustomLoader'
 
 export default function MyProfileView() {
     const router = useRouter();
     const userRole = useSelector((state: RootState) => state.auth.userRole);
     const isBartander = userRole === "bartender";
-    const { data: profile } = useGetProfileQuery({});
-
+    const { data: profile, isLoading } = useGetProfileQuery({});
+    // console.log("Profile", profile)
     const handleEdit = () => {
         const path: Href = userRole === 'bartender'
             ? {
@@ -43,6 +44,14 @@ export default function MyProfileView() {
             };
 
         router.push(path);
+    }
+
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1 }}>
+                <CustomLoader size={20} />
+            </View>
+        )
     }
 
     return (

@@ -7,9 +7,10 @@ export const baseApis = createApi({
     baseUrl: 'http://10.10.20.9:3500/api/v1',
     prepareHeaders: async (headers, { getState }) => {
       const token = await SecureStore.getItemAsync('accessToken');
+      console.log(token)
       //  console.log("token:", token ? "EXISTS" : "MISSING");
       if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
+        headers.set('Authorization', `${token}`);
       }
       return headers;
     },

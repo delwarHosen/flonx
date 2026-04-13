@@ -17,8 +17,40 @@ export const profileApi = baseApis.injectEndpoints({
             }),
             transformResponse: (response: any) => response.data,
         }),
+        getLegalInfo: builder.query({
+            query: () => ({
+                url: '/legal-info/get',
+                method: 'GET',
+            }),
+            transformResponse: (response: any) => response.data,
+        }),
+
+        // faq
+        getFaq: builder.query({
+            query: () => ({
+                url: '/manage/get-faq',
+                method: 'GET',
+            }),
+            transformResponse: (response: any) => response.data,
+        }),
+
+        // create support 
+        createSupportTicket: builder.mutation({
+            query: (body: { contactReason: string; message: string }) => ({
+                url: '/support/create',
+                method: 'POST',
+                body,
+            }),
+            transformResponse: (response: any) => response.data,
+        }),
     }),
     overrideExisting: true,
 });
 
-export const { useGetTermsConditionsQuery,useGetPrivacyPolicyQuery } = profileApi;
+export const {
+    useGetTermsConditionsQuery,
+    useGetPrivacyPolicyQuery,
+    useGetLegalInfoQuery,
+    useGetFaqQuery,
+    useCreateSupportTicketMutation,
+} = profileApi;

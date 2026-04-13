@@ -5,11 +5,12 @@ import { Body2 } from '@/components/typo/Typography';
 import { FORM_FIELDS, FORM_LABELS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
-import { useUpdateProfileMutation } from '@/redux/services/authApi'; // আপনার API মেথড ইমপোর্ট করুন
+import { useUpdateProfileMutation } from '@/redux/services/authApi';
 import { RootState } from '@/redux/store';
 import { hp, wp } from '@/utils/responsive';
 import { validateExperience, validateSkills } from '@/utils/validation';
 import { useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import React, { useState } from 'react';
 import { Dimensions, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, ToastAndroid, View } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -27,7 +28,7 @@ export default function BartenderInfoScreen() {
     const router = useRouter();
     const userRole = useSelector((state: RootState) => state.auth.userRole);
     const [bio, setBio] = useState<string>('');
-    
+
     // API Mutation hook
     const [updateProfile, { isLoading }] = useUpdateProfileMutation();
 
@@ -49,33 +50,31 @@ export default function BartenderInfoScreen() {
         },
         onSubmit: async (formValues) => {
             try {
+                // Token check
+                const token = await SecureStore.getItemAsync('accessToken');
+                // console.log('Token:', token ? token.substring(0, 30) + '...' : 'MISSING');
+
+
                 
                 const skillArray = formValues[FORM_FIELDS.SKILL].split(',').map(s => s.trim());
-
                 const payload = {
                     experience: formValues[FORM_FIELDS.EXPERIENCE],
                     skills: skillArray,
                     bio: bio,
                 };
 
-                const res = await updateProfile(payload).unwrap();
+                await updateProfile(payload).unwrap();
+                ToastAndroid.show("Profile updated successfully!", ToastAndroid.SHORT);
+                router.replace("/onboarding");
 
-                if (res?.success) {
-                    ToastAndroid.show("Profile updated successfully!", ToastAndroid.SHORT);
-                    
-                    
-                    if (userRole === 'bartender') {
-                        router.replace("/bartender/(tabs)/browse");
-                    } else {
-                        router.replace("/customer/(tabs)/home");
-                    }
-                }
             } catch (error: any) {
+                console.log('Update error detail:', JSON.stringify(error, null, 2));
                 const message = error?.data?.message || error?.message || "Something went wrong!";
                 ToastAndroid.show(message, ToastAndroid.LONG);
             }
         },
     });
+
 
     return (
         <KeyboardAvoidingView

@@ -3,7 +3,7 @@ import { QueuedIcon } from '@/assets/images/icons/BarRelatedIcon/QueuedIcon';
 import { ScanIcon } from '@/assets/images/icons/BarRelatedIcon/ScanIcon';
 import { NotificationIcon } from '@/assets/images/icons/ProfileInfoIcons/NotificationIcon';
 import { CustomButton } from '@/components/CustomButton';
-import CustomLoader from '@/components/CustomLoader'; // পাথটি ঠিক আছে কিনা দেখে নিন
+import CustomLoader from '@/components/CustomLoader';
 import EmptyStateCard from '@/components/EmptyStateCardProps';
 import QRScannerModal from '@/components/QRScannerModal/QRScannerModal';
 import { Body1, Body3, ButtonText, Caption1, H2, H5, H6 } from '@/components/typo/Typography';
@@ -80,10 +80,29 @@ const HomeScreen: React.FC = () => {
         if (isAllowed) setIsScannerOpen(true);
     };
 
+
+
     const onScanSuccess = (qrData: string) => {
         setIsScannerOpen(false);
-        Alert.alert("Success", `Venue QR Scanned: ${qrData}`);
+
+        try {
+            const segments = qrData.split('/').filter(Boolean);
+            const barId = segments[segments.length - 1];
+
+            if (barId) {
+                router.push({
+                    pathname: '/customer/items/shop-items',
+                    params: { barId: barId },
+                });
+            } else {
+                Alert.alert("Error", "Invalid QR Code");
+            }
+        } catch {
+            Alert.alert("Error", "Could not read QR Code");
+        }
     };
+
+
 
     const renderOrderItem = ({ item: order }: { item: any }) => {
         const product = order.items?.[0]?.product;
@@ -151,7 +170,7 @@ const HomeScreen: React.FC = () => {
                 onScan={onScanSuccess}
             />
 
-            {/* লজিক: রিফ্রেশ না চললে এবং প্রোফাইল বা অর্ডার একদম নতুন লোড হলে কেবল মাঝখানে লোডার দেখাবে */}
+
             {(isProfileLoading || isOrderLoading) && !currentOrders.length && !refreshing ? (
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <CustomLoader size={35} />
@@ -163,7 +182,7 @@ const HomeScreen: React.FC = () => {
                     renderItem={renderOrderItem}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={styles.scrollContent}
-                    stickyHeaderIndices={[0]} 
+                    stickyHeaderIndices={[0]}
                     refreshControl={
                         <RefreshControl
                             refreshing={refreshing}
@@ -243,11 +262,11 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.APP_BACKGROUND,
     },
     stickyHeaderContainer: {
-        backgroundColor: Colors.APP_BACKGROUND, 
+        backgroundColor: Colors.APP_BACKGROUND,
         paddingHorizontal: wp(10),
-        paddingTop: hp(10), 
+        paddingTop: hp(10),
         paddingBottom: hp(10),
-        zIndex: 100, 
+        zIndex: 100,
         width: '100%',
     },
     header: {
@@ -292,7 +311,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
         marginBottom: hp(12),
-        marginHorizontal: wp(10), 
+        marginHorizontal: wp(10),
     },
     cardHeader: {
         flexDirection: 'row',
@@ -325,7 +344,7 @@ const styles = StyleSheet.create({
         marginTop: hp(16),
         gap: hp(12),
         marginBottom: hp(20),
-        paddingHorizontal: wp(10), 
+        paddingHorizontal: wp(10),
     },
     buttonIconRow: {
         flexDirection: 'row',

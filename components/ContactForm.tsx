@@ -1,26 +1,35 @@
 import { Colors } from '@/constants/theme';
+import { useCreateSupportTicketMutation } from '@/redux/services/profile';
 import { fp, hp, wp } from '@/utils/responsive';
 import React, { useState } from 'react';
-import {
-    StyleSheet,
-    TextInput,
-    View
-} from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, TextInput, View } from 'react-native';
 import { CustomButton } from './CustomButton';
 import { Body1, Body2 } from './typo/Typography';
 
 export default function ContactForm() {
     const [reason, setReason] = useState('');
     const [description, setDescription] = useState('');
+    const [createTicket, { isLoading }] = useCreateSupportTicketMutation();
 
-    const handleSubmit=()=>{
-        console.log("")
-    }
+    const handleSubmit = async () => {
+        if (!reason.trim() || !description.trim()) {
+            Alert.alert('Error', 'Please fill all fields');
+            return;
+        }
+        try {
+            await createTicket({ contactReason: reason, message: description }).unwrap();
+            Alert.alert('Success', 'Your message has been sent successfully');
+            setReason('');
+            setDescription('');
+        } catch {
+            Alert.alert('Error', 'Failed to send message. Please try again.');
+        }
+    };
 
     return (
         <View style={styles.container}>
             <Body1 italic color={Colors.NEUTRAL0} style={{ marginVertical: hp(16) }}>—Contact us</Body1>
-            {/* ── Reason for Contact ── */}
+
             <Body2 color={Colors.NEUTRAL0} style={styles.label}>Reason for Contact</Body2>
             <TextInput
                 style={styles.input}
@@ -30,7 +39,6 @@ export default function ContactForm() {
                 placeholderTextColor={Colors.PLACEHOLLDER_TEXT}
             />
 
-            {/* ── Description ── */}
             <Body2 color={Colors.NEUTRAL0} style={styles.label}>Description</Body2>
             <TextInput
                 style={styles.textArea}
@@ -42,29 +50,22 @@ export default function ContactForm() {
                 textAlignVertical="top"
             />
 
-            {/* ----Submit Button---- */}
             <CustomButton
-                title="Send message"
+                title={isLoading ? '' : 'Send message'}
                 onPress={handleSubmit}
                 width="100%"
                 height={hp(44)}
                 borderRadius={100}
-            // icon={<DoubleRightArrowIcon />}
+                disabled={isLoading}
+                icon={isLoading ? <ActivityIndicator color="#FFF" size="small" /> : undefined}
             />
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        gap: 10,
-    },
-
-    label: {
-        marginBottom: 2,
-    },
-
-    // Single-line input
+    container: { gap: 10 },
+    label: { marginBottom: 2 },
     input: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 100,
@@ -75,8 +76,6 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: fp(14),
     },
-
-    // Multi-line textarea
     textArea: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 14,

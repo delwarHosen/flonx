@@ -12,9 +12,12 @@ export default function GuestShopItem() {
     const { data: venuesData } = useGetAllVenuesQuery({});
     const currentVenue = venuesData?.result?.find((v: any) => v._id === barId);
 
+
     const { data: categories, isLoading: isCatLoading } = useGetCategoriesByVenueQuery(barId, {
         skip: !barId,
     });
+
+
 
     const {
         data: productsData,
@@ -22,7 +25,7 @@ export default function GuestShopItem() {
         isLoading: isProdFirstLoad,
         refetch
     } = useGetProductsByVenueQuery({ venueId: barId }, { skip: !barId });
-
+    // console.log("sopItem useGetProductsByVenueQuery", productsData)
     useEffect(() => {
         if (categories?.length && !selectedCategory) {
             setSelectedCategory(categories[0]._id);

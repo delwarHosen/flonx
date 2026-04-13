@@ -3,7 +3,6 @@ import { baseApis } from "../base";
 export const orderApi = baseApis.injectEndpoints({
     endpoints: (builder) => ({
 
-
         // add to cart
         addToCart: builder.mutation({
             query: (cartData) => ({
@@ -25,7 +24,7 @@ export const orderApi = baseApis.injectEndpoints({
             providesTags: ['Cart'],
         }),
 
-        // update  quantity
+        // update quantity
         updateCartQuantity: builder.mutation({
             query: ({ productId, quantity }) => ({
                 url: '/cart/update-quantity',
@@ -33,7 +32,19 @@ export const orderApi = baseApis.injectEndpoints({
                 body: { productId, quantity },
             }),
             transformResponse: (response: any) => response.data,
-            invalidatesTags: ['Cart'],
+            async onQueryStarted({ productId, quantity }, { dispatch, queryFulfilled }) {
+                try {
+                    await queryFulfilled;
+                    dispatch(
+                        (orderApi.util.updateQueryData as any)('viewCart', undefined, (draft: any) => {
+                            const item = draft.items.find(
+                                (i: any) => i.product?._id === productId
+                            );
+                            if (item) item.quantity = quantity;
+                        })
+                    );
+                } catch {}
+            },
         }),
 
         // remove from cart
@@ -44,7 +55,18 @@ export const orderApi = baseApis.injectEndpoints({
                 body: { productId },
             }),
             transformResponse: (response: any) => response.data,
-            invalidatesTags: ['Cart'],
+            async onQueryStarted(productId, { dispatch, queryFulfilled }) {
+                try {
+                    await queryFulfilled;
+                    dispatch(
+                        (orderApi.util.updateQueryData as any)('viewCart', undefined, (draft: any) => {
+                            draft.items = draft.items.filter(
+                                (i: any) => i.product?._id !== productId
+                            );
+                        })
+                    );
+                } catch {}
+            },
         }),
 
         // Delete cart
@@ -54,10 +76,17 @@ export const orderApi = baseApis.injectEndpoints({
                 method: 'DELETE',
             }),
             transformResponse: (response: any) => response.data,
-            invalidatesTags: ['Cart'],
+            async onQueryStarted(_, { dispatch, queryFulfilled }) {
+                try {
+                    await queryFulfilled;
+                    dispatch(
+                        (orderApi.util.updateQueryData as any)('viewCart', undefined, (draft: any) => {
+                            draft.items = [];
+                        })
+                    );
+                } catch {}
+            },
         }),
-
-
 
         // POST /order/create-order
         createOrder: builder.mutation({
@@ -93,7 +122,7 @@ export const orderApi = baseApis.injectEndpoints({
             invalidatesTags: ['order'],
         }),
 
-        // tip bartender 
+        // tip bartender
         tipToBartender: builder.mutation<any, { id: string; amount: number }>({
             query: ({ id, amount }) => ({
                 url: `/order/tip-to-bartender/${id}`,
@@ -103,8 +132,6 @@ export const orderApi = baseApis.injectEndpoints({
             transformResponse: (response: any) => response.data,
             invalidatesTags: ['order'],
         }),
-
-       
     }),
     overrideExisting: true,
 });

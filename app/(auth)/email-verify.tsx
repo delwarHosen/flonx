@@ -57,7 +57,7 @@ export default function EmailVerifyOtp() {
     try {
       const res = await resendCode({ email }).unwrap();
       if (res.success) {
-        setTimer(300);
+        setTimer(30);
         setCanResend(false);
         setCode('');
         if (Platform.OS === 'android') {
@@ -86,7 +86,7 @@ export default function EmailVerifyOtp() {
         verifyCode: Number(code), 
       };
 
-      console.log("Sending Payload:", payload);
+      // console.log("Sending Payload:", payload);
 
       const res = await verifyEmail(payload).unwrap();
 

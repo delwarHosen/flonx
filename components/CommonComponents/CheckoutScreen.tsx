@@ -47,8 +47,12 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
     const dispatch = useDispatch();
     const [createPayment, { isLoading: isPaymentLoading }] = useCreateOrderMutation(undefined)
 
-    
-    const { data: cartData, isLoading: isCartLoading, isFetching, refetch } = useViewCartQuery(undefined);
+    const { data: cartData, isLoading: isCartLoading, refetch } = useViewCartQuery(undefined, {
+        refetchOnMountOrArgChange: true,
+    });
+    const [refreshing, setRefreshing] = useState(false);
+
+    // const { data: cartData, isLoading: isCartLoading, isFetching, refetch } = useViewCartQuery(undefined);
     const [updateCartQuantity] = useUpdateCartQuantityMutation();
     const [removeCartItem, { isLoading: isCartRemoving }] = useRemoveCartItemMutation();
     const [deleteCart, { isLoading: isDeletingAll }] = useDeleteCartMutation();
@@ -63,6 +67,13 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
         const qty = localQuantities[item.product?._id] ?? item.quantity;
         return sum + item.price * qty;
     }, 0);
+
+
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        await refetch();
+        setRefreshing(false);
+    };
 
     const handleUpdateQuantity = (productId: string, currentQty: number, delta: number) => {
         const localQty = localQuantities[productId] ?? currentQty;
@@ -131,12 +142,12 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                         </Caption1>
                         <Body2 color={Colors.NEUTRAL0} style={styles.price}>${item.price}</Body2>
                     </View>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         disabled={isCartRemoving}
                         onPress={() => {
                             setSelectItem(item?.product?._id)
                             handleRemoveItem(item.product?._id)
-                        }} 
+                        }}
                         style={styles.deleteBtn}
                     >
                         {isCartRemoving && item.product?._id === selectItem ? (
@@ -207,8 +218,8 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
 
             <View style={styles.clearHeader}>
                 {cartItems.length > 0 && (
-                    <TouchableOpacity 
-                        onPress={handleClearCart} 
+                    <TouchableOpacity
+                        onPress={handleClearCart}
                         style={styles.buttonClear}
                         disabled={isDeletingAll}
                     >
@@ -221,8 +232,8 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                 )}
             </View>
 
-            {/* মেইন ডাটা লোডিং এর সময় কাস্টম লোডার */}
-            {isCartLoading && !isFetching ? (
+
+            {isCartLoading ? (
                 <View style={styles.loaderContainer}>
                     <CustomLoader />
                 </View>
@@ -233,9 +244,16 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                     renderItem={renderItem}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={<EmptyStateCard message='Your cart is empty' />}
+                    ListEmptyComponent={
+                        <EmptyStateCard message='Your cart is empty' />
+                    }
                     refreshControl={
-                        <RefreshControl refreshing={isFetching} onRefresh={refetch} tintColor={Colors.BRAND_PRIMARY} />
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={handleRefresh}
+                            tintColor={Colors.BRAND_PRIMARY}
+                            colors={[Colors.BRAND_PRIMARY]}
+                        />
                     }
                 />
             )}
@@ -292,14 +310,14 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 8,
         alignItems: 'center',
-        minWidth: 100, 
+        minWidth: 100,
         justifyContent: 'center'
     },
     listContent: {
         paddingHorizontal: wp(20),
         paddingBottom: hp(150)
     },
-    
+
     card: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 14,

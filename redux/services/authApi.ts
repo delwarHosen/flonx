@@ -124,7 +124,7 @@ export const {
     useResetPasswordMutation,
     useChangePasswordMutation,
     useDeleteAccountMutation,
-    useGetProfileQuery,
+        useGetProfileQuery,
     useUpdateProfileMutation,
     useGuestLoginMutation
 } = authApi;
