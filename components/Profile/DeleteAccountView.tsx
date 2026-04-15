@@ -15,15 +15,14 @@ import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import React, { useState } from 'react';
 import {
-    Alert,
     KeyboardAvoidingView,
     Platform,
     StyleSheet,
-    ToastAndroid,
     View
 } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from 'react-redux';
+import { showToast } from "../Toast";
 
 export default function DeleteAccountView() {
     const router = useRouter();
@@ -71,16 +70,14 @@ export default function DeleteAccountView() {
                 if (res?.success) {
                     await SecureStore.deleteItemAsync('accessToken');
 
-                    if (Platform.OS === 'android') {
-                        ToastAndroid.show(res.message || "Account deleted successfully", ToastAndroid.SHORT);
-                    }
 
+
+                    showToast(res.message || "Account deleted successfully",)
                     setShowPasswordModal(false);
                     router.replace("/(auth)/login");
                 }
             } catch (error: any) {
-                const message = error?.data?.message || "Incorrect password or failed to delete account";
-                Platform.OS === 'android' ? ToastAndroid.show(message, ToastAndroid.LONG) : Alert.alert("Error", message);
+                showToast(error?.data?.message || "Incorrect password or failed to delete account")
             }
         },
     });

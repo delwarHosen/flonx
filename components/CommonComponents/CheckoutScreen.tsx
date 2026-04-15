@@ -9,7 +9,6 @@ import {
     Platform,
     RefreshControl,
     StyleSheet,
-    ToastAndroid,
     TouchableOpacity,
     View
 } from 'react-native';
@@ -36,6 +35,7 @@ import {
 } from '@/redux/services/orderApi';
 import { useDispatch } from 'react-redux';
 import CustomLoader from '../CustomLoader';
+import { showToast } from '../Toast';
 
 interface CheckoutScreenProps {
     paymentPath: '/customer/items/payment-type' | '/guest/payment-type';
@@ -203,9 +203,9 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
             }
         } catch (error: any) {
             if (Platform.OS === "android") {
-                ToastAndroid.show(error?.data?.message || error?.message || 'Error occurred!', ToastAndroid.SHORT);
+                showToast(error?.data?.message || error?.message || 'Error occurred!')
             } else {
-                Alert.alert("Error", error?.data?.message || error?.message || 'Error occurred!')
+                showToast("Error", error?.data?.message || error?.message || 'Error occurred!')
             }
         }
     }

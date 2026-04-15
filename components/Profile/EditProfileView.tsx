@@ -15,9 +15,10 @@ import { validateExperience, validateName, validatePhoneNumber } from '@/utils/v
 import * as ImagePicker from 'expo-image-picker'
 import { useRouter } from 'expo-router'
 import React, { useEffect, useState } from 'react'
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, ToastAndroid, View } from 'react-native'
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
+import { showToast } from '../Toast'
 import { Caption3 } from '../typo/Typography'
 
 export default function EditProfileView() {
@@ -42,9 +43,9 @@ export default function EditProfileView() {
             [FORM_FIELDS.EXPERIENCE]: (value: string) => isBartender ? validateExperience(value) : "",
         },
         onSubmit: async (formValues) => {
-            // লগ চেক করুন সাবমিট কল হচ্ছে কি না
-            console.log("handleSubmit called with values:", JSON.stringify(formValues));
-            console.log("Local Image URI:", localImage);
+           
+            // console.log("handleSubmit called with values:", JSON.stringify(formValues));
+            // console.log("Local Image URI:", localImage);
 
             try {
                 if (localImage) {
@@ -88,7 +89,8 @@ export default function EditProfileView() {
                     await updateProfile(payload).unwrap();
                 }
 
-                ToastAndroid.show("Profile updated successfully!", ToastAndroid.SHORT);
+                
+                showToast("Profile updated successfully!")
 
 
                 if (isBartender) {
@@ -99,7 +101,7 @@ export default function EditProfileView() {
 
             } catch (error: any) {
                 console.error("Update error detail:", JSON.stringify(error, null, 2));
-                ToastAndroid.show("Update failed! Please try again.", ToastAndroid.SHORT);
+                showToast("Update failed! Please try again.")
             }
         },
     });
@@ -117,7 +119,7 @@ export default function EditProfileView() {
     const handlePickImage = async () => {
         const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (!permission.granted) {
-            ToastAndroid.show("Permission required!", ToastAndroid.SHORT);
+            showToast("Permission required!",)
             return;
         }
         const result = await ImagePicker.launchImageLibraryAsync({

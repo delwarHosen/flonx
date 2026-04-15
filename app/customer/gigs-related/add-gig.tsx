@@ -1,6 +1,7 @@
 import { CustomButton } from '@/components/CustomButton';
 import { FormInput } from '@/components/inputForm/InputForm';
 import SectionTitle from '@/components/SectionTitle';
+import { showToast } from '@/components/Toast';
 import { Body2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
@@ -18,7 +19,6 @@ import {
     ScrollView,
     StyleSheet,
     TextInput,
-    ToastAndroid,
     TouchableOpacity,
     View
 } from 'react-native';
@@ -37,6 +37,8 @@ const AddGig: React.FC = () => {
     const [description, setDescription] = useState<string>('');
     const [createJob, { isLoading }] = useCreateJobMutation();
     const router = useRouter();
+
+    
 
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [startTime, setStartTime] = useState<Date>(new Date());
@@ -152,15 +154,12 @@ const AddGig: React.FC = () => {
             };
 
             const result = await createJob(payload).unwrap();
-            console.log('Job created:', result);
-            ToastAndroid.show('Job published successfully!', ToastAndroid.LONG);
+            // console.log('Job created:', result);
+            showToast("Job published successfully!")
             router.back();
         } catch (error: any) {
             console.error('Failed:', error);
-            ToastAndroid.show(
-                error?.data?.message ?? 'Failed to publish job.',
-                ToastAndroid.LONG
-            );
+            showToast( error?.data?.message ?? 'Failed to publish job.',)
         }
     };
 

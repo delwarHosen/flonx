@@ -8,10 +8,11 @@ import { ConfirmationModal } from '@/components/ConfirmationModalProps';
 import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
 import SectionTitle from '@/components/SectionTitle';
+import { showToast } from '@/components/Toast';
 import { Body1, Body2, Body3, Caption1, Caption2 } from '@/components/typo/Typography';
 
 import { Colors } from '@/constants/theme';
-import { useCancelJobMutation, useGetSingleJobQuery } from '@/redux/services/jobApi';
+import { useCancelApplicationMutation, useCancelJobMutation, useGetSingleJobQuery } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useState } from 'react';
@@ -38,9 +39,8 @@ const JobDetails = () => {
         refetchOnMountOrArgChange: true,
         refetchOnFocus: true,
     });
-    console.log("item.rating:", item?.rating);
-    console.log("item full:", JSON.stringify(item, null, 2));
-
+  
+    // console.log("Single data from job-details",item)
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
@@ -48,7 +48,10 @@ const JobDetails = () => {
         setRefreshing(false);
     }, [refetch]);
 
+    const [cancelApplication] = useCancelApplicationMutation();
     const [cancelJob] = useCancelJobMutation();
+
+
 
     // const item = getJobs.find(j => j.id === id);
     if (isLoading || (isFetching && !refreshing)) return (
@@ -76,7 +79,6 @@ const JobDetails = () => {
 
     const statusColors = getStatusColors(item?.status);
 
-
     const confirmComplete = () => {
         setShowCompleteModal(false);
         setTimeout(async () => {
@@ -92,30 +94,57 @@ const JobDetails = () => {
     };
 
 
+   const confirmCancelApplication = async () => {
+    setShowCancelModal(false);
+    setLoading(true);
+    try {
+        await cancelApplication(jobId).unwrap();  
+        router.back();
+    } catch (error: any) {
+        showToast(error?.data?.message || "Something went wrong!", "error");
+    } finally {
+        setLoading(false);
+    }
+};
+    // const confirmCancelAssignment = () => {
+    //     setShowCancelAssignmentModal(false);
+    //     setShowCancelModal(false);
+
+    //     setTimeout(async () => {
+    //         setLoading(true);
+    //         try {
+    //             console.log("item._id:", item._id);
+    //             const result = await cancelJob(jobId).unwrap();
+    //             // console.log("Cancel success:", result);
+    //             setLoading(false);
+    //             router.push({
+    //                 pathname: '/bartender/(tabs)/my-jobs',
+    //                 params: { resetTab: 'Cancelled' }
+    //             });
+    //         } catch (error: any) {
+    //             // console.log("Cancel error status:", error?.status);
+    //             // console.log("Cancel error data:", error?.data);
+    //             // console.log("Cancel error full:", JSON.stringify(error));
+    //             setLoading(false);
+    //         }
+    //     }, 300);
+    // };
+
+
+    // ─── Cancel Assignment (assigned tab) ───
     const confirmCancelAssignment = () => {
         setShowCancelAssignmentModal(false);
-        setShowCancelModal(false);
-
         setTimeout(async () => {
             setLoading(true);
             try {
-                console.log("item._id:", item._id);
-                const result = await cancelJob(jobId).unwrap();
-                // console.log("Cancel success:", result);
+                await cancelJob(jobId).unwrap();
                 setLoading(false);
-                router.push({
-                    pathname: '/bartender/(tabs)/my-jobs',
-                    params: { resetTab: 'Cancelled' }
-                });
+                router.back();
             } catch (error: any) {
-                console.log("Cancel error status:", error?.status);
-                console.log("Cancel error data:", error?.data);
-                console.log("Cancel error full:", JSON.stringify(error));
                 setLoading(false);
             }
         }, 300);
     };
-
     // console.log("appliedOn:", item.appliedOn);
     // console.log("full item:", JSON.stringify(item, null, 2));
 
@@ -307,7 +336,8 @@ const JobDetails = () => {
                 description="Are you sure you want to cancel your application?You will no longer be considered for this job."
                 confirmText="Confirm"
                 onCancel={() => setShowCancelModal(false)}
-                onConfirm={confirmCancelAssignment}
+                // onConfirm={confirmCancelAssignment}
+                onConfirm={confirmCancelApplication}
                 icon={<WarningIcon size={28} />}
                 confirmColor="#8B5CF6"
                 confirmSecondaryColor="#A78BFA"

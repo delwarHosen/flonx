@@ -1,6 +1,7 @@
 import { CustomButton } from '@/components/CustomButton';
 import { FormInput } from '@/components/inputForm/InputForm';
 import SectionTitle from '@/components/SectionTitle';
+import { showToast } from '@/components/Toast';
 import { Body2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { useGetSingleJobQuery, useUpdateJobMutation } from '@/redux/services/jobApi';
@@ -18,7 +19,6 @@ import {
     ScrollView,
     StyleSheet,
     TextInput,
-    ToastAndroid,
     TouchableOpacity,
     View
 } from 'react-native';
@@ -137,7 +137,8 @@ const UpdateGig: React.FC = () => {
         try {
             
             if (!title || !address || !hourlyRate) {
-                ToastAndroid.show('Please fill in all required fields.', ToastAndroid.SHORT);
+               
+                showToast('Please fill in all required fields.')
                 return;
             }
 
@@ -160,14 +161,14 @@ const UpdateGig: React.FC = () => {
             };
 
             await updateJob(payload).unwrap();
-            ToastAndroid.show('Job updated successfully!', ToastAndroid.LONG);
+            showToast('Job updated successfully!',)
             router.back();
         } catch (error: any) {
             console.error("Update error full:", JSON.stringify(error));
             
          
             const errorMessage = error?.data?.message || error?.message || 'Failed to update job.';
-            ToastAndroid.show(errorMessage, ToastAndroid.LONG);
+            showToast(errorMessage,"error")
         }
     };
 

@@ -1,6 +1,7 @@
 import { AuthHeading } from '@/components/auth/AuthHeading';
 import { CustomButton } from '@/components/CustomButton';
 import { FormInput } from '@/components/inputForm/InputForm';
+import { showToast } from '@/components/Toast';
 import { Body3 } from '@/components/typo/Typography';
 import { FORM_FIELDS, FORM_LABELS, FORM_PLACEHOLDERS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
@@ -10,7 +11,7 @@ import { RootState } from '@/redux/store';
 import { validateName, validatePassword, validatePhoneNumber } from '@/utils/validation';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Dimensions, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { Dimensions, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 const { height } = Dimensions.get('window');
@@ -64,7 +65,6 @@ export default function RegisterScreen() {
     },
 
     onSubmit: async (formValues) => {
-
       try {
         const payload = {
           name: formValues[FORM_FIELDS.FULL_NAME],
@@ -75,26 +75,23 @@ export default function RegisterScreen() {
           phone: isBartender ? formValues[FORM_FIELDS.CONTACT_NO] : "",
         };
 
-        // console.log("Sending Payload:", payload);
-
         const res = await registerUser(payload).unwrap();
 
-        // console.log('Register Response:', JSON.stringify(res, null, 2));
-
         if (res?.success) {
-          ToastAndroid.show(res.message || "Registration Successful!", ToastAndroid.SHORT);
+
+          showToast(res.message || "Registration Successful!", 'success');
           router.push({
             pathname: "/email-verify",
             params: { email: formValues[FORM_FIELDS.EMAIL] }
           });
         }
       } catch (error: any) {
-        console.log("Forgot Password Error:", error);
         const message =
           error?.data?.message ||
           error?.message ||
           "Something went wrong!";
-        ToastAndroid.show(message, ToastAndroid.LONG);
+
+        showToast(message, 'error');
       }
     },
   });

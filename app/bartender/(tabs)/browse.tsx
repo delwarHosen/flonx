@@ -11,12 +11,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import GigCard from '@/components/cardComponents/GigCard';
 import SearchBar from '@/components/CommonComponents/SearchBar';
+import CustomLoader from '@/components/CustomLoader';
 import EmptyStateCard from '@/components/EmptyStateCardProps';
 import FilterModal from '@/components/QRScannerModal/FilterModal';
 import { useGetProfileQuery } from '@/redux/services/authApi';
 import { useGetAllJobsQuery, useGetMyApplicationsQuery } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
-import { ActivityIndicator, RefreshControl } from 'react-native';
+import { RefreshControl } from 'react-native';
 
 const BrowseScreen: React.FC = () => {
     const [query, setQuery] = useState<string>('')
@@ -41,27 +42,48 @@ const BrowseScreen: React.FC = () => {
     const router = useRouter();
     const { data: profile } = useGetProfileQuery({});
 
-    const { data: jobsData, isLoading: jobsLoading, refetch } = useGetAllJobsQuery({
+    const { data: jobsData, isLoading: jobsLoading, isFetching: jobsFetching, refetch, error: jobsError, } = useGetAllJobsQuery({
         searchTerm: query,
         lat: coords?.lat,
         lng: coords?.lng,
-        // maxDistance: 50,
     }, {
         refetchOnMountOrArgChange: true,
-        skip: !coords,
     });
 
-    const onRefresh = useCallback(async () => {
-        setRefreshing(true);
-        await refetch();
-        setRefreshing(false);
-    }, [refetch]);
 
-    const { data: applications = [], isLoading: appsLoading } = useGetMyApplicationsQuery(undefined, {
+    const onRefresh = useCallback(async () => {
+
+        if (coords) {
+            setRefreshing(true);
+            try {
+                await refetch();
+            } catch (error) {
+                console.error("Refetch failed:", error);
+            } finally {
+                setRefreshing(false);
+            }
+        } else {
+
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status === 'granted') {
+                const location = await Location.getCurrentPositionAsync({});
+                setCoords({
+                    lat: location.coords.latitude,
+                    lng: location.coords.longitude,
+                });
+            }
+        }
+    }, [refetch, coords]);
+
+    const { data: applications = [],
+        isLoading: appsLoading,
+        isFetching: appsFetching,
+        error: appsError
+    } = useGetMyApplicationsQuery(undefined, {
         refetchOnMountOrArgChange: true,
     });
 
-    const isLoading = jobsLoading || appsLoading;
+    const isLoading = jobsLoading || appsLoading || jobsFetching || appsFetching;
 
     const appliedJobIds = new Set(
         applications
@@ -79,11 +101,17 @@ const BrowseScreen: React.FC = () => {
         return isOpen && notApplied && matchesSearch;
     });
 
-   
+
 
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
             <StatusBar barStyle="light-content" />
+
+            {isLoading && !refreshing && (
+                <View style={styles.loaderOverlay}>
+                    <CustomLoader color={Colors.BRAND_PRIMARY} />
+                </View>
+            )}
 
             <FlatList
                 data={isLoading ? [] : jobs}
@@ -143,15 +171,9 @@ const BrowseScreen: React.FC = () => {
                     />
                 )}
                 ListEmptyComponent={
-                    isLoading
-                        ? (
-                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 40 }}>
-                                <ActivityIndicator color={Colors.BRAND_PRIMARY} />
-                            </View>
-                        )
-                        : (
-                            <EmptyStateCard message="No jobs available at the moment" />
-                        )
+                    !isLoading ? (
+                        <EmptyStateCard message="No jobs available at the moment" />
+                    ) : null
                 }
             />
 
@@ -176,6 +198,13 @@ const styles = StyleSheet.create({
     listContent: {
         paddingHorizontal: wp(20),
         paddingBottom: hp(20),
+    },
+    loaderOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 999,
     },
     header: {
         flexDirection: 'row',

@@ -11,9 +11,10 @@ import { hp, wp } from '@/utils/responsive'
 import { validatePassword } from '@/utils/validation'
 import { Href, useRouter } from 'expo-router'
 import React, { useState } from 'react'
-import { Alert, Platform, StyleSheet, ToastAndroid, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
+import { showToast } from '../Toast'
 
 export default function ChangePasswordView() {
     const router = useRouter();
@@ -41,8 +42,8 @@ export default function ChangePasswordView() {
         onSubmit: async (formValues) => {
 
             if (formValues[FORM_FIELDS.NEW_PASSWORD] !== formValues[FORM_FIELDS.CONFIRM_NEW_PASSWORD]) {
-                const errorMsg = "New passwords do not match!";
-                Platform.OS === 'android' ? ToastAndroid.show(errorMsg, ToastAndroid.SHORT) : Alert.alert("Error", errorMsg);
+                showToast("New passwords do not match!", "error");
+
                 return;
             }
 
@@ -58,10 +59,8 @@ export default function ChangePasswordView() {
                 const res = await changePassword(payload).unwrap();
 
                 if (res?.success) {
-                    if (Platform.OS === 'android') {
-                        ToastAndroid.show(res.message || "Password updated successfully!", ToastAndroid.SHORT);
-                    }
 
+                    showToast(res.message || "Password updated successfully!")
 
                     const targetPath = userRole === 'bartender'
                         ? "/bartender/(tabs)/profile" as Href
@@ -71,7 +70,7 @@ export default function ChangePasswordView() {
             } catch (error: any) {
                 console.log("Change Password Error:", JSON.stringify(error, null, 2));
                 const message = error?.data?.message || "Failed to change password";
-                Platform.OS === 'android' ? ToastAndroid.show(message, ToastAndroid.LONG) : Alert.alert("Error", message);
+                showToast(message, "error");
             }
         },
     });

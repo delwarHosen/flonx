@@ -8,13 +8,13 @@ import { useForm } from '@/hooks/useForm';
 import { validateEmail, validateName, validatePassword } from '@/utils/validation';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Dimensions, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { showToast } from '../Toast';
 
-const { width, height } = Dimensions.get('window');
+
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [isRemembered, setIsRemembered] = React.useState(false);
 
   const {
     values,
@@ -49,14 +49,7 @@ export default function RegisterPage() {
         // router.push("/(tabs)/home")
       } catch (error: any) {
         const message = error?.data?.message || error?.message || "something eent wrong while signing!"
-
-        ToastAndroid.showWithGravityAndOffset(
-          message,
-          ToastAndroid.LONG,
-          ToastAndroid.BOTTOM,
-          25,
-          50
-        )
+        showToast(message);
       }
 
     },
@@ -144,7 +137,7 @@ export default function RegisterPage() {
                 required
               />
 
-            
+
               {/* ----Submit Button---- */}
               <CustomButton
                 title="Create Account"
@@ -155,9 +148,9 @@ export default function RegisterPage() {
               // icon={<DoubleRightArrowIcon />}
               />
             </View>
-            <View style={{marginTop:16,alignItems:"center"}}>
-              <Body3 color={Colors.PLACEHOLLDER_TEXT}>Already have an account? 
-                <TouchableOpacity onPress={()=>router.push("/(auth)/login")}>
+            <View style={{ marginTop: 16, alignItems: "center" }}>
+              <Body3 color={Colors.PLACEHOLLDER_TEXT}>Already have an account?
+                <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
                   <Body3 color={Colors.BRAND_PRIMARY}> Sign In</Body3>
                 </TouchableOpacity>
               </Body3>

@@ -83,7 +83,7 @@ export const jobApi = baseApis.injectEndpoints({
             }),
             transformResponse: (response: any) => response.data,
             invalidatesTags: (result, error, { job }) => [
-                { type: 'Jobs', id: job },  
+                { type: 'Jobs', id: job },
             ],
         }),
 
@@ -152,20 +152,36 @@ export const jobApi = baseApis.injectEndpoints({
             transformResponse: (respons: any) => respons.data,
         }),
 
-        // Job apply — PATCH → POST
+        // getMyApplications
+        getMyApplications: builder.query({
+            query: () => '/job-application/my',
+            transformResponse: (response: any) => response.data,
+            providesTags: [{ type: 'Applications' as const }],
+        }),
+
+        // applyForJob
         applyForJob: builder.mutation({
             query: (jobId) => ({
                 url: `/job-application/apply/${jobId}`,
                 method: "POST",
             }),
-            invalidatesTags: [{ type: 'Jobs', id: 'LIST' }],
+            invalidatesTags: [
+                { type: 'Jobs' as const, id: 'LIST' },
+                { type: 'Applications' as const },
+            ],
         }),
 
-        // get bartender job apply  api
-        getMyApplications: builder.query({
-            query: () => '/job-application/my',
+        // cancelApplication
+        cancelApplication: builder.mutation({
+            query: (jobId) => ({  // ← jobId
+                url: `/job-application/cancel-application/${jobId}`,
+                method: "DELETE",
+            }),
             transformResponse: (response: any) => response.data,
-            providesTags: ['Jobs'],
+            invalidatesTags: [
+                { type: 'Jobs' as const, id: 'LIST' },
+                { type: 'Applications' as const },
+            ],
         }),
 
     }),
@@ -180,6 +196,7 @@ export const {
     useApplyForJobMutation,
     useGetMyJobsQuery,
     useGetJobApplicantsQuery,
+    useCancelApplicationMutation,
     useGetSingleApplicationQuery,
     useAcceptApplicationMutation,
     useDeleteJobMutation,

@@ -1,3 +1,4 @@
+import Toast from '@/components/Toast';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { setCredentials } from '@/redux/authSlice';
 import { useGuestLoginMutation } from '@/redux/services/authApi';
@@ -126,6 +127,7 @@ function RootLayoutInner() {
         </Stack>
         <StatusBar style="light" />
       </ThemeProvider>
+      <Toast />
     </View>
   );
 }

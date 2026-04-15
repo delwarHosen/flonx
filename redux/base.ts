@@ -5,9 +5,10 @@ export const baseApis = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
     baseUrl: 'http://10.10.20.9:3500/api/v1',
+    // baseUrl: 'https://rnj64vmh-3500.inc1.devtunnels.ms/api/v1',
     prepareHeaders: async (headers, { getState }) => {
       const token = await SecureStore.getItemAsync('accessToken');
-      console.log(token)
+      // console.log(token)
       //  console.log("token:", token ? "EXISTS" : "MISSING");
       if (token) {
         headers.set('Authorization', `${token}`);
@@ -15,6 +16,6 @@ export const baseApis = createApi({
       return headers;
     },
   }),
-  tagTypes: ['auth', 'Profile', 'order','venue','Jobs','Cart'], 
+  tagTypes: ['auth', 'Profile', 'order', 'venue', 'Jobs', 'Cart',"Applications"],
   endpoints: () => ({}),
 });

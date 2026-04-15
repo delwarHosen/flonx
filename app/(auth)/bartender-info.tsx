@@ -1,6 +1,7 @@
 import { AuthHeading } from '@/components/auth/AuthHeading';
 import { CustomButton } from '@/components/CustomButton';
 import { FormInput } from '@/components/inputForm/InputForm';
+import { showToast } from '@/components/Toast';
 import { Body2 } from '@/components/typo/Typography';
 import { FORM_FIELDS, FORM_LABELS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
@@ -12,7 +13,7 @@ import { validateExperience, validateSkills } from '@/utils/validation';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import React, { useState } from 'react';
-import { Dimensions, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, ToastAndroid, View } from 'react-native';
+import { Dimensions, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 const { width, height } = Dimensions.get('window');
@@ -55,7 +56,7 @@ export default function BartenderInfoScreen() {
                 // console.log('Token:', token ? token.substring(0, 30) + '...' : 'MISSING');
 
 
-                
+
                 const skillArray = formValues[FORM_FIELDS.SKILL].split(',').map(s => s.trim());
                 const payload = {
                     experience: formValues[FORM_FIELDS.EXPERIENCE],
@@ -64,13 +65,13 @@ export default function BartenderInfoScreen() {
                 };
 
                 await updateProfile(payload).unwrap();
-                ToastAndroid.show("Profile updated successfully!", ToastAndroid.SHORT);
+                showToast("Profile updated successfully!");
                 router.replace("/onboarding");
 
             } catch (error: any) {
                 console.log('Update error detail:', JSON.stringify(error, null, 2));
                 const message = error?.data?.message || error?.message || "Something went wrong!";
-                ToastAndroid.show(message, ToastAndroid.LONG);
+                showToast(message);
             }
         },
     });

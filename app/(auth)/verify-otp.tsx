@@ -1,6 +1,7 @@
 import { AuthHeading } from '@/components/auth/AuthHeading';
 import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
+import { showToast } from '@/components/Toast';
 import { Body2, Body3, H2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { useVerifyForgetPasswordMutation } from '@/redux/services/authApi';
@@ -13,7 +14,6 @@ import {
   Platform,
   StyleSheet,
   TextInput,
-  ToastAndroid,
   TouchableOpacity,
   View
 } from 'react-native';
@@ -50,16 +50,12 @@ export default function VerifyOtp() {
     setTimer(300);
     setCanResend(false);
     setCode('');
-    if (Platform.OS === 'android') {
-      ToastAndroid.show('Verification code sent again!', ToastAndroid.SHORT);
-    }
+    showToast('Verification code sent again!',)
   };
 
   const handleVerify = async () => {
     if (code.length !== CODE_LENGTH) {
-      if (Platform.OS === 'android') {
-        ToastAndroid.show('Please enter full 6-digit code', ToastAndroid.SHORT);
-      }
+      showToast('Please enter full 6-digit code')
       return;
     }
 
@@ -69,12 +65,12 @@ export default function VerifyOtp() {
         resetCode: Number(code), // Key must be 'resetCode'
       };
 
-      console.log("Submitting Payload:", payload);
+      // console.log("Submitting Payload:", payload);
 
       const res = await verifyOtp(payload).unwrap();
 
       if (res?.success) {
-        ToastAndroid.show(res.message || "OTP Verified!", ToastAndroid.SHORT);
+        showToast(res.message || "OTP Verified!",)
         router.push({
           pathname: '/(auth)/set-new-password',
           params: { email: email, code: code }
@@ -83,7 +79,7 @@ export default function VerifyOtp() {
     } catch (error: any) {
       // Error message handle kora
       const errorMsg = error?.data?.message || "Invalid OTP";
-      ToastAndroid.show(errorMsg, ToastAndroid.LONG);
+      showToast(errorMsg);
     }
   };
 

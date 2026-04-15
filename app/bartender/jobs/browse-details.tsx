@@ -5,13 +5,14 @@ import { ConfirmationModal } from '@/components/ConfirmationModalProps';
 import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
 import SectionTitle from '@/components/SectionTitle';
+import { showToast } from '@/components/Toast';
 import { Body1, Body2, Caption1, Caption2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { useApplyForJobMutation, useGetSingleJobQuery } from '@/redux/services/jobApi';
 import { hp } from '@/utils/responsive';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, ToastAndroid, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const JobDetails = () => {
@@ -34,11 +35,11 @@ const JobDetails = () => {
         setLoading(true);
         try {
             await applyForJob(id).unwrap();
-            ToastAndroid.show("Applied Successfully!", ToastAndroid.SHORT);
+            showToast("Applied Successfully!")
             router.back();
         } catch (error: any) {
             const message = error?.data?.message || "Something went wrong!";
-            ToastAndroid.show(message, ToastAndroid.LONG);
+            showToast(message,"error")
         } finally {
             setLoading(false);
         }

@@ -1,6 +1,7 @@
 import { AuthHeading } from '@/components/auth/AuthHeading';
 import { CustomButton } from '@/components/CustomButton';
 import { FormInput } from '@/components/inputForm/InputForm';
+import { showToast } from '@/components/Toast';
 import { FORM_FIELDS, FORM_LABELS, FORM_PLACEHOLDERS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
@@ -14,9 +15,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-  ToastAndroid,
   TouchableWithoutFeedback,
-  View,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -42,36 +42,32 @@ export default function SetNewPassword() {
         validateConfirmPassword(values[FORM_FIELDS.NEW_PASSWORD], confirmValue),
     },
     onSubmit: async (formValues) => {
-      console.log("Form submitted with:", formValues); 
+      // console.log("Form submitted with:", formValues);
 
       try {
         const payload = {
           email: email,
-          resetCode: String(code), 
+          resetCode: String(code),
           password: formValues[FORM_FIELDS.NEW_PASSWORD],
           confirmPassword: formValues[FORM_FIELDS.CONFIRM_PASSWORD]
         };
 
-        console.log("Sending payload to API:", payload);
+        // console.log("Sending payload to API:", payload);
 
         const res = await resetPassword(payload).unwrap();
 
-        console.log("API Response:", res); 
+        // console.log("API Response:", res);
 
         if (res?.success) {
-          if (Platform.OS === 'android') {
-            ToastAndroid.show(res.message || "Password reset successfully", ToastAndroid.SHORT);
-          }
+          showToast(res.message || "Password reset successfully")
           router.replace("/(auth)/login");
         }
       } catch (error: any) {
-        
+
         console.error("Full Reset Error:", JSON.stringify(error, null, 2));
 
         const message = error?.data?.message || error?.message || "Something went wrong";
-        if (Platform.OS === 'android') {
-          ToastAndroid.show(message, ToastAndroid.LONG);
-        }
+        showToast(message)
       }
     },
   });

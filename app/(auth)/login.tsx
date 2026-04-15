@@ -2,6 +2,7 @@ import { AuthHeading } from '@/components/auth/AuthHeading';
 import { Checkbox } from '@/components/auth/Checkbox';
 import { CustomButton } from '@/components/CustomButton';
 import { FormInput } from '@/components/inputForm/InputForm';
+import { showToast } from '@/components/Toast';
 import { Body2, Body3 } from '@/components/typo/Typography';
 import { FORM_FIELDS, FORM_LABELS, FORM_PLACEHOLDERS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
@@ -16,7 +17,7 @@ import { Link, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { jwtDecode } from "jwt-decode";
 import React from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 
@@ -54,11 +55,8 @@ export default function LoginScreen() {
         if (res?.success && res?.data?.accessToken) {
           const token = res.data.accessToken;
 
-          
           await SecureStore.setItemAsync('accessToken', token);
           await SecureStore.setItemAsync('refreshToken', res.data.refreshToken || '');
-
-          // Remember me status save 
           await SecureStore.setItemAsync('rememberMe', isRemembered ? 'true' : 'false');
 
           const decoded: any = jwtDecode(token);
@@ -67,7 +65,9 @@ export default function LoginScreen() {
           if (roleFromToken) {
             dispatch(baseApis.util.invalidateTags(['Profile']));
             dispatch(setCredentials({ role: roleFromToken, token }));
-            ToastAndroid.show("Login Successful!", ToastAndroid.SHORT);
+
+            // Success toast
+            showToast("Login Successful!", 'success');
 
             if (roleFromToken === 'bartender') {
               router.replace("/bartender/(tabs)/browse");
@@ -78,7 +78,9 @@ export default function LoginScreen() {
         }
       } catch (error: any) {
         const message = error?.data?.message || error?.message || "Something went wrong!";
-        ToastAndroid.show(message, ToastAndroid.LONG);
+
+        //  Error toast
+        showToast(message, 'error');
       }
     },
   });

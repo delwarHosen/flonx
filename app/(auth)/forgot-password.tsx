@@ -1,6 +1,7 @@
 import { AuthHeading } from '@/components/auth/AuthHeading';
 import { CustomButton } from '@/components/CustomButton';
 import { FormInput } from '@/components/inputForm/InputForm';
+import { showToast } from '@/components/Toast';
 import { FORM_FIELDS, FORM_LABELS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
@@ -10,17 +11,15 @@ import { validateEmail } from '@/utils/validation';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import {
-    Dimensions,
     Keyboard,
     KeyboardAvoidingView,
     Platform,
     StyleSheet,
-    ToastAndroid,
     TouchableWithoutFeedback,
     View
 } from 'react-native';
 
-const { width } = Dimensions.get('window');
+// const { width } = Dimensions.get('window');
 
 
 export default function ForgotPassword() {
@@ -45,7 +44,7 @@ export default function ForgotPassword() {
 
         onValidationFail: (errs) => {
             const firstError = Object.values(errs)[0];
-            if (firstError) ToastAndroid.show(firstError, ToastAndroid.SHORT);
+            if (firstError) showToast(firstError);
         },
 
         onSubmit: async (formValues) => {
@@ -55,10 +54,7 @@ export default function ForgotPassword() {
                 }).unwrap();
 
                 if (res?.success) {
-                    if (Platform.OS === 'android') {
-                        ToastAndroid.show(res.message || "OTP sent to your email", ToastAndroid.SHORT);
-                    }
-
+                    showToast(res.message || "OTP sent to your email")
 
                     router.push({
                         pathname: "/(auth)/verify-otp",
@@ -71,7 +67,7 @@ export default function ForgotPassword() {
                     error?.data?.message ||
                     error?.message ||
                     "Something went wrong!";
-                ToastAndroid.show(message, ToastAndroid.LONG);
+                showToast(message, "error")
             }
         },
     });

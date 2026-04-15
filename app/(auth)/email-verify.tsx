@@ -1,6 +1,7 @@
 import { AuthHeading } from '@/components/auth/AuthHeading';
 import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
+import { showToast } from '@/components/Toast';
 import { Body2, Body3, H2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { useResendVerifyCodeMutation, useVerifyEmailMutation } from '@/redux/services/authApi';
@@ -15,7 +16,6 @@ import {
   Platform,
   StyleSheet,
   TextInput,
-  ToastAndroid,
   TouchableOpacity,
   View
 } from 'react-native';
@@ -60,30 +60,29 @@ export default function EmailVerifyOtp() {
         setTimer(30);
         setCanResend(false);
         setCode('');
-        if (Platform.OS === 'android') {
-          ToastAndroid.show(res.message || 'Verification code sent again!', ToastAndroid.SHORT);
-        }
+
+        showToast(res.message || 'Verification code sent again!', 'success');
       }
     } catch (error: any) {
       const errorMsg = error?.data?.message || "Failed to resend code";
-      ToastAndroid.show(errorMsg, ToastAndroid.LONG);
+
+      showToast(errorMsg, 'error');
     }
   };
+
 
   // submit verify code
   const handleVerify = async () => {
     if (code.length !== CODE_LENGTH) {
-      if (Platform.OS === 'android') {
-        ToastAndroid.show('Please enter full 6-digit code', ToastAndroid.SHORT);
-      }
+      showToast('Please enter full 6-digit code')
       return;
     }
 
     try {
-      
+
       const payload = {
         email: email,
-        verifyCode: Number(code), 
+        verifyCode: Number(code),
       };
 
       // console.log("Sending Payload:", payload);
@@ -96,7 +95,7 @@ export default function EmailVerifyOtp() {
           await SecureStore.setItemAsync('refreshToken', res.data.refreshToken);
         }
 
-        ToastAndroid.show(res.message || "Verification Successful!", ToastAndroid.SHORT);
+        showToast(res.message || "Verification Successful!", 'success');
 
         if (isBartender) {
           router.replace("/bartender-info");
@@ -108,7 +107,7 @@ export default function EmailVerifyOtp() {
       console.log("Verify Error:", error);
       // Ekhon ar validation error ashar kotha na
       const errorMsg = error?.data?.message || "Verification failed!";
-      ToastAndroid.show(errorMsg, ToastAndroid.LONG);
+      showToast(errorMsg), 'error'
     }
   };
 

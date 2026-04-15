@@ -9,11 +9,12 @@ import { hp, wp } from '@/utils/responsive';
 import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, ToastAndroid, View } from 'react-native';
+import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { CustomButton } from '../CustomButton';
 import SectionTitle from '../SectionTitle';
+import { showToast } from '../Toast';
 import { Caption1, H5, H6 } from '../typo/Typography';
 
 interface ItemDetailsScreenProps {
@@ -78,7 +79,7 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({ checkoutPath }) =
     const handleAddToCart = async () => {
         if (!itemId) return;
         if (itemStatus !== 'in_stock') {
-            ToastAndroid.show('This item is currently out of stock.', ToastAndroid.SHORT);
+            showToast('This item is currently out of stock.')
             return;
         }
 
@@ -121,7 +122,7 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({ checkoutPath }) =
                     dispatch(clearCart());
                 } catch (clearErr: any) {
                     if (clearErr?.status !== 404) {
-                        ToastAndroid.show('Failed to clear cart.', ToastAndroid.SHORT);
+                        showToast('Failed to clear cart.')
                         return;
                     }
                 }
@@ -130,10 +131,10 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({ checkoutPath }) =
                     dispatch(addItem({ id: itemId, barId }));
                     navigateToCheckout();
                 } catch {
-                    ToastAndroid.show('Failed to add item.', ToastAndroid.SHORT);
+                    showToast('Failed to add item.')
                 }
             } else {
-                ToastAndroid.show(message || 'Something went wrong.', ToastAndroid.SHORT);
+                showToast(message || 'Something went wrong.',)
             }
         }
     };

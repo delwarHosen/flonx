@@ -4,8 +4,9 @@ import { Body3, Caption3 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { hp, wp } from '@/utils/responsive';
 import React, { useState } from 'react';
-import { StyleSheet, ToastAndroid, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { showToast } from '../Toast';
 
 const PushNotificationView = () => {
     const [isEnabled, setIsEnabled] = useState(false);
@@ -24,14 +25,12 @@ const PushNotificationView = () => {
             
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            ToastAndroid.show(
-                `Notification ${newValue ? 'Enabled' : 'Disabled'}`, 
-                ToastAndroid.SHORT
-            );
+            showToast( `Notification ${newValue ? 'Enabled' : 'Disabled'}`)
+            
         } catch (error) {
             
             setIsEnabled(previousState);
-            ToastAndroid.show("Failed to update settings", ToastAndroid.SHORT);
+            showToast("Failed to update settings")
         } finally {
             setLoading(false);
         }

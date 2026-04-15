@@ -28,11 +28,12 @@ export default function JobsScreen() {
     setRefreshing(false);
   }, [refetch]);
 
+  // console.log("applicationsssss:", JSON.stringify(applications.slice(0, 2), null, 2));
 
   const filteredData = applications.filter((app: any) => {
     if (!app.job) return false;
     if (activeTab === "Applied") return !app.isAccepted && app.job.status === "Open";
-    if (activeTab === "Assigned") return app.isAccepted && app.job.status === "Assigned";  // ← Assigned status check
+    if (activeTab === "Assigned") return app.isAccepted && app.job.status === "Assigned";
     if (activeTab === "Completed") return app.job.status === "Completed";
     if (activeTab === "Cancelled") return app.job.status === "Cancelled";
     return false;

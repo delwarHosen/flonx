@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-    Alert,
     Keyboard,
     KeyboardAvoidingView,
     LayoutAnimation,
@@ -10,7 +9,6 @@ import {
     StatusBar,
     StyleSheet,
     TextInput,
-    ToastAndroid,
     TouchableOpacity,
     View,
     useWindowDimensions
@@ -23,6 +21,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CustomButton } from '../CustomButton';
 import SectionTitle from '../SectionTitle';
+import { showToast } from '../Toast';
 import Typography, { Body3, Caption1, H4 } from '../typo/Typography';
 
 interface TipSelectionProps {
@@ -66,7 +65,7 @@ const TipSelectionContent: React.FC<TipSelectionProps> = ({
         const finalAmount = showCustomInput ? parseFloat(customAmount) : selectedAmount;
 
         if (!finalAmount || finalAmount <= 0) {
-            Alert.alert("Selection Required", "Please select a tip amount or enter a custom one.");
+            showToast("Selection Required, Please select a tip amount or enter a custom one.", "error");
             return;
         }
 
@@ -83,8 +82,8 @@ const TipSelectionContent: React.FC<TipSelectionProps> = ({
             }
         } catch (error: any) {
             const msg = error?.data?.message || error?.message || 'Payment failed';
-            if (Platform.OS === 'android') ToastAndroid.show(msg, ToastAndroid.SHORT);
-            else Alert.alert("Error", msg);
+
+            showToast(msg, "error");
         }
     };
 
