@@ -30,7 +30,7 @@ const BarCardComponents: React.FC<BarCardProps> = ({ item, onPress }) => {
                     style={styles.logo}
                     contentFit="contain"
                     cachePolicy="disk"
-                    // placeholder={require('@/assets/images/placeholder.png')}
+                // placeholder={require('@/assets/images/placeholder.png')}
                 />
             </View>
 
@@ -49,8 +49,14 @@ const BarCardComponents: React.FC<BarCardProps> = ({ item, onPress }) => {
                 {/* Location */}
                 <View style={styles.locationContainer}>
                     <LocationIcon />
-
-                    <Caption3 color={Colors.OTP_COLOR} style={styles.locationText} numberOfLines={1}>{item.location}</Caption3>
+                    <Caption3
+                        color={Colors.OTP_COLOR}
+                        style={styles.locationText}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                    >
+                        {item.location}
+                    </Caption3>
                 </View>
             </View>
 
@@ -68,7 +74,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: hp(8),
-        paddingHorizontal:wp(16),
+        paddingHorizontal: wp(16),
         borderRadius: 14,
         marginBottom: hp(16),
         borderWidth: 1,
@@ -114,9 +120,10 @@ const styles = StyleSheet.create({
     locationContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        gap: wp(0), 
     },
     locationText: {
-        // fontWeight: 400,
-        marginLeft: wp(4),
+        flex: 1, 
+        marginLeft: wp(4), 
     },
 });

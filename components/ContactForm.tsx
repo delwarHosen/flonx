@@ -2,8 +2,9 @@ import { Colors } from '@/constants/theme';
 import { useCreateSupportTicketMutation } from '@/redux/services/profile';
 import { fp, hp, wp } from '@/utils/responsive';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, TextInput, View } from 'react-native';
 import { CustomButton } from './CustomButton';
+import { showToast } from './Toast';
 import { Body1, Body2 } from './typo/Typography';
 
 export default function ContactForm() {
@@ -13,22 +14,22 @@ export default function ContactForm() {
 
     const handleSubmit = async () => {
         if (!reason.trim() || !description.trim()) {
-            Alert.alert('Error', 'Please fill all fields');
+            showToast('Error, Please fill all fields')
             return;
         }
         try {
             await createTicket({ contactReason: reason, message: description }).unwrap();
-            Alert.alert('Success', 'Your message has been sent successfully');
             setReason('');
+            showToast('Success, Your message has been sent successfully')
             setDescription('');
         } catch {
-            Alert.alert('Error', 'Failed to send message. Please try again.');
+            showToast('Error, Failed to send message. Please try again.')
         }
     };
 
     return (
         <View style={styles.container}>
-            <Body1 italic color={Colors.NEUTRAL0} style={{ marginVertical: hp(16) }}>—Contact us</Body1>
+            <Body1 italic color={Colors.NEUTRAL0} style={{ marginVertical: hp(16) }}>— Contact us</Body1>
 
             <Body2 color={Colors.NEUTRAL0} style={styles.label}>Reason for Contact</Body2>
             <TextInput

@@ -6,6 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { EyeOff } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { showToast } from '../Toast';
 import { Body2, Caption1 } from '../typo/Typography';
 
 
@@ -92,7 +93,7 @@ export const FormInput: React.FC<FormInputProps> = ({
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
         if (status !== "granted") {
-            alert("Please grant camera roll permission to upload images");
+            showToast("Please grant camera roll permission to upload images")
             return;
         };
 

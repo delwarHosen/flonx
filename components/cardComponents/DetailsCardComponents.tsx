@@ -5,8 +5,8 @@ import { StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { Body3, Caption2 } from '../typo/Typography';
 
 interface DetailsItemProps {
-    topLabel:string;
-    bottomLabel:string;
+    topLabel: string;
+    bottomLabel: string;
     onPress?: () => void;
     style?: ViewStyle;
     textColor?: string,
@@ -28,10 +28,9 @@ export const DetailsCardComponents: React.FC<DetailsItemProps> = ({
             activeOpacity={0.7}
             onPress={onPress}
         >
-            <View style={{
-            }}>
+            <View style={{ flex: 1 }}>
                 <Caption2 style={{ marginBottom: hp(8) }} color={Colors.PLACEHOLLDER_TEXT}>{topLabel}</Caption2>
-                <Body3 style={{lineHeight:20}} color={textColor ? textColor : Colors.NEUTRAL0} >{bottomLabel}</Body3>
+                <Body3 style={{ lineHeight: 20 }} color={textColor ? textColor : Colors.NEUTRAL0} >{bottomLabel}</Body3>
             </View>
 
         </TouchableOpacity>
@@ -50,5 +49,5 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: hp(10)
     },
-    
+
 });

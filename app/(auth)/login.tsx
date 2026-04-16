@@ -18,6 +18,7 @@ import * as SecureStore from 'expo-secure-store';
 import { jwtDecode } from "jwt-decode";
 import React from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { OneSignal } from 'react-native-onesignal';
 import { useDispatch, useSelector } from 'react-redux';
 
 
@@ -28,6 +29,7 @@ export default function LoginScreen() {
 
   const userRole = useSelector((state: RootState) => state.auth.userRole);
   const [loginSubmit, { isLoading }] = useLoginMutation();
+
 
   const {
     values,
@@ -46,14 +48,26 @@ export default function LoginScreen() {
     },
 
     onSubmit: async (values) => {
+      // console.log('Submit triggered');
+
       try {
+        const deviceState = await OneSignal.User.pushSubscription.getIdAsync();
+        const playerId = deviceState ?? null;
+        // console.log('OneSignal Player ID:', playerId)
         const res = await loginSubmit({
           email: values[FORM_FIELDS.EMAIL],
           password: values[FORM_FIELDS.PASSWORD],
+          playerId
         }).unwrap();
+
+        // console.log('Login res:', res);
 
         if (res?.success && res?.data?.accessToken) {
           const token = res.data.accessToken;
+
+          // const deviceState = await OneSignal.User.pushSubscription.getIdAsync();
+          // const playerId = deviceState ?? null;
+          // console.log('OneSignal Player ID:', playerId);
 
           await SecureStore.setItemAsync('accessToken', token);
           await SecureStore.setItemAsync('refreshToken', res.data.refreshToken || '');
@@ -66,6 +80,15 @@ export default function LoginScreen() {
             dispatch(baseApis.util.invalidateTags(['Profile']));
             dispatch(setCredentials({ role: roleFromToken, token }));
 
+            // send player id
+            // if (playerId) {
+            //   try {
+            //     await updatePlayerId({ playerId }).unwrap();
+            //   } catch (e: any) {
+            //     console.log('updatePlayerId error:', e);
+            //     // error হলেও login continue করবে
+            //   }
+            // }
             // Success toast
             showToast("Login Successful!", 'success');
 

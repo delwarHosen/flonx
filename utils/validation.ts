@@ -38,6 +38,11 @@ export const validatePhoneNumber = (phone: string): string => {
 //   return '';
 // };
 
+export const validateAddress = (val: string): string => {
+  if (!val.trim()) return "Address is required";
+  if (val.length < 5) return "Please enter a more detailed address";
+  return "";
+};
 
 export const validatePassword = (password: string): string => {
   if (!password.trim()) return 'Password is required';

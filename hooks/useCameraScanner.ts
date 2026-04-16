@@ -1,5 +1,5 @@
+import { showToast } from '@/components/Toast';
 import { PermissionResponse, useCameraPermissions } from 'expo-camera';
-import { Alert } from 'react-native';
 
 // Hook er return type interface define kora holo
 interface UseCameraScannerReturn {
@@ -24,10 +24,7 @@ export const useCameraScanner = (): UseCameraScannerReturn => {
     const response: PermissionResponse = await requestPermission();
 
     if (!response.granted) {
-      Alert.alert(
-        "Permission Required", 
-        "Camera access is needed to scan QR codes. Please enable it in your device settings."
-      );
+      showToast("Permission Required \n Camera access is needed to scan QR codes. Please enable it in your device settings.")
       return false;
     }
 

@@ -1,5 +1,16 @@
 import { baseApis } from "../base";
 
+interface LoginResponse {
+    success: boolean;
+    message: string;
+    data: {
+        accessToken: string;
+        refreshToken: string;
+        role: string;
+        isGuest: boolean;
+    };
+}
+
 export const authApi = baseApis.injectEndpoints({
     endpoints: (builder) => ({
         register: builder.mutation({
@@ -25,11 +36,20 @@ export const authApi = baseApis.injectEndpoints({
             }),
         }),
         //login mutation
-        login: builder.mutation({
-            query: (data) => ({
+        // login: builder.mutation({
+        //     query: (data) => ({
+        //         url: '/auth/login',
+        //         method: 'POST',
+        //         body: data,
+        //     }),
+        //     invalidatesTags: ['Profile'],
+        // }),
+
+        login: builder.mutation<LoginResponse, { email: string; password: string; playerId: string | null }>({
+            query: (body) => ({
                 url: '/auth/login',
                 method: 'POST',
-                body: data,
+                body,
             }),
             invalidatesTags: ['Profile'],
         }),
@@ -124,7 +144,7 @@ export const {
     useResetPasswordMutation,
     useChangePasswordMutation,
     useDeleteAccountMutation,
-        useGetProfileQuery,
+    useGetProfileQuery,
     useUpdateProfileMutation,
-    useGuestLoginMutation
+    useGuestLoginMutation,
 } = authApi;

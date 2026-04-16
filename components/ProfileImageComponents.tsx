@@ -57,6 +57,8 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         borderRadius: 24,
+        borderWidth:1,
+        borderColor:Colors.BRAND_PRIMARY
     },
     iconContainer: {
         position: "absolute",

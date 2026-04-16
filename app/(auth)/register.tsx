@@ -8,10 +8,14 @@ import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
 import { useRegisterMutation } from '@/redux/services/authApi';
 import { RootState } from '@/redux/store';
+import { getPlaceDetails, getPlaceSuggestions } from '@/utils/getPlaceApi';
 import { validateName, validatePassword, validatePhoneNumber } from '@/utils/validation';
+import { Ionicons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import { Dimensions, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { OneSignal } from 'react-native-onesignal';
 import { useSelector } from 'react-redux';
 
 const { height } = Dimensions.get('window');
@@ -29,6 +33,61 @@ export default function RegisterScreen() {
 
   const [registerUser, { isLoading }] = useRegisterMutation();
 
+  //  Location states
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<{ name: string; placeId: string }[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+
+  //  GPS detect
+  const handleDetectLocation = async () => {
+    setLocationLoading(true);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') return;
+      const loc = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = loc.coords;
+      setCoords({ lat: latitude, lng: longitude });
+      const [place] = await Location.reverseGeocodeAsync({ latitude, longitude });
+      const address = [place.street, place.city, place.country].filter(Boolean).join(', ');
+      handleChange(FORM_FIELDS.ADDRESS, address);
+      setSuggestions([]);
+      setShowSuggestions(false);
+    } catch (err) {
+      console.log('GPS failed');
+    } finally {
+      setLocationLoading(false);
+    }
+  };
+
+  //  Typing suggestion
+  const handleLocationChange = async (text: string) => {
+    handleChange(FORM_FIELDS.ADDRESS, text);
+    setCoords(null);
+    if (text.length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    const results = await getPlaceSuggestions(text);
+    setSuggestions(results);
+    setShowSuggestions(true);
+  };
+
+
+  //  Suggestion select
+  const handleSelectSuggestion = async (s: { name: string; placeId: string }) => {
+    handleChange(FORM_FIELDS.ADDRESS, s.name);
+    setShowSuggestions(false);
+    setSuggestions([]);
+    const details = await getPlaceDetails(s.placeId);
+    if (details?.latitude && details?.longitude) {
+      setCoords({ lat: details.latitude, lng: details.longitude });
+    }
+  };
+
+
   const {
     values,
     errors,
@@ -43,6 +102,7 @@ export default function RegisterScreen() {
       [FORM_FIELDS.CONTACT_NO]: "",
       [FORM_FIELDS.PASSWORD]: "",
       [FORM_FIELDS.CONFIRM_PASSWORD]: "",
+      [FORM_FIELDS.ADDRESS]: ""
     },
 
     validationRules: {
@@ -53,6 +113,7 @@ export default function RegisterScreen() {
         return '';
       },
 
+
       [FORM_FIELDS.PASSWORD]: validatePassword,
 
       //  Now uses allValues instead of stale closure
@@ -62,18 +123,40 @@ export default function RegisterScreen() {
 
         return "";
       },
+
+      [FORM_FIELDS.ADDRESS]: (val: string): string => {
+        if (isBartender && !val.trim()) return "Address is required for Bartenders";
+        return "";
+      },
     },
 
     onSubmit: async (formValues) => {
       try {
-        const payload = {
+        const deviceState = await OneSignal.User.pushSubscription.getIdAsync();
+        const playerId = deviceState ?? null;
+
+        const payload: any = {
           name: formValues[FORM_FIELDS.FULL_NAME],
           email: formValues[FORM_FIELDS.EMAIL],
           password: formValues[FORM_FIELDS.PASSWORD],
           confirmPassword: formValues[FORM_FIELDS.CONFIRM_PASSWORD],
           role: userRole,
           phone: isBartender ? formValues[FORM_FIELDS.CONTACT_NO] : "",
+          playerId
         };
+
+
+
+        if (isBartender) {
+          payload.address = formValues[FORM_FIELDS.ADDRESS];
+          payload.location = {
+            type: 'Point',
+            coordinates: [
+              coords?.lng ?? 90.4125,
+              coords?.lat ?? 23.8103,
+            ],
+          };
+        }
 
         const res = await registerUser(payload).unwrap();
 
@@ -141,6 +224,47 @@ export default function RegisterScreen() {
               />
 
               {isBartender && (
+                <View>
+                  <FormInput
+                    label={FORM_LABELS[FORM_FIELDS.ADDRESS]}
+                    value={values[FORM_FIELDS.ADDRESS]}
+                    onChangeText={handleLocationChange}
+                    onBlur={() => handleBlur(FORM_FIELDS.ADDRESS)}
+                    placeholder="Enter your address"
+                    error={errors[FORM_FIELDS.ADDRESS]}
+                    touched={touched[FORM_FIELDS.ADDRESS]}
+                    required
+                    rightIcon={
+                      <TouchableOpacity onPress={handleDetectLocation} disabled={locationLoading}>
+                        <Ionicons
+                          name={locationLoading ? 'reload-outline' : 'location-outline'}
+                          size={20}
+                          color={coords ? Colors.BRAND_PRIMARY : Colors.NEUTRAL0}
+                        />
+                      </TouchableOpacity>
+                    }
+                  />
+
+                  {showSuggestions && suggestions.length > 0 && (
+                    <View style={styles.suggestionBox}>
+                      {suggestions.map((s) => (
+                        <TouchableOpacity
+                          key={s.placeId}
+                          onPress={() => handleSelectSuggestion(s)}
+                          style={styles.suggestionItem}
+                        >
+                          <Ionicons name="location-outline" size={16} color={Colors.PLACEHOLLDER_TEXT} />
+                          <Body3 color={Colors.NEUTRAL0} style={{ marginLeft: 8, flex: 1 }}>
+                            {s.name}
+                          </Body3>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                </View>
+              )}
+
+              {isBartender && (
                 <FormInput
                   label={FORM_LABELS[FORM_FIELDS.CONTACT_NO]}
                   value={values[FORM_FIELDS.CONTACT_NO]}
@@ -205,6 +329,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     backgroundColor: Colors.APP_BACKGROUND,
+
   },
   containerStyle: {
     flex: 1,
@@ -213,10 +338,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: rs(16, 20, 24),
     paddingVertical: rs(16, 24, 32),
     minHeight: height,
+    // marginVertical: hp(20)
   },
   form: {
     marginTop: rs(12, 16, 20),
     gap: rs(2, 4, 4),
+  },
+  suggestionBox: {
+    backgroundColor: Colors.INPUT_BACKGROUND,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: Colors.BORDER_COLOR,
+    marginTop: -4,
+    marginBottom: 8,
+    overflow: 'hidden',
+  },
+  suggestionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.BORDER_COLOR,
   },
   footer: {
     marginTop: rs(12, 16, 16),

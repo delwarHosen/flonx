@@ -113,42 +113,41 @@ const BrowseScreen: React.FC = () => {
                 </View>
             )}
 
+            {/* ✅ Sticky header — scroll হবে না */}
+            <View style={styles.stickyHeader}>
+                <View style={styles.header}>
+                    <View style={styles.userInfo}>
+                        <TouchableOpacity onPress={() => router.push("/bartender/profile")}>
+                            <Image
+                                source={profile?.profile_image ? { uri: profile.profile_image } : IMAGE_COMPONENTS.profileImg}
+                                style={styles.avatar}
+                            />
+                        </TouchableOpacity>
+                        <View style={{ marginLeft: 12 }}>
+                            <Body1 italic color={Colors.NEUTRAL0} weight="bold">Hello {profile?.name || "User"}</Body1>
+                            <Body3 italic style={{ marginTop: hp(8) }} color={Colors.PLACEHOLLDER_TEXT}>Welcome to FLÖNX</Body3>
+                        </View>
+                    </View>
+                    <TouchableOpacity
+                        onPress={() => router.push("/bartender/profile/notification")}
+                        style={styles.notificationBtn}>
+                        <NotificationIcon size={24} />
+                    </TouchableOpacity>
+                </View>
+                <View style={{ marginTop: hp(12) }}>
+                    <SearchBar
+                        placeholder="Search"
+                        value={query}
+                        onChangeText={setQuery}
+                        showFilter={true}
+                        onScanPress={() => setFilterVisible(true)}
+                    />
+                </View>
+            </View>
+
             <FlatList
                 data={isLoading ? [] : jobs}
                 keyExtractor={(item) => item._id}
-                ListHeaderComponent={
-                    <View style={[styles.headerContainer, { paddingTop: hp(20) }]}>
-                        <View style={styles.header}>
-                            <View style={styles.userInfo}>
-                                <TouchableOpacity onPress={() => router.push("/bartender/profile")}>
-                                    <Image
-                                        source={profile?.profile_image ? { uri: profile.profile_image } : IMAGE_COMPONENTS.profileImg}
-                                        style={styles.avatar}
-                                    />
-                                </TouchableOpacity>
-
-                                <View style={{ marginLeft: 12 }}>
-                                    <Body1 italic color={Colors.NEUTRAL0} weight="bold">Hello {profile?.name || "User"}</Body1>
-                                    <Body3 italic style={{ marginTop: hp(8) }} color={Colors.PLACEHOLLDER_TEXT}>Welcome to FLÖNX</Body3>
-                                </View>
-                            </View>
-                            <TouchableOpacity
-                                onPress={() => router.push("/bartender/profile/notification")}
-                                style={styles.notificationBtn}>
-                                <NotificationIcon size={24} />
-                            </TouchableOpacity>
-                        </View>
-                        <View style={{ marginTop: hp(20) }}>
-                            <SearchBar
-                                placeholder="Search"
-                                value={query}
-                                onChangeText={setQuery}
-                                showFilter={true}
-                                onScanPress={() => setFilterVisible(true)}
-                            />
-                        </View>
-                    </View>
-                }
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}
@@ -194,6 +193,12 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         marginBottom: hp(10),
+    },
+    stickyHeader: {
+        paddingHorizontal: wp(20),
+        paddingTop: hp(20),
+        paddingBottom: hp(12),
+        backgroundColor: Colors.APP_BACKGROUND,
     },
     listContent: {
         paddingHorizontal: wp(20),

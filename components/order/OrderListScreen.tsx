@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CustomButton } from '@/components/CustomButton';
 import EmptyStateCard from '@/components/EmptyStateCardProps';
 import SectionTitle from '@/components/SectionTitle';
-import { Body1, Body3, Caption1, H6 } from '@/components/typo/Typography';
+import { Body1, Body3, Caption1 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { useGetOrderQuery } from '@/redux/services/orderApi';
 import { RootState } from '@/redux/store';
@@ -15,7 +15,6 @@ import { hp, wp } from '@/utils/responsive';
 import { useSelector } from 'react-redux';
 
 import * as SecureStore from 'expo-secure-store';
-import { jwtDecode } from 'jwt-decode';
 
 const CURRENT_STATUSES = ['PENDING', 'QUEUED', 'IN_PROGRESS', 'READY_FOR_PIC'];
 const PAST_STATUSES = ['PICKED', 'CANCELLED', 'DELIVERED', 'REJECTED'];
@@ -54,19 +53,14 @@ const formatStatus = (status: string) => status.replace(/_/g, ' ');
 const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
   const role = useSelector((state: RootState) => state.auth.userRole);
   const [refreshing, setRefreshing] = useState(false);
-  // const isGuest = role === 'guest';
-
 
   useEffect(() => {
     const check = async () => {
       const token = await SecureStore.getItemAsync('accessToken');
-      console.log("OrderList — role:", role);
-      console.log("OrderList — token decoded:", JSON.stringify(jwtDecode(token!), null, 2));
+      // console.log("OrderList — token decoded:", JSON.stringify(jwtDecode(token!), null, 2));
     };
     check();
   }, []);
-
-
 
   const [selectedTab, setSelectedTab] = useState<'Current Orders' | 'Past Orders'>('Current Orders');
   const router = useRouter();
@@ -133,7 +127,7 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
     return (
       <TouchableOpacity onPress={handlePress} style={styles.orderCard} activeOpacity={0.8}>
 
-        {/* ── Header: status/date + total price ── */}
+        {/* ── Header: status/date top left ── */}
         <View style={styles.cardHeader}>
           {!isPast ? (
             <Body3 color={getStatusColor(item.status)} italic>
@@ -144,7 +138,6 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
               {formatDate(item.createdAt)} • {formatTime(item.createdAt)}
             </Caption1>
           )}
-          <H6 color={Colors.NEUTRAL0}>${item.totalPrice}</H6>
         </View>
 
         {/* ── Items list ── */}
@@ -176,16 +169,33 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
                     Price: ${orderItem.price}
                   </Caption1>
                 </View>
-
               </View>
             </View>
           );
         })}
 
-        {/* ── Footer: arrow ── */}
-        <View style={styles.cardFooter}>
-          {/* <RightAngleIcon /> */}
-          <Caption1 color={Colors.PLACEHOLLDER_TEXT}>See Details</Caption1>
+        {/* ── Footer: divider + price left, see more right ── */}
+        <View style={styles.cardFooterWrapper}>
+          <View style={styles.footerDivider} />
+          <View style={styles.cardFooter}>
+           
+            <View style={styles.priceContainer}>
+              <Body1 color={Colors.NEUTRAL0}>Total Price</Body1>
+              <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: 2 }}>
+                ${item.totalPrice}
+              </Caption1>
+            </View>
+
+           
+            <CustomButton
+              title="See More"
+              onPress={handlePress} 
+              width={wp(90)}     
+              height={hp(38)}     
+              borderRadius={100}
+              backgroundColor={Colors.BRAND_PRIMARY}
+            />
+          </View>
         </View>
 
       </TouchableOpacity>
@@ -273,8 +283,9 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    // justifyContent: 'space-between',
+    // justifyContent:"flex-end",
+    // alignItems: 'center',
     marginBottom: hp(10),
     paddingHorizontal: 4,
   },
@@ -288,6 +299,8 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.BORDER_COLOR,
   },
   itemImage: {
+    borderWidth: 1,
+    borderColor: Colors.BRAND_PRIMARY,
     width: 56,
     height: 56,
     borderRadius: 10,
@@ -299,9 +312,25 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: wp(12),
   },
+  
+  footerDivider: {
+    height: 1,
+    backgroundColor: Colors.BORDER_COLOR,
+    marginBottom: hp(10),
+  },
   cardFooter: {
-    alignItems: 'flex-end',
-    marginTop: hp(6),
+    flexDirection: 'row',
+    justifyContent: 'space-between', 
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    marginTop: hp(4),
+  },
+  priceContainer: {
+    flex: 1, 
+  },
+  
+  cardFooterWrapper: {
+    marginTop: hp(10),
   },
   centerContainer: {
     flex: 1,

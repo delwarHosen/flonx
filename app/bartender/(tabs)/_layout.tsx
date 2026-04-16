@@ -2,9 +2,9 @@ import { BrowseIcon, JobsIcon, ProfileIcon } from "@/assets/images/icons/icon";
 import { Colors } from "@/constants/theme";
 import { fp, hp } from "@/utils/responsive";
 import { LinearGradient } from "expo-linear-gradient";
-import { Tabs } from "expo-router";
-import React from "react";
-import { Platform, Text } from "react-native";
+import { Tabs, useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useRef } from "react";
+import { BackHandler, Platform, Text } from "react-native";
 import Animated, {
     useAnimatedStyle,
     useDerivedValue,
@@ -12,9 +12,43 @@ import Animated, {
     withTiming
 } from "react-native-reanimated";
 
+
+const TAB_NAMES = ['browse', 'my-jobs', 'profile'];
+
+
 export default function TabsLayout() {
+    const router = useRouter();
+    const tabHistory = useRef<string[]>(['browse']);
+
+    useFocusEffect(
+        useCallback(() => {
+            const onBackPress = () => {
+                if (tabHistory.current.length > 1) {
+                    tabHistory.current.pop();
+                    const prevTab = tabHistory.current[tabHistory.current.length - 1];
+                    router.replace(`/bartender/(tabs)/${prevTab}` as any);
+                    return true;
+                }
+                return false;
+            };
+
+            const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+            return () => subscription.remove();
+        }, [])
+    );
+
     return (
         <Tabs
+            screenListeners={{
+                tabPress: (e) => {
+                    const target = e.target ?? '';
+                    const tabName = TAB_NAMES.find(name => target.startsWith(name));
+                    console.log('tabName:', tabName);
+                    if (tabName && tabHistory.current[tabHistory.current.length - 1] !== tabName) {
+                        tabHistory.current.push(tabName);
+                    }
+                },
+            }}
             screenOptions={{
                 headerShown: false,
                 tabBarActiveTintColor: Colors.BRAND_PRIMARY,
@@ -29,7 +63,6 @@ export default function TabsLayout() {
                 tabBarLabelStyle: {
                     fontSize: fp(14),
                 },
-                
             }}
         >
             <Tabs.Screen
@@ -42,22 +75,17 @@ export default function TabsLayout() {
                         </Text>
                     ),
                     tabBarIcon: ({ focused }) => {
-                        const progress = useSharedValue(focused ? 0 : 1);
-
+                        const progress = useSharedValue(focused ? 1 : 0);
                         useDerivedValue(() => {
                             progress.value = withTiming(focused ? 1 : 0, { duration: 250 });
                         });
-
                         const animatedStyle = useAnimatedStyle(() => ({
                             transform: [{ translateY: -10 * progress.value }],
                             borderRadius: 25,
                             padding: 12,
                         }));
-
                         return (
-                            <Animated.View
-                                style={animatedStyle}
-                            >
+                            <Animated.View style={animatedStyle}>
                                 {focused ? (
                                     <LinearGradient
                                         colors={[Colors.BRAND_PRIMARY, Colors.BRAND_PRIMARY_LIGHT]}
@@ -75,8 +103,7 @@ export default function TabsLayout() {
                     },
                 }}
             />
-        
-        
+
             <Tabs.Screen
                 name="my-jobs"
                 options={{
@@ -87,22 +114,17 @@ export default function TabsLayout() {
                         </Text>
                     ),
                     tabBarIcon: ({ focused }) => {
-                        const progress = useSharedValue(focused ? 0 : 1);
-
+                        const progress = useSharedValue(focused ? 1 : 0);
                         useDerivedValue(() => {
                             progress.value = withTiming(focused ? 1 : 0, { duration: 250 });
                         });
-
                         const animatedStyle = useAnimatedStyle(() => ({
                             transform: [{ translateY: -10 * progress.value }],
                             borderRadius: 25,
                             padding: 12,
                         }));
-
                         return (
-                            <Animated.View
-                                style={animatedStyle}
-                            >
+                            <Animated.View style={animatedStyle}>
                                 {focused ? (
                                     <LinearGradient
                                         colors={[Colors.BRAND_PRIMARY, Colors.BRAND_PRIMARY_LIGHT]}
@@ -121,8 +143,6 @@ export default function TabsLayout() {
                 }}
             />
 
-           
-
             <Tabs.Screen
                 name="profile"
                 options={{
@@ -134,21 +154,16 @@ export default function TabsLayout() {
                     ),
                     tabBarIcon: ({ focused }) => {
                         const progress = useSharedValue(focused ? 1 : 0);
-
                         useDerivedValue(() => {
                             progress.value = withTiming(focused ? 1 : 0, { duration: 250 });
                         });
-
                         const animatedStyle = useAnimatedStyle(() => ({
                             transform: [{ translateY: -10 * progress.value }],
                             borderRadius: 25,
                             padding: 12,
                         }));
-
                         return (
-                            <Animated.View
-                                style={animatedStyle}
-                            >
+                            <Animated.View style={animatedStyle}>
                                 {focused ? (
                                     <LinearGradient
                                         colors={[Colors.BRAND_PRIMARY, Colors.BRAND_PRIMARY_LIGHT]}
@@ -166,7 +181,6 @@ export default function TabsLayout() {
                     },
                 }}
             />
-
         </Tabs>
     );
 }

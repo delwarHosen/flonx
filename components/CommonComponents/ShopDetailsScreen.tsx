@@ -71,12 +71,24 @@ const styles = StyleSheet.create({
         marginVertical: hp(24),
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: Colors.BORDER_COLOR,
+        borderColor: Colors.BRAND_PRIMARY,
         ...Platform.select({
-            ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 },
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: {
+                    width: 0,
+                    height: 2
+                },
+                shadowOpacity: 0.1,
+                shadowRadius: 4
+            },
             android: { elevation: 3 },
         }),
     },
-    logo: { width: '100%', height: '100%' },
+    logo: {
+        width: '100%',
+        height: '100%',
+       
+    },
     detailsList: { width: '100%' },
 });

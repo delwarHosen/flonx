@@ -27,8 +27,22 @@ import { View } from 'react-native';
 import 'react-native-reanimated';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 
+import { LogBox } from 'react-native';
+import { LogLevel, OneSignal } from 'react-native-onesignal';
+
 SplashScreen.preventAutoHideAsync();
 
+
+
+LogBox.ignoreLogs(['new NativeEventEmitter']); 
+OneSignal.Debug.setLogLevel(LogLevel.Verbose); 
+OneSignal.initialize(process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID!) 
+OneSignal.Notifications.requestPermission(true); 
+OneSignal.Notifications.addEventListener('click', (event:any) => {
+  const data = event.notification.additionalData;
+  console.log('Notification clicked:', data);
+  // যেকোনো screen এ navigate করতে পারেন
+})
 
 function AppInit() {
   const dispatch = useDispatch();

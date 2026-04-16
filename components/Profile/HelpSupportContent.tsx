@@ -55,7 +55,7 @@ const FAQRow: React.FC<FAQRowProps> = ({ item, isOpen, onToggle }) => {
                     {isOpen ? <UpAngleIcon /> : <RightAngleIcon color='#FFFFFF' />}
                 </View>
             </TouchableOpacity>
-
+            {isOpen && <View style={styles.underLine} />}
             {/* Animated visible content */}
             <Animated.View style={animatedStyle}>
                 <View style={styles.answerInner}>
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
         overflow: 'hidden',
-        paddingVertical: 10,
+        paddingVertical: 2,
     },
     itemHeader: {
         flexDirection: 'row',
@@ -135,9 +135,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    underLine: {
+        height: 1,
+        backgroundColor: Colors.BORDER_COLOR,
+        marginTop: -10,
+        marginBottom: hp(5),
+        marginHorizontal: 16,
+    },
     answerInner: {
         paddingHorizontal: 16,
-        paddingBottom: 16,
+        // paddingBottom: 16,
     },
     hiddenMeasure: {
         position: 'absolute',

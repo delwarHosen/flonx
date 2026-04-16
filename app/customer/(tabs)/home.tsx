@@ -6,6 +6,7 @@ import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
 import EmptyStateCard from '@/components/EmptyStateCardProps';
 import QRScannerModal from '@/components/QRScannerModal/QRScannerModal';
+import { showToast } from '@/components/Toast';
 import { Body1, Body3, ButtonText, Caption1, H2, H5, H6 } from '@/components/typo/Typography';
 import { IMAGE_COMPONENTS } from '@/constants/image.index';
 import { Colors } from '@/constants/theme';
@@ -16,7 +17,7 @@ import { hp, wp } from '@/utils/responsive';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, FlatList, RefreshControl, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { FlatList, RefreshControl, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const CURRENT_STATUSES = ['PENDING', 'QUEUED', 'IN_PROGRESS', 'READY_FOR_PIC'];
@@ -95,10 +96,11 @@ const HomeScreen: React.FC = () => {
                     params: { barId: barId },
                 });
             } else {
-                Alert.alert("Error", "Invalid QR Code");
+                
+                showToast("Error, Invalid QR Code")
             }
         } catch {
-            Alert.alert("Error", "Could not read QR Code");
+            showToast("Error, Could not read QR Code")
         }
     };
 

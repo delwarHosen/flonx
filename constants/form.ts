@@ -14,6 +14,7 @@ export const FORM_FIELDS = {
     DOCUMENTATION: "documentation",
     EXPERIENCE: "experience",
     SKILL: "skill",
+    ADDRESS: 'address',
 } as const;
 
 export const FORM_LABELS = {
@@ -30,7 +31,8 @@ export const FORM_LABELS = {
     [FORM_FIELDS.TAX]: "Tax ID (Add your tax id for buying wholesaling products)",
     [FORM_FIELDS.DOCUMENTATION]: "Tax ID (Add your tax id for buying wholesaling products)",
     [FORM_FIELDS.EXPERIENCE]: "Years of Experience",
-    [FORM_FIELDS.SKILL]: "Primary Bar Skills"
+    [FORM_FIELDS.SKILL]: "Primary Bar Skills",
+    [FORM_FIELDS.ADDRESS]: 'Address',
 } as const;
 
 export const FORM_PLACEHOLDERS = {

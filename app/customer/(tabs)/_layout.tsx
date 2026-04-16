@@ -1,9 +1,9 @@
 import { GigIcon, HomeIcon, OrderTabIcon, ProfileIcon, SearchBarIcon } from "@/assets/images/icons/icon";
 import { Colors } from "@/constants/theme";
 import { LinearGradient } from "expo-linear-gradient";
-import { Tabs } from "expo-router";
-import React from "react";
-import { Platform } from "react-native";
+import { Tabs, useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useRef } from "react";
+import { BackHandler, Platform } from "react-native";
 import Animated, {
     useAnimatedStyle,
     useDerivedValue,
@@ -12,8 +12,36 @@ import Animated, {
 } from "react-native-reanimated";
 
 export default function TabsLayout() {
+    const router = useRouter();
+    const tabHistory = useRef<string[]>(['home']);
+
+    useFocusEffect(
+        useCallback(() => {
+            const onBackPress = () => {
+                if (tabHistory.current.length > 1) {
+                    tabHistory.current.pop();
+                    const prevTab = tabHistory.current[tabHistory.current.length - 1];
+                    router.replace(`/customer/(tabs)/${prevTab}` as any);
+                    return true;
+                }
+                return false;
+            };
+
+            const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+            return () => subscription.remove();
+        }, [])
+    );
+
     return (
         <Tabs
+            screenListeners={{
+                tabPress: (e) => {
+                    const tabName = e.target?.split('-')[0];
+                    if (tabName && tabHistory.current[tabHistory.current.length - 1] !== tabName) {
+                        tabHistory.current.push(tabName);
+                    }
+                },
+            }}
             screenOptions={{
                 headerShown: false,
                 tabBarActiveTintColor: Colors.BRAND_PRIMARY,
@@ -36,22 +64,17 @@ export default function TabsLayout() {
                     title: "Home",
                     tabBarLabel: "Home",
                     tabBarIcon: ({ focused }) => {
-                        const progress = useSharedValue(focused ? 0 : 1);
-
+                        const progress = useSharedValue(focused ? 1 : 0);
                         useDerivedValue(() => {
                             progress.value = withTiming(focused ? 1 : 0, { duration: 250 });
                         });
-
                         const animatedStyle = useAnimatedStyle(() => ({
                             transform: [{ translateY: -10 * progress.value }],
                             borderRadius: 25,
                             padding: 12,
                         }));
-
                         return (
-                            <Animated.View
-                                style={animatedStyle}
-                            >
+                            <Animated.View style={animatedStyle}>
                                 {focused ? (
                                     <LinearGradient
                                         colors={[Colors.BRAND_PRIMARY, Colors.BRAND_PRIMARY_LIGHT]}
@@ -77,21 +100,16 @@ export default function TabsLayout() {
                     tabBarLabel: "Search",
                     tabBarIcon: ({ focused }) => {
                         const progress = useSharedValue(focused ? 1 : 0);
-
                         useDerivedValue(() => {
                             progress.value = withTiming(focused ? 1 : 0, { duration: 250 });
                         });
-
                         const animatedStyle = useAnimatedStyle(() => ({
                             transform: [{ translateY: -10 * progress.value }],
                             borderRadius: 25,
                             padding: 12,
                         }));
-
                         return (
-                            <Animated.View
-                                style={animatedStyle}
-                            >
+                            <Animated.View style={animatedStyle}>
                                 {focused ? (
                                     <LinearGradient
                                         colors={[Colors.BRAND_PRIMARY, Colors.BRAND_PRIMARY_LIGHT]}
@@ -110,8 +128,6 @@ export default function TabsLayout() {
                 }}
             />
 
-
-
             <Tabs.Screen
                 name="orders"
                 options={{
@@ -119,21 +135,16 @@ export default function TabsLayout() {
                     tabBarLabel: "Orders",
                     tabBarIcon: ({ focused }) => {
                         const progress = useSharedValue(focused ? 1 : 0);
-
                         useDerivedValue(() => {
                             progress.value = withTiming(focused ? 1 : 0, { duration: 250 });
                         });
-
                         const animatedStyle = useAnimatedStyle(() => ({
                             transform: [{ translateY: -10 * progress.value }],
                             borderRadius: 25,
                             padding: 12,
                         }));
-
                         return (
-                            <Animated.View
-                                style={animatedStyle}
-                            >
+                            <Animated.View style={animatedStyle}>
                                 {focused ? (
                                     <LinearGradient
                                         colors={[Colors.BRAND_PRIMARY, Colors.BRAND_PRIMARY_LIGHT]}
@@ -152,7 +163,6 @@ export default function TabsLayout() {
                 }}
             />
 
-
             <Tabs.Screen
                 name="gigs"
                 options={{
@@ -160,21 +170,16 @@ export default function TabsLayout() {
                     tabBarLabel: "Gigs",
                     tabBarIcon: ({ focused }) => {
                         const progress = useSharedValue(focused ? 1 : 0);
-
                         useDerivedValue(() => {
                             progress.value = withTiming(focused ? 1 : 0, { duration: 250 });
                         });
-
                         const animatedStyle = useAnimatedStyle(() => ({
                             transform: [{ translateY: -10 * progress.value }],
                             borderRadius: 25,
                             padding: 12,
                         }));
-
                         return (
-                            <Animated.View
-                                style={animatedStyle}
-                            >
+                            <Animated.View style={animatedStyle}>
                                 {focused ? (
                                     <LinearGradient
                                         colors={[Colors.BRAND_PRIMARY, Colors.BRAND_PRIMARY_LIGHT]}
@@ -193,7 +198,6 @@ export default function TabsLayout() {
                 }}
             />
 
-
             <Tabs.Screen
                 name="profile"
                 options={{
@@ -201,21 +205,16 @@ export default function TabsLayout() {
                     tabBarLabel: "Profile",
                     tabBarIcon: ({ focused }) => {
                         const progress = useSharedValue(focused ? 1 : 0);
-
                         useDerivedValue(() => {
                             progress.value = withTiming(focused ? 1 : 0, { duration: 250 });
                         });
-
                         const animatedStyle = useAnimatedStyle(() => ({
                             transform: [{ translateY: -10 * progress.value }],
                             borderRadius: 25,
                             padding: 12,
                         }));
-
                         return (
-                            <Animated.View
-                                style={animatedStyle}
-                            >
+                            <Animated.View style={animatedStyle}>
                                 {focused ? (
                                     <LinearGradient
                                         colors={[Colors.BRAND_PRIMARY, Colors.BRAND_PRIMARY_LIGHT]}
@@ -233,7 +232,6 @@ export default function TabsLayout() {
                     },
                 }}
             />
-
         </Tabs>
     );
 }
