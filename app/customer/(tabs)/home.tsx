@@ -305,6 +305,7 @@ const styles = StyleSheet.create({
     sectionTitle: {
         marginTop: hp(5),
         marginBottom: hp(5),
+        marginHorizontal:wp(16)
     },
     orderCard: {
         backgroundColor: Colors.INPUT_BACKGROUND,
@@ -313,7 +314,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.BORDER_COLOR,
         marginBottom: hp(12),
-        marginHorizontal: wp(10),
+        marginHorizontal: wp(20),
     },
     cardHeader: {
         flexDirection: 'row',
@@ -346,7 +347,7 @@ const styles = StyleSheet.create({
         marginTop: hp(16),
         gap: hp(12),
         marginBottom: hp(20),
-        paddingHorizontal: wp(10),
+        paddingHorizontal: wp(20),
     },
     buttonIconRow: {
         flexDirection: 'row',

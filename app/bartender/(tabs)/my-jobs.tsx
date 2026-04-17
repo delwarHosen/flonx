@@ -1,4 +1,5 @@
 import GigCard from '@/components/cardComponents/GigCard';
+import CustomLoader from '@/components/CustomLoader';
 import EmptyStateCard from '@/components/EmptyStateCardProps';
 import SectionTitle from '@/components/SectionTitle';
 import { Body2 } from '@/components/typo/Typography';
@@ -6,19 +7,22 @@ import { Colors } from '@/constants/theme';
 import { useGetMyApplicationsQuery } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { FlatList, RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const TABS = ["Applied", "Assigned", "Completed", "Cancelled"];
+
+
 export default function JobsScreen() {
   const [activeTab, setActiveTab] = useState("Applied");
-  const [refreshing, setRefreshing] = useState(false);
+  const [tabLoading, setTabLoading] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const router = useRouter();
 
   // const filteredData = jobPosts.filter(job => job.status === activeTab);
 
-  const { data: applications = [], isLoading, refetch } = useGetMyApplicationsQuery(undefined, {
+  const { data: applications = [], isLoading, isFetching, refetch } = useGetMyApplicationsQuery(undefined, {
     refetchOnMountOrArgChange: true,
   });
 
@@ -29,6 +33,21 @@ export default function JobsScreen() {
   }, [refetch]);
 
   // console.log("applicationsssss:", JSON.stringify(applications.slice(0, 2), null, 2));
+
+  const handleTabChange = (tab: string) => {
+    if (tab === activeTab) return;
+    setTabLoading(true);
+    setActiveTab(tab);
+    setTimeout(() => setTabLoading(false), 400);
+  };
+
+  // const showLoader = ((isLoading || isFetching) && !refreshing) || tabLoading;
+  // const showLoader = isLoading && !refreshing;
+
+  const showLoader = useMemo(() => {
+    return isFetching && applications.length === 0 && !refreshing;
+  }, [isFetching, applications, refreshing]);
+
 
   const filteredData = applications.filter((app: any) => {
     if (!app.job) return false;
@@ -58,7 +77,8 @@ export default function JobsScreen() {
                 styles.tabItem,
                 activeTab === tab && styles.activeTabItem
               ]}
-              onPress={() => setActiveTab(tab)}
+              // onPress={() => setActiveTab(tab)}
+              onPress={() => handleTabChange(tab)}
             >
               <Body2 color={activeTab === tab ? Colors.NEUTRAL0 : Colors.PLACEHOLLDER_TEXT}>
                 {tab}
@@ -69,47 +89,59 @@ export default function JobsScreen() {
       </View>
 
       {/* Content List */}
-      <FlatList
-        data={filteredData}
-        keyExtractor={(item) => item._id}
-        contentContainerStyle={styles.listContainer}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={Colors.BRAND_PRIMARY}
-            colors={[Colors.BRAND_PRIMARY]}
-          />
-        }
-        renderItem={({ item }) => (
-          <GigCard
-            item={item.job}
-            onPress={() => {
-              const tabMap: Record<string, string> = {
-                'Applied': 'open',
-                'Assigned': 'assigned',
-                'Completed': 'completed',
-                'Cancelled': 'cancelled',
-              };
-              router.push({
-                pathname: '/bartender/jobs/job-details',
-                params: {
-                  id: item.job._id,
-                  applicationId: item._id,
-                  jobId: item.job._id,
-                  initialTab: tabMap[activeTab]
-                },
-              });
-            }}
-          />
-        )}
-        ListEmptyComponent={
-          <EmptyStateCard
-            message={`No ${activeTab} Jobs found`}
-          />
-        }
+      {
+        showLoader ?
+          (
+            <View style={styles.loaderOverlay}>
+              <CustomLoader />
+            </View>
+          )
+          :
+          (
+            <FlatList
+              data={filteredData}
+              keyExtractor={(item) => item._id}
+              contentContainerStyle={styles.listContainer}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  tintColor={Colors.BRAND_PRIMARY}
+                  colors={[Colors.BRAND_PRIMARY]}
+                />
+              }
+              renderItem={({ item }) => (
+                <GigCard
+                  item={item.job}
+                  onPress={() => {
+                    const tabMap: Record<string, string> = {
+                      'Applied': 'open',
+                      'Assigned': 'assigned',
+                      'Completed': 'completed',
+                      'Cancelled': 'cancelled',
+                    };
+                    router.push({
+                      pathname: '/bartender/jobs/job-details',
+                      params: {
+                        id: item.job._id,
+                        applicationId: item._id,
+                        jobId: item.job._id,
+                        initialTab: tabMap[activeTab]
+                      },
+                    });
+                  }}
+                />
+              )}
+              ListEmptyComponent={
+                <EmptyStateCard
+                  message={`No ${activeTab} Jobs found`}
+                />
+              }
 
-      />
+            />
+          )
+      }
+
 
     </SafeAreaView>
   );
@@ -120,6 +152,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.APP_BACKGROUND
+  },
+
+  loaderOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
   },
 
   tabList: {

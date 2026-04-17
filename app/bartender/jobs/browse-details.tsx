@@ -15,17 +15,32 @@ import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const JobDetails = () => {
+const BrowsDetailsScreen = () => {
     const [showApplyModal, setShowApplyModal] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const { id } = useLocalSearchParams<{ id: string }>();
     // const item = getJobs.find(j => j.id === id);
-    const { data: item, isLoading } = useGetSingleJobQuery(id, { skip: !id });
+    const { data: item, isLoading } = useGetSingleJobQuery(id!, {
+        skip: !id
+    });
+
     const [applyForJob] = useApplyForJobMutation();
 
-    if (!item) return null;
+    const isPageLoading = isLoading || loading;
 
+    if (isPageLoading) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={styles.loaderOverlay}>
+                    <CustomLoader />
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+
+   if (!item && !isPageLoading) return null;
 
     const statusColors = { bg: '#FFB02033', text: Colors.COLOR_ORANGE };
 
@@ -39,22 +54,17 @@ const JobDetails = () => {
             router.back();
         } catch (error: any) {
             const message = error?.data?.message || "Something went wrong!";
-            showToast(message,"error")
+            showToast(message, "error")
         } finally {
             setLoading(false);
         }
     };
 
+
+
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-            {/* Loader */}
-            {isLoading && (
-                <View style={styles.loaderOverlay}>
-                    <CustomLoader size={55} />
-                </View>
-            )}
-
-            <View style={{ marginTop: "4%" }}>
+            <View style={{ marginTop: hp(16) }}>
                 <SectionTitle title='Job Details' />
             </View>
 
@@ -111,11 +121,14 @@ const GigBasicDetails = ({ item }: { item: any }) => (
         <DetailsCardComponents topLabel="Location" bottomLabel={item.address} />
         <DetailsCardComponents
             topLabel="Date"
-            bottomLabel={item.startDateTime
-                ? new Date(item.startDateTime).toLocaleDateString('en-GB', {
-                    day: 'numeric', month: 'long', year: 'numeric'
-                })
-                : 'N/A'
+            bottomLabel={
+                item.startDateTime
+                    ? `${new Date(item.startDateTime).toLocaleDateString('en-GB', {
+                        day: 'numeric', month: 'long', year: 'numeric'
+                    })} - ${item.endDateTime ? new Date(item.endDateTime).toLocaleDateString('en-GB', {
+                        day: 'numeric', month: 'long', year: 'numeric'
+                    }) : ''}`
+                    : 'N/A'
             }
         />
         <DetailsCardComponents
@@ -247,4 +260,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default JobDetails;
+export default BrowsDetailsScreen;

@@ -38,9 +38,10 @@ const AddGig: React.FC = () => {
     const [createJob, { isLoading }] = useCreateJobMutation();
     const router = useRouter();
 
-    
 
-    const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+    const [startDate, setStartDate] = useState<Date>(new Date());
+    const [endDate, setEndDate] = useState<Date>(new Date());
+    const [showEndDatePicker, setShowEndDatePicker] = useState(false);
     const [startTime, setStartTime] = useState<Date>(new Date());
     const [endTime, setEndTime] = useState<Date>(new Date());
 
@@ -146,8 +147,8 @@ const AddGig: React.FC = () => {
                         coords?.lat ?? 23.8103,
                     ],
                 },
-                startDateTime: buildISO(selectedDate, startTime),
-                endDateTime: buildISO(selectedDate, endTime),
+                startDateTime: buildISO(startDate, startTime),
+                endDateTime: buildISO(endDate, endTime),
                 hourlyRate: Number(values.hourlyRate),
                 contactNumber: values.contactNumber,
                 description: description,
@@ -159,7 +160,7 @@ const AddGig: React.FC = () => {
             router.back();
         } catch (error: any) {
             console.error('Failed:', error);
-            showToast( error?.data?.message ?? 'Failed to publish job.',)
+            showToast(error?.data?.message ?? 'Failed to publish job.',)
         }
     };
 
@@ -175,7 +176,7 @@ const AddGig: React.FC = () => {
             >
                 <ScrollView
                     contentContainerStyle={styles.scrollContent}
-                    keyboardShouldPersistTaps="handled"  
+                    keyboardShouldPersistTaps="handled"
                 >
                     <FormInput
                         label="Event Title"
@@ -232,7 +233,7 @@ const AddGig: React.FC = () => {
                     </View>
 
                     {/* Date Picker */}
-                    <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+                    {/* <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                         <FormInput
                             label="Event Date"
                             placeholder="Select event date"
@@ -241,17 +242,53 @@ const AddGig: React.FC = () => {
                             editable={false}
                             rightIcon={<Ionicons name="calendar-outline" size={20} color={Colors.NEUTRAL0} />}
                         />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
+                    {/* Start Event Date */}
+
+                    <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+                        <FormInput
+                            label="Start Event Date"
+                            placeholder="Select start date"
+                            value={formatDate(startDate)}
+                            onChangeText={() => { }}
+                            editable={false}
+                            rightIcon={<Ionicons name="calendar-outline" size={20} color={Colors.NEUTRAL0} />}
+                        />
+                    </TouchableOpacity>
                     {showDatePicker && (
                         <DateTimePicker
-                            value={selectedDate}
+                            value={startDate}
                             mode="date"
                             display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                             minimumDate={new Date()}
                             onChange={(_, date) => {
                                 setShowDatePicker(false);
-                                if (date) setSelectedDate(date);
+                                if (date) setStartDate(date);
+                            }}
+                        />
+                    )}
+
+                    {/* End Date */}
+                    <TouchableOpacity onPress={() => setShowEndDatePicker(true)}>
+                        <FormInput
+                            label="End Event Date"
+                            placeholder="Select end date"
+                            value={formatDate(endDate)}
+                            onChangeText={() => { }}
+                            editable={false}
+                            rightIcon={<Ionicons name="calendar-outline" size={20} color={Colors.NEUTRAL0} />}
+                        />
+                    </TouchableOpacity>
+                    {showEndDatePicker && (
+                        <DateTimePicker
+                            value={endDate}
+                            mode="date"
+                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                            minimumDate={startDate} 
+                            onChange={(_, date) => {
+                                setShowEndDatePicker(false);
+                                if (date) setEndDate(date);
                             }}
                         />
                     )}

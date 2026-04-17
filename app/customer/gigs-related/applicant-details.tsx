@@ -12,7 +12,7 @@ import { useAcceptApplicationMutation, useGetSingleApplicationQuery } from '@/re
 import { hp, wp } from '@/utils/responsive';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, Image, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ApplicantDetails = () => {
@@ -54,7 +54,7 @@ const ApplicantDetails = () => {
         return (
             <SafeAreaView style={styles.container}>
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <ActivityIndicator color={Colors.BRAND_PRIMARY} />
+                   <CustomLoader/>
                 </View>
             </SafeAreaView>
         );
@@ -156,7 +156,7 @@ const ApplicantDetails = () => {
                     alignItems: 'center',
                     zIndex: 999
                 }]}>
-                    <CustomLoader size={55} />
+                    <CustomLoader />
                 </View>
             )}
 

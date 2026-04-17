@@ -3,8 +3,9 @@ import { LegalInfoContent } from '@/components/Profile/LegalInfoContent';
 import { Colors } from '@/constants/theme';
 import { useGetLegalInfoQuery } from '@/redux/services/profile';
 import React from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import CustomLoader from '../CustomLoader';
 
 export default function LegalCompanyInfoScreen() {
     const { data: legalData, isLoading } = useGetLegalInfoQuery({});
@@ -22,7 +23,7 @@ export default function LegalCompanyInfoScreen() {
     if (isLoading) {
         return (
             <View style={styles.loaderContainer}>
-                <ActivityIndicator size="large" color={Colors.BRAND_PRIMARY} />
+               <CustomLoader/>
             </View>
         );
     }

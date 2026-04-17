@@ -2,10 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { StarIcon } from '@/assets/images/icons/BarRelatedIcon/StarIcon';
+import CustomLoader from '@/components/CustomLoader';
 import SectionTitle from '@/components/SectionTitle';
 import { Body2, Caption1 } from '@/components/typo/Typography';
 import { IMAGE_COMPONENTS } from '@/constants/image.index';
@@ -60,7 +61,7 @@ const ApplicantsList = () => {
 
             {isLoading ? (
                 <View style={styles.loaderContainer}>
-                    <ActivityIndicator color={Colors.BRAND_PRIMARY} />
+                    <CustomLoader />
                 </View>
             ) : (
                 <FlatList

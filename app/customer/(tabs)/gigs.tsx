@@ -1,6 +1,6 @@
 import { Body2, Caption1 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -25,7 +25,8 @@ const tabTypeMap: Record<string, string> = {
 
 const GigsScreen = () => {
   const [activeTab, setActiveTab] = useState("Active");
-  const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [cachedData, setCachedData] = useState<Record<string, any[]>>({});
   const router = useRouter();
 
   const { resetTab } = useLocalSearchParams<{ resetTab?: string }>();
@@ -40,26 +41,47 @@ const GigsScreen = () => {
     { refetchOnMountOrArgChange: true }
   );
 
+  // tracking Cashe
+  useEffect(() => {
+    if (!isFetching && data?.result) {
+      setCachedData(prev => ({
+        ...prev,
+        [activeTab]: data.result
+      }));
+    }
+  }, [isFetching, data, activeTab]);
+
+
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
   }, [refetch]);
 
-  const filteredData = (data?.result || [])
-    .filter((job: any) => {
-      if (activeTab === 'Active') return job.status === 'Open';
-      if (activeTab === 'Assigned') return job.status === 'Assigned';
-      if (activeTab === 'Completed') return job.status === 'Completed';
-      if (activeTab === 'Cancelled') return job.status === 'Cancelled';
-      return true;
-    })
-    .sort((a: any, b: any) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+
+  const showLoader = useMemo(() => {
+    const hasCache = cachedData[activeTab]?.length > 0;
+    return isFetching && !hasCache && !refreshing;
+  }, [isFetching, cachedData, activeTab, refreshing]);
 
 
-  const showLoader = isLoading && !refreshing;
+  const filteredData = useMemo(() => {
+    const source = cachedData[activeTab] || data?.result || [];
+    return source
+      .filter((job: any) => {
+        if (activeTab === 'Active') return job.status === 'Open';
+        if (activeTab === 'Assigned') return job.status === 'Assigned';
+        if (activeTab === 'Completed') return job.status === 'Completed';
+        if (activeTab === 'Cancelled') return job.status === 'Cancelled';
+        return true;
+      })
+      .sort((a: any, b: any) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+  }, [cachedData, activeTab, data]);
+
+  // const showLoader = (isLoading || isFetching) && !refreshing;
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>

@@ -7,16 +7,16 @@ import { fp, hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
     FlatList,
     Platform,
     RefreshControl,
     StyleSheet,
     TouchableOpacity,
-    View,
+    View
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
+import CustomLoader from '../CustomLoader';
 import SectionTitle from '../SectionTitle';
 import BarCardComponents from '../cardComponents/BarCardComponents';
 import ItemCard from '../cardComponents/ItemCard';
@@ -202,7 +202,7 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
 
 
                         {isProdLoading && !isLoading && (
-                            <ActivityIndicator color={Colors.BRAND_PRIMARY} style={{ marginVertical: hp(20) }} />
+                           <CustomLoader/>
                         )}
                     </View>
                 }

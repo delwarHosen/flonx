@@ -2,8 +2,9 @@ import { Colors } from '@/constants/theme';
 import { useCreateSupportTicketMutation } from '@/redux/services/profile';
 import { fp, hp, wp } from '@/utils/responsive';
 import React, { useState } from 'react';
-import { ActivityIndicator, StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { CustomButton } from './CustomButton';
+import CustomLoader from './CustomLoader';
 import { showToast } from './Toast';
 import { Body1, Body2 } from './typo/Typography';
 
@@ -58,7 +59,7 @@ export default function ContactForm() {
                 height={hp(44)}
                 borderRadius={100}
                 disabled={isLoading}
-                icon={isLoading ? <ActivityIndicator color="#FFF" size="small" /> : undefined}
+                icon={isLoading ? <CustomLoader/> : undefined}
             />
         </View>
     );

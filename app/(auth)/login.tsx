@@ -10,7 +10,6 @@ import { useForm } from '@/hooks/useForm';
 import { setCredentials } from '@/redux/authSlice';
 import { baseApis } from '@/redux/base';
 import { useLoginMutation } from '@/redux/services/authApi';
-import { RootState } from '@/redux/store';
 import { hp, wp } from '@/utils/responsive';
 import { validateEmail, validatePassword } from '@/utils/validation';
 import { Link, useRouter } from 'expo-router';
@@ -19,7 +18,7 @@ import { jwtDecode } from "jwt-decode";
 import React from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { OneSignal } from 'react-native-onesignal';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 
 export default function LoginScreen() {
@@ -27,7 +26,7 @@ export default function LoginScreen() {
   const dispatch = useDispatch();
   const [isRemembered, setIsRemembered] = React.useState(false);
 
-  const userRole = useSelector((state: RootState) => state.auth.userRole);
+  // const userRole = useSelector((state: RootState) => state.auth.userRole);
   const [loginSubmit, { isLoading }] = useLoginMutation();
 
 
@@ -86,7 +85,7 @@ export default function LoginScreen() {
             //     await updatePlayerId({ playerId }).unwrap();
             //   } catch (e: any) {
             //     console.log('updatePlayerId error:', e);
-            //     // error হলেও login continue করবে
+            //    
             //   }
             // }
             // Success toast
@@ -100,10 +99,15 @@ export default function LoginScreen() {
           }
         }
       } catch (error: any) {
-        const message = error?.data?.message || error?.message || "Something went wrong!";
+        // console.log('ERROR CAUGHT:', JSON.stringify(error)); // 
+        const message =
+          error?.data?.message ||
+          error?.data?.error ||
+          error?.message ||
+          "Login failed. Please try again.";
 
-        //  Error toast
-        showToast(message, 'error');
+        console.log('MESSAGE:', message); // 
+        // showToast(message, 'error');
       }
     },
   });

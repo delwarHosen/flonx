@@ -43,7 +43,7 @@ export default function TabsLayout() {
                 tabPress: (e) => {
                     const target = e.target ?? '';
                     const tabName = TAB_NAMES.find(name => target.startsWith(name));
-                    console.log('tabName:', tabName);
+                    // console.log('tabName:', tabName);
                     if (tabName && tabHistory.current[tabHistory.current.length - 1] !== tabName) {
                         tabHistory.current.push(tabName);
                     }

@@ -2,9 +2,10 @@ import SectionTitle from '@/components/SectionTitle';
 import { Body1 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import React from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import RenderHtml from 'react-native-render-html';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import CustomLoader from '../CustomLoader';
 
 interface PolicyScreenProps {
     title: string;
@@ -34,7 +35,7 @@ export default function PolicyScreen({ title, staticTitle, data, isLoading }: Po
 
             {isLoading ? (
                 <View style={styles.loaderContainer}>
-                    <ActivityIndicator size="large" color={Colors.BRAND_PRIMARY} />
+                   <CustomLoader/>
                 </View>
             ) : (
                 <ScrollView

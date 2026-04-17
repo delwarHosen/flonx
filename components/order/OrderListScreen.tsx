@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CustomButton } from '@/components/CustomButton';
@@ -15,6 +15,7 @@ import { hp, wp } from '@/utils/responsive';
 import { useSelector } from 'react-redux';
 
 import * as SecureStore from 'expo-secure-store';
+import CustomLoader from '../CustomLoader';
 
 const CURRENT_STATUSES = ['PENDING', 'QUEUED', 'IN_PROGRESS', 'READY_FOR_PIC'];
 const PAST_STATUSES = ['PICKED', 'CANCELLED', 'DELIVERED', 'REJECTED'];
@@ -178,7 +179,7 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
         <View style={styles.cardFooterWrapper}>
           <View style={styles.footerDivider} />
           <View style={styles.cardFooter}>
-           
+
             <View style={styles.priceContainer}>
               <Body1 color={Colors.NEUTRAL0}>Total Price</Body1>
               <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: 2 }}>
@@ -186,12 +187,12 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
               </Caption1>
             </View>
 
-           
+
             <CustomButton
               title="See More"
-              onPress={handlePress} 
-              width={wp(90)}     
-              height={hp(38)}     
+              onPress={handlePress}
+              width={wp(90)}
+              height={hp(38)}
               borderRadius={100}
               backgroundColor={Colors.BRAND_PRIMARY}
             />
@@ -203,7 +204,7 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <SectionTitle title="My Orders" />
 
       <View style={styles.tabWrapper}>
@@ -221,37 +222,39 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
         ))}
       </View>
 
-      {isLoading ? (
-        <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#8B5CF6" />
-        </View>
-      ) : isError ? (
-        <View style={styles.centerContainer}>
-          <EmptyStateCard message="Failed to load orders. Please try again." />
-        </View>
-      ) : filteredOrders.length > 0 ? (
-        <FlatList
-          data={filteredOrders}
-          keyExtractor={(item) => item._id}
-          renderItem={renderOrderItem}
-          contentContainerStyle={styles.listContent}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={Colors.BRAND_PRIMARY}
-              colors={[Colors.BRAND_PRIMARY]}
-            />
-          }
-          showsVerticalScrollIndicator={false}
-        />
-      ) : (
-        <View style={{ padding: 20 }}>
-          <EmptyStateCard
-            message={selectedTab === 'Current Orders' ? 'No current orders' : 'No past orders'}
+      <View style={{ flex: 1, marginTop: hp(10) }}>
+        {isLoading ? (
+          <View style={styles.centerContainer}>
+            <CustomLoader />
+          </View>
+        ) : isError ? (
+          <View style={styles.centerContainer}>
+            <EmptyStateCard message="Failed to load orders. Please try again." />
+          </View>
+        ) : filteredOrders.length > 0 ? (
+          <FlatList
+            data={filteredOrders}
+            keyExtractor={(item) => item._id}
+            renderItem={renderOrderItem}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={Colors.BRAND_PRIMARY}
+                colors={[Colors.BRAND_PRIMARY]}
+              />
+            }
           />
-        </View>
-      )}
+        ) : (
+          <View style={{ padding: 20 }}>
+            <EmptyStateCard
+              message={selectedTab === 'Current Orders' ? 'No current orders' : 'No past orders'}
+            />
+          </View>
+        )}
+      </View>
     </SafeAreaView>
   );
 };
@@ -265,13 +268,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: wp(20),
     justifyContent: 'space-between',
+    // paddingBottom: hp(10), 
+    backgroundColor: Colors.APP_BACKGROUND, 
+    // zIndex: 10,
   },
   tabItem: {
     width: '48%',
   },
   listContent: {
     paddingHorizontal: wp(20),
-    paddingTop: hp(25),
+    paddingTop: hp(5), 
+    paddingBottom: hp(20),
   },
   orderCard: {
     backgroundColor: Colors.INPUT_BACKGROUND,
@@ -312,7 +319,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: wp(12),
   },
-  
+
   footerDivider: {
     height: 1,
     backgroundColor: Colors.BORDER_COLOR,
@@ -320,15 +327,15 @@ const styles = StyleSheet.create({
   },
   cardFooter: {
     flexDirection: 'row',
-    justifyContent: 'space-between', 
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 4,
     marginTop: hp(4),
   },
   priceContainer: {
-    flex: 1, 
+    flex: 1,
   },
-  
+
   cardFooterWrapper: {
     marginTop: hp(10),
   },

@@ -109,11 +109,11 @@ const BrowseScreen: React.FC = () => {
 
             {isLoading && !refreshing && (
                 <View style={styles.loaderOverlay}>
-                    <CustomLoader color={Colors.BRAND_PRIMARY} />
+                    <CustomLoader  />
                 </View>
             )}
 
-            {/* ✅ Sticky header — scroll হবে না */}
+            {/*  Sticky header */}
             <View style={styles.stickyHeader}>
                 <View style={styles.header}>
                     <View style={styles.userInfo}>

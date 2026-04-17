@@ -188,7 +188,7 @@ const TipSelectionContent: React.FC<TipSelectionProps> = ({
                             )}
                             <View style={styles.buttonWrapper}>
                                 <CustomButton
-                                    title={isLoading ? "..." : "Continue"}
+                                    title={isLoading ? "Loading" : "Continue"}
                                     onPress={handleTopBartender}
                                     disabled={isLoading}
                                     width="100%"
@@ -201,7 +201,7 @@ const TipSelectionContent: React.FC<TipSelectionProps> = ({
                         <CustomButton
                             title={'Skip & Continue Ordering'}
                             onPress={() => {
-                                console.log("Navigating to:", skipRoute);  // ← debug
+                                console.log("Navigating to:", skipRoute);  
                                 router.push(skipRoute as any)
                             }}
                             width="100%"

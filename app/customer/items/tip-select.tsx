@@ -1,15 +1,16 @@
 import TipSelectionContent from '@/components/CommonComponents/TipSelectionContent';
+import CustomLoader from '@/components/CustomLoader';
 import { Colors } from '@/constants/theme';
 import { useRequireCustomer } from '@/hooks/useRequireCustomer';
 import { useLocalSearchParams } from 'expo-router';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 
 export default function CustomerTip() {
     const checked = useRequireCustomer();
 
     if (!checked) return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.APP_BACKGROUND }}>
-            <ActivityIndicator size="large" color={Colors.BRAND_PRIMARY} />
+           <CustomLoader/>
         </View>
     );
     const { orderId } = useLocalSearchParams<{ orderId: string }>();

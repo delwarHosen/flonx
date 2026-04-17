@@ -3,9 +3,10 @@ import { Body1 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { useGetTermsConditionsQuery } from '@/redux/services/profile';
 import React from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import RenderHtml from 'react-native-render-html';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import CustomLoader from '../CustomLoader';
 
 export default function TermsConditionScreen() {
     const { data, isLoading } = useGetTermsConditionsQuery(undefined);
@@ -13,13 +14,6 @@ export default function TermsConditionScreen() {
 
     const htmlContent = data?.description || '<p>No terms available.</p>';
 
-    // const formattedDate = data?.createdAt
-    //     ? new Date(data.createdAt).toLocaleDateString('en-US', {
-    //         day: 'numeric',
-    //         month: 'long',
-    //         year: 'numeric',
-    //     })
-    //     : '';
 
     return (
         <SafeAreaView style={styles.safeAreaContainer}>
@@ -29,7 +23,7 @@ export default function TermsConditionScreen() {
 
             {isLoading ? (
                 <View style={styles.loaderContainer}>
-                    <ActivityIndicator size="large" color={Colors.BRAND_PRIMARY} />
+                    <CustomLoader/>
                 </View>
             ) : (
                 <ScrollView

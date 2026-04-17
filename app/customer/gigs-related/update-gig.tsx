@@ -1,4 +1,5 @@
 import { CustomButton } from '@/components/CustomButton';
+import CustomLoader from '@/components/CustomLoader';
 import { FormInput } from '@/components/inputForm/InputForm';
 import SectionTitle from '@/components/SectionTitle';
 import { showToast } from '@/components/Toast';
@@ -13,7 +14,6 @@ import * as Location from 'expo-location';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -37,11 +37,14 @@ const UpdateGig: React.FC = () => {
     const [contactNumber, setContactNumber] = useState('');
     const [description, setDescription] = useState('');
 
-    const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+    //  startDate and endDate
+    const [startDate, setStartDate] = useState<Date>(new Date());
+    const [endDate, setEndDate] = useState<Date>(new Date());
     const [startTime, setStartTime] = useState<Date>(new Date());
     const [endTime, setEndTime] = useState<Date>(new Date());
 
-    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+    const [showEndDatePicker, setShowEndDatePicker] = useState(false);
     const [showStartTimePicker, setShowStartTimePicker] = useState(false);
     const [showEndTimePicker, setShowEndTimePicker] = useState(false);
 
@@ -65,13 +68,18 @@ const UpdateGig: React.FC = () => {
                 });
             }
 
+            //  startDate ও startTime আলাদা
             if (job.startDateTime) {
                 const s = new Date(job.startDateTime);
-                setSelectedDate(s);
+                setStartDate(s);
                 setStartTime(s);
             }
+
+            //  endDate ও endTime আলাদা
             if (job.endDateTime) {
-                setEndTime(new Date(job.endDateTime));
+                const e = new Date(job.endDateTime);
+                setEndDate(e);
+                setEndTime(e);
             }
         }
     }, [job]);
@@ -96,9 +104,7 @@ const UpdateGig: React.FC = () => {
             setCoords({ lat: latitude, lng: longitude });
 
             const [place] = await Location.reverseGeocodeAsync({ latitude, longitude });
-            const addr = [place.street, place.city, place.country]
-                .filter(Boolean)
-                .join(', ');
+            const addr = [place.street, place.city, place.country].filter(Boolean).join(', ');
             setAddress(addr);
             setSuggestions([]);
             setShowSuggestions(false);
@@ -126,19 +132,16 @@ const UpdateGig: React.FC = () => {
         setAddress(s.name);
         setShowSuggestions(false);
         setSuggestions([]);
-
         const details = await getPlaceDetails(s.placeId);
         if (details?.latitude && details?.longitude) {
             setCoords({ lat: details.latitude, lng: details.longitude });
         }
     };
 
-   const handleUpdate = async () => {
+    const handleUpdate = async () => {
         try {
-            
             if (!title || !address || !hourlyRate) {
-               
-                showToast('Please fill in all required fields.')
+                showToast('Please fill in all required fields.', 'error');
                 return;
             }
 
@@ -153,22 +156,19 @@ const UpdateGig: React.FC = () => {
                         coords?.lat ?? job?.location?.coordinates[1] ?? 23.8103,
                     ],
                 },
-                startDateTime: buildISO(selectedDate, startTime),
-                endDateTime: buildISO(selectedDate, endTime),
+                //  startDate এবং endDate আলাদাভাবে use হচ্ছে
+                startDateTime: buildISO(startDate, startTime),
+                endDateTime: buildISO(endDate, endTime),
                 hourlyRate: Number(hourlyRate),
                 contactNumber,
                 description,
             };
 
             await updateJob(payload).unwrap();
-            showToast('Job updated successfully!',)
+            showToast('Job updated successfully!', 'success');
             router.back();
         } catch (error: any) {
-            console.error("Update error full:", JSON.stringify(error));
-            
-         
-            const errorMessage = error?.data?.message || error?.message || 'Failed to update job.';
-            showToast(errorMessage,"error")
+            console.error('Update error:', JSON.stringify(error));
         }
     };
 
@@ -176,7 +176,7 @@ const UpdateGig: React.FC = () => {
         return (
             <SafeAreaView style={styles.container}>
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <ActivityIndicator color={Colors.BRAND_PRIMARY} />
+                   <CustomLoader/>
                 </View>
             </SafeAreaView>
         );
@@ -203,7 +203,7 @@ const UpdateGig: React.FC = () => {
                         onChangeText={setTitle}
                     />
 
-                    {/* Location Field with Suggestions */}
+                    {/* Location */}
                     <View>
                         <FormInput
                             label="Event Location"
@@ -220,7 +220,6 @@ const UpdateGig: React.FC = () => {
                                 </TouchableOpacity>
                             }
                         />
-
                         {showSuggestions && suggestions.length > 0 && (
                             <View style={styles.suggestionBox}>
                                 {suggestions.map((s) => (
@@ -229,15 +228,8 @@ const UpdateGig: React.FC = () => {
                                         onPress={() => handleSelectSuggestion(s)}
                                         style={styles.suggestionItem}
                                     >
-                                        <Ionicons
-                                            name="location-outline"
-                                            size={16}
-                                            color={Colors.PLACEHOLLDER_TEXT}
-                                        />
-                                        <Body2
-                                            color={Colors.NEUTRAL0}
-                                            style={{ marginLeft: 8, flex: 1 }}
-                                        >
+                                        <Ionicons name="location-outline" size={16} color={Colors.PLACEHOLLDER_TEXT} />
+                                        <Body2 color={Colors.NEUTRAL0} style={{ marginLeft: 8, flex: 1 }}>
                                             {s.name}
                                         </Body2>
                                     </TouchableOpacity>
@@ -246,26 +238,50 @@ const UpdateGig: React.FC = () => {
                         )}
                     </View>
 
-                    {/* Date Picker */}
-                    <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+                    {/*  Start Event Date */}
+                    <TouchableOpacity onPress={() => setShowStartDatePicker(true)}>
                         <FormInput
-                            label="Event Date"
-                            placeholder="Select event date"
-                            value={formatDate(selectedDate)}
-                            onChangeText={() => { }}
+                            label="Start Event Date"
+                            placeholder="Select start date"
+                            value={formatDate(startDate)}
+                            onChangeText={() => {}}
                             editable={false}
                             rightIcon={<Ionicons name="calendar-outline" size={20} color={Colors.NEUTRAL0} />}
                         />
                     </TouchableOpacity>
-                    {showDatePicker && (
+                    {showStartDatePicker && (
                         <DateTimePicker
-                            value={selectedDate}
+                            value={startDate}
                             mode="date"
                             display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                             minimumDate={new Date()}
                             onChange={(_, date) => {
-                                setShowDatePicker(false);
-                                if (date) setSelectedDate(date);
+                                setShowStartDatePicker(false);
+                                if (date) setStartDate(date);
+                            }}
+                        />
+                    )}
+
+                    {/*  End Event Date */}
+                    <TouchableOpacity onPress={() => setShowEndDatePicker(true)}>
+                        <FormInput
+                            label="End Event Date"
+                            placeholder="Select end date"
+                            value={formatDate(endDate)}
+                            onChangeText={() => {}}
+                            editable={false}
+                            rightIcon={<Ionicons name="calendar-outline" size={20} color={Colors.NEUTRAL0} />}
+                        />
+                    </TouchableOpacity>
+                    {showEndDatePicker && (
+                        <DateTimePicker
+                            value={endDate}
+                            mode="date"
+                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                            minimumDate={startDate}
+                            onChange={(_, date) => {
+                                setShowEndDatePicker(false);
+                                if (date) setEndDate(date);
                             }}
                         />
                     )}
@@ -276,7 +292,7 @@ const UpdateGig: React.FC = () => {
                             label="Start Time"
                             placeholder="Select start time"
                             value={formatTime(startTime)}
-                            onChangeText={() => { }}
+                            onChangeText={() => {}}
                             editable={false}
                             rightIcon={<Ionicons name="time-outline" size={20} color={Colors.NEUTRAL0} />}
                         />
@@ -299,7 +315,7 @@ const UpdateGig: React.FC = () => {
                             label="End Time"
                             placeholder="Select end time"
                             value={formatTime(endTime)}
-                            onChangeText={() => { }}
+                            onChangeText={() => {}}
                             editable={false}
                             rightIcon={<Ionicons name="time-outline" size={20} color={Colors.NEUTRAL0} />}
                         />

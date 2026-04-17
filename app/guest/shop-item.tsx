@@ -1,9 +1,9 @@
 import ShopItemsScreen from '@/components/CommonComponents/ShopItemsScreen';
-import { Colors } from '@/constants/theme';
+import CustomLoader from '@/components/CustomLoader';
 import { useGetAllVenuesQuery, useGetCategoriesByVenueQuery, useGetProductsByVenueQuery } from '@/redux/services/venueApi';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 
 export default function GuestShopItem() {
     const { barId } = useLocalSearchParams<{ barId: string }>();
@@ -39,7 +39,7 @@ export default function GuestShopItem() {
     if ((isCatLoading || isProdFirstLoad) && !isProdFetching) {
         return (
             <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                <ActivityIndicator size="large" color={Colors.BRAND_PRIMARY} />
+                <CustomLoader/>
             </View>
         );
     }

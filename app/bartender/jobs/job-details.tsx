@@ -39,7 +39,7 @@ const JobDetails = () => {
         refetchOnMountOrArgChange: true,
         refetchOnFocus: true,
     });
-  
+
     // console.log("Single data from job-details",item)
 
     const onRefresh = useCallback(async () => {
@@ -57,7 +57,7 @@ const JobDetails = () => {
     if (isLoading || (isFetching && !refreshing)) return (
         <SafeAreaView style={styles.container}>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <CustomLoader size={55} />
+                <CustomLoader />
             </View>
         </SafeAreaView>
     );
@@ -79,6 +79,7 @@ const JobDetails = () => {
 
     const statusColors = getStatusColors(item?.status);
 
+
     const confirmComplete = () => {
         setShowCompleteModal(false);
         setTimeout(async () => {
@@ -94,59 +95,43 @@ const JobDetails = () => {
     };
 
 
-   const confirmCancelApplication = async () => {
-    setShowCancelModal(false);
-    setLoading(true);
-    try {
-        await cancelApplication(jobId).unwrap();  
-        router.back();
-    } catch (error: any) {
-        showToast(error?.data?.message || "Something went wrong!", "error");
-    } finally {
-        setLoading(false);
-    }
-};
-    // const confirmCancelAssignment = () => {
-    //     setShowCancelAssignmentModal(false);
-    //     setShowCancelModal(false);
-
-    //     setTimeout(async () => {
-    //         setLoading(true);
-    //         try {
-    //             console.log("item._id:", item._id);
-    //             const result = await cancelJob(jobId).unwrap();
-    //             // console.log("Cancel success:", result);
-    //             setLoading(false);
-    //             router.push({
-    //                 pathname: '/bartender/(tabs)/my-jobs',
-    //                 params: { resetTab: 'Cancelled' }
-    //             });
-    //         } catch (error: any) {
-    //             // console.log("Cancel error status:", error?.status);
-    //             // console.log("Cancel error data:", error?.data);
-    //             // console.log("Cancel error full:", JSON.stringify(error));
-    //             setLoading(false);
-    //         }
-    //     }, 300);
-    // };
+    const confirmCancelApplication = async () => {
+        setShowCancelModal(false);
+        setLoading(true);
+        try {
+            const res = await cancelApplication(jobId).unwrap();
+            showToast(res?.message || "Application cancelled successfully!", "success");
+            router.back();
+        } catch (error: any) {
+            showToast(error?.data?.message || "Something went wrong!", "error");
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
-    // ─── Cancel Assignment (assigned tab) ───
+    // cancle applicatin which the customer was assigned me 
     const confirmCancelAssignment = () => {
         setShowCancelAssignmentModal(false);
         setTimeout(async () => {
             setLoading(true);
             try {
-                await cancelJob(jobId).unwrap();
+                const res = await cancelJob(jobId).unwrap();
+                showToast(res?.message || "Assignment cancelled successfully", "success");
                 setLoading(false);
-                router.back();
+
+                setTimeout(() => {
+                    router.back();
+                }, 100);
+
             } catch (error: any) {
                 setLoading(false);
+                const errorMsg = error?.data?.message || "Failed to cancel assignment";
+                showToast(errorMsg, "error");
             }
         }, 300);
     };
-    // console.log("appliedOn:", item.appliedOn);
-    // console.log("full item:", JSON.stringify(item, null, 2));
+
 
 
     const renderBottomSection = () => {
@@ -241,6 +226,16 @@ const JobDetails = () => {
 
             // ─── 4th Page: Cancelled ──────────────────────────────────────
             case 'cancelled':
+                const cancelledByValue = item.cancelledBy?.toLowerCase();
+
+                let displayLabel = "—";
+                if (cancelledByValue === 'bartender') {
+                    displayLabel = "Me";
+                } else if (cancelledByValue === 'customer') {
+                    displayLabel = "Customer";
+                } else {
+                    displayLabel = item.cancelledBy || "—";
+                }
                 return (
                     <>
 
@@ -248,12 +243,20 @@ const JobDetails = () => {
                         <View style={{ marginBottom: hp(12), marginTop: hp(16) }}>
                             <DetailsCardComponents
                                 topLabel="Cancelled By"
-                                bottomLabel={item.cancelledBy ?? '—'}
+                                bottomLabel={displayLabel}
                             />
 
                             <DetailsCardComponents
                                 topLabel="Cancelled On"
-                                bottomLabel={item.cancellationDate ?? '—'}
+                                bottomLabel={
+                                    item.cancellationDate
+                                        ? new Date(item.cancellationDate).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'long',
+                                            year: 'numeric',
+                                        })
+                                        : '—'
+                                }
                             />
                         </View>
 
@@ -277,7 +280,7 @@ const JobDetails = () => {
                     alignItems: 'center',
                     zIndex: 999
                 }]}>
-                    <CustomLoader size={55} />
+                    <CustomLoader />
                 </View>
             )}
 
@@ -365,12 +368,18 @@ const JobDetails = () => {
 const GigBasicDetails = ({ item }: { item: any }) => (
     <>
         <DetailsCardComponents topLabel="Location" bottomLabel={item.address} />
-        <DetailsCardComponents topLabel="Date" bottomLabel={item.startDateTime
-            ? new Date(item.startDateTime).toLocaleDateString('en-GB', {
-                day: 'numeric', month: 'long', year: 'numeric'
-            })
-            : 'N/A'
-        } />
+        <DetailsCardComponents
+            topLabel="Date"
+            bottomLabel={
+                item.startDateTime
+                    ? `${new Date(item.startDateTime).toLocaleDateString('en-GB', {
+                        day: 'numeric', month: 'long', year: 'numeric'
+                    })} - ${item.endDateTime ? new Date(item.endDateTime).toLocaleDateString('en-GB', {
+                        day: 'numeric', month: 'long', year: 'numeric'
+                    }) : ''}`
+                    : 'N/A'
+            }
+        />
         <DetailsCardComponents topLabel="Time" bottomLabel={
             item?.startDateTime
                 ? `${new Date(item.startDateTime).toLocaleTimeString('en-US', {

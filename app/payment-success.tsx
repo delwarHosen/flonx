@@ -1,7 +1,8 @@
+import CustomLoader from '@/components/CustomLoader';
 import { Colors } from '@/constants/theme';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 
 export default function PaymentSuccess() {
     const router = useRouter();
@@ -17,7 +18,7 @@ export default function PaymentSuccess() {
 
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.APP_BACKGROUND }}>
-            <ActivityIndicator size="large" color={Colors.BRAND_PRIMARY} />
+           <CustomLoader/>
         </View>
     );
 }

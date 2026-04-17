@@ -11,42 +11,69 @@ interface ToastState {
     visible: boolean;
 }
 
+type ToastConfig = { message: string; type?: ToastType; duration?: number };
+
 let toastRef: ((config: { message: string; type?: ToastType; duration?: number }) => void) | null = null;
+const toastQueue: ToastConfig[] = [];
 
 export const showToast = (message: string, type: ToastType = 'info', duration = 2000) => {
-    toastRef?.({ message, type, duration });
+    if (toastRef) {
+        toastRef({ message, type, duration });
+    } else {
+        toastQueue.push({ message, type, duration });
+    }
 };
 
 export default function Toast() {
     const [state, setState] = useState<ToastState>({ message: '', type: 'info', visible: false });
     const opacity = useRef(new Animated.Value(0)).current;
-    const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const animationRef = useRef<Animated.CompositeAnimation | null>(null);
 
+   
     useEffect(() => {
         toastRef = ({ message, type = 'info', duration = 2000 }) => {
-            if (timer.current) clearTimeout(timer.current);
-
+         
+            if (animationRef.current) animationRef.current.stop();
+            opacity.setValue(0);
             setState({ message, type, visible: true });
 
-            Animated.sequence([
-                Animated.timing(opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+            animationRef.current = Animated.sequence([
+                Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: true }),
                 Animated.delay(duration),
-                Animated.timing(opacity, { toValue: 0, duration: 500, useNativeDriver: true }),
-            ]).start(() => setState(prev => ({ ...prev, visible: false })));
+                Animated.timing(opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
+            ]);
+
+            animationRef.current.start(({ finished }) => {
+                if (finished) setState(prev => ({ ...prev, visible: false }));
+            });
         };
 
-        return () => { toastRef = null; };
-    }, []);
+        
+        if (toastQueue.length > 0) {
+            const pending = toastQueue.shift()!;
+            toastRef(pending);
+        }
 
-    if (!state.visible) return null;
+    }, []);
 
     const bgColor =
         state.type === 'success' ? '#822CE7' :
-        state.type === 'error'   ? '#FE4C5D' :
-                                   '#1565C0';
+            state.type === 'error' ? '#FE4C5D' :
+                '#1565C0';
+
 
     return (
-        <Animated.View style={[styles.toast, { opacity, backgroundColor: bgColor }]}>
+        <Animated.View
+            pointerEvents={state.visible ? 'auto' : 'none'}
+            style={[
+                styles.toast,
+                {
+                    opacity,
+                    backgroundColor: bgColor,
+                    display: state.visible ? 'flex' : 'none'
+                }
+            ]}
+        >
             <View style={styles.row}>
                 <Image
                     source={require('@/assets/images/icon.png')}
@@ -62,13 +89,14 @@ export default function Toast() {
 const styles = StyleSheet.create({
     toast: {
         position: 'absolute',
-        bottom: hp(200),
+        top: hp(100),
         left: 20,
         right: 20,
         borderRadius: 8,
         paddingVertical: 12,
         paddingHorizontal: 16,
         elevation: 10,
+        zIndex: 9999,
     },
     row: {
         flexDirection: 'row',
@@ -84,6 +112,6 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 14,
         fontWeight: '500',
-        flex: 1,       
+        flex: 1,
     },
 });

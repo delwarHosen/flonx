@@ -6,6 +6,7 @@ import { ConfirmationModal } from '@/components/ConfirmationModalProps';
 import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
 import SectionTitle from '@/components/SectionTitle';
+import { showToast } from '@/components/Toast';
 import { Body1, Body2, Caption2, Caption3 } from '@/components/typo/Typography';
 import { IMAGE_COMPONENTS } from '@/constants/image.index';
 import { Colors } from '@/constants/theme';
@@ -49,7 +50,7 @@ const GigDetails = () => {
     if ((isLoading || isFetching) && !item) return (
         <SafeAreaView style={styles.container}>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <CustomLoader size={55} />
+                <CustomLoader />
             </View>
         </SafeAreaView>
     );
@@ -71,16 +72,20 @@ const GigDetails = () => {
 
     const statusColors = getStatusColors(item.status);
 
-
     const confirmComplete = () => {
         setShowCompleteModal(false);
         setTimeout(async () => {
             setLoading(true);
             try {
-                // API Call logic here
-                await markJobAsComplete(item._id).unwrap();
+                // API Call
+                const res = await markJobAsComplete(item._id).unwrap();
+                showToast(res?.message || "Job marked as completed!", "success");
+
                 router.back();
-            } catch (error) {
+            } catch (error: any) {
+                const errorMsg = error?.data?.message || "Failed to complete the job!";
+                showToast(errorMsg, "error");
+            } finally {
                 setLoading(false);
             }
         }, 300);
@@ -89,18 +94,24 @@ const GigDetails = () => {
 
     const confirmCancelAssignment = () => {
         setShowCancelModal(false);
+
         setTimeout(async () => {
             setLoading(true);
             try {
-                const result = await cancelJob(item._id).unwrap();
-                // console.log("Cancel success:", result);
+                const res = await cancelJob(item._id).unwrap();
+
+                showToast(res?.message || "Assignment cancelled successfully", "success");
+
                 setLoading(false);
+
                 router.push({
                     pathname: '/customer/(tabs)/gigs',
                     params: { resetTab: 'Cancelled' }
                 });
             } catch (error: any) {
-                // console.log("Cancel error:", error);
+                const errorMsg = error?.data?.message || "Failed to cancel assignment!";
+                showToast(errorMsg, "error");
+
                 setLoading(false);
             }
         }, 300);
@@ -113,12 +124,16 @@ const GigDetails = () => {
         setTimeout(async () => {
             setLoading(true);
             try {
+                const res = await deleteJob(item._id).unwrap();
+                showToast(res?.message || "Job deleted successfully!", "success");
 
-                await deleteJob(item._id).unwrap();
                 setLoading(false);
                 router.back();
-            } catch (error) {
+            } catch (error: any) {
                 setLoading(false);
+
+                const errorMsg = error?.data?.message || "Failed to delete the job!";
+                showToast(errorMsg, "error");
                 console.error("Delete failed", error);
             }
         }, 300);
@@ -244,7 +259,7 @@ const GigDetails = () => {
                         <TouchableOpacity
                             style={styles.assignedRow}
                             onPress={() => {
-                                console.log("Job id:", item._id)
+                                // console.log("Job id:", item._id)
                                 router.push({
                                     pathname: '/customer/gigs-related/applicant-profile-details',
                                     params: {
@@ -290,14 +305,26 @@ const GigDetails = () => {
 
             // ─── 4th Page: Cancelled ──────────────────────────────────────
             case 'cancelled':
+                
+                const cancelledByValue = item.cancelledBy?.toLowerCase();
+
+                let displayLabel = "—";
+                if (cancelledByValue === 'customer') {
+                    displayLabel = "Me";
+                } else if (cancelledByValue === 'bartender') {
+                    displayLabel = "Bartender";
+                } else {
+                    displayLabel = item.cancelledBy || "—";
+                }
                 return (
+
                     <>
 
 
                         <View style={{ marginBottom: hp(12), marginTop: hp(16), }}>
                             <DetailsCardComponents
                                 topLabel="Cancelled By"
-                                bottomLabel={item.cancelledBy ?? '—'}
+                                bottomLabel={displayLabel}
                             />
 
                             <DetailsCardComponents
@@ -438,12 +465,18 @@ const GigDetails = () => {
 const GigBasicDetails = ({ item }: { item: any }) => (
     <>
         <DetailsCardComponents topLabel="Location" bottomLabel={item.address} />
-        <DetailsCardComponents topLabel="Date" bottomLabel={item.startDateTime
-            ? new Date(item.startDateTime).toLocaleDateString('en-GB', {
-                day: 'numeric', month: 'long', year: 'numeric'
-            })
-            : 'N/A'
-        } />
+        <DetailsCardComponents
+            topLabel="Date"
+            bottomLabel={
+                item.startDateTime
+                    ? `${new Date(item.startDateTime).toLocaleDateString('en-GB', {
+                        day: 'numeric', month: 'long', year: 'numeric'
+                    })} - ${item.endDateTime ? new Date(item.endDateTime).toLocaleDateString('en-GB', {
+                        day: 'numeric', month: 'long', year: 'numeric'
+                    }) : ''}`
+                    : 'N/A'
+            }
+        />
         <DetailsCardComponents topLabel="Time" bottomLabel={
             item?.startDateTime
                 ? `${new Date(item.startDateTime).toLocaleTimeString('en-US', {

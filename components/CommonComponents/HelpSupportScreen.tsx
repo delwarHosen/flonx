@@ -5,8 +5,9 @@ import { Body1 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { useGetFaqQuery } from '@/redux/services/profile';
 import React from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import CustomLoader from '../CustomLoader';
 
 export default function HelpSupportScreen() {
     const { data: faqData, isLoading } = useGetFaqQuery({});
@@ -30,7 +31,7 @@ export default function HelpSupportScreen() {
 
             {isLoading ? (
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <ActivityIndicator size="large" color={Colors.BRAND_PRIMARY} />
+                   <CustomLoader/>
                 </View>
             ) : (
                 <HelpSupportContent data={displayData} />

@@ -1,8 +1,9 @@
+import CustomLoader from '@/components/CustomLoader';
 import { PickupOrderContent } from '@/components/ItemsRelated/PickupOrderContent';
 import { Colors } from '@/constants/theme';
 import { useRequireCustomer } from '@/hooks/useRequireCustomer';
 import { useLocalSearchParams } from 'expo-router';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CustomerPickup() {
@@ -10,7 +11,7 @@ export default function CustomerPickup() {
 
     if (!checked) return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.APP_BACKGROUND }}>
-            <ActivityIndicator size="large" color={Colors.BRAND_PRIMARY} />
+           <CustomLoader/>
         </View>
     );
     const { id, orderCode, venueName } = useLocalSearchParams<{ id: string; orderCode: string, venueName: string; }>();
