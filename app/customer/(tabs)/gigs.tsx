@@ -154,24 +154,29 @@ const CreatGig = () => {
   const router = useRouter();
   return (
     <View style={styles.createCard}>
-      <View>
+      
+      <View style={{ flex: 1, marginRight: wp(10), justifyContent: 'center' }}>
         <Body2 color={Colors.NEUTRAL0}>Create a New Gig</Body2>
         <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: hp(8) }}>
           Provide the details to publish your job.
         </Caption1>
       </View>
-      <View>
+
+    
+      <View style={{ justifyContent: 'center', alignItems: 'center' }}>
         <CustomButton
           onPress={() => router.push('/customer/gigs-related/add-gig')}
           icon={<PlusWithBorderIcon />}
-          width={36}
-          height={36}
+          width={40}
+          height={40}
           borderRadius={100}
+          style={{ margin: 0 }}
         />
       </View>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -211,9 +216,10 @@ const styles = StyleSheet.create({
     marginBottom: hp(20),
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'center', // এটিই ভার্টিক্যালি সেন্টার করার প্রধান প্রপার্টি
     borderWidth: 1,
     borderColor: Colors.BORDER_COLOR,
+    minHeight: hp(80), // একটি মিনিমাম হাইট দিয়ে দেখতে পারেন
   },
 });
 

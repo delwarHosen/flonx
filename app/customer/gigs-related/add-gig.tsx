@@ -232,19 +232,6 @@ const AddGig: React.FC = () => {
                         )}
                     </View>
 
-                    {/* Date Picker */}
-                    {/* <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-                        <FormInput
-                            label="Event Date"
-                            placeholder="Select event date"
-                            value={formatDate(selectedDate)}
-                            onChangeText={() => { }}
-                            editable={false}
-                            rightIcon={<Ionicons name="calendar-outline" size={20} color={Colors.NEUTRAL0} />}
-                        />
-                    </TouchableOpacity> */}
-
-                    {/* Start Event Date */}
 
                     <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                         <FormInput

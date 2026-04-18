@@ -1,4 +1,3 @@
-import { NotificationIcon } from '@/assets/images/icons/ProfileInfoIcons/NotificationIcon';
 import { Body1, Body3 } from '@/components/typo/Typography';
 import { IMAGE_COMPONENTS } from '@/constants/image.index';
 import { Colors } from '@/constants/theme';
@@ -13,6 +12,7 @@ import GigCard from '@/components/cardComponents/GigCard';
 import SearchBar from '@/components/CommonComponents/SearchBar';
 import CustomLoader from '@/components/CustomLoader';
 import EmptyStateCard from '@/components/EmptyStateCardProps';
+import NotificationBell from '@/components/Profile/NotificationBell';
 import FilterModal from '@/components/QRScannerModal/FilterModal';
 import { useGetProfileQuery } from '@/redux/services/authApi';
 import { useGetAllJobsQuery, useGetMyApplicationsQuery } from '@/redux/services/jobApi';
@@ -128,11 +128,12 @@ const BrowseScreen: React.FC = () => {
                             <Body3 italic style={{ marginTop: hp(8) }} color={Colors.PLACEHOLLDER_TEXT}>Welcome to FLÖNX</Body3>
                         </View>
                     </View>
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                         onPress={() => router.push("/bartender/profile/notification")}
                         style={styles.notificationBtn}>
                         <NotificationIcon size={24} />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
+                    <NotificationBell notificationPath="/bartender/profile/notification" />
                 </View>
                 <View style={{ marginTop: hp(12) }}>
                     <SearchBar

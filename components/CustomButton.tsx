@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         gap: 10,
-        marginTop: hp(16),
+        // marginTop: hp(16),
 
         // Add this
         padding: 0,

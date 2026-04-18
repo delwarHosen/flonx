@@ -3,7 +3,6 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
     ActivityIndicator,
-    Alert,
     FlatList,
     Linking,
     Platform,
@@ -25,6 +24,7 @@ import EmptyStateCard from '../EmptyStateCardProps';
 import SectionTitle from '../SectionTitle';
 import { Body1, Body2, Body4, Caption1, Caption3, H5, H6 } from '../typo/Typography';
 
+import { WarningIcon } from '@/assets/images/icons/ProfileInfoIcons/WarningIcon';
 import { addItem, clearCart, deleteItemCompletely, removeItem as removeLocalItem } from '@/redux/cartSlice';
 import {
     useCreateOrderMutation,
@@ -34,6 +34,7 @@ import {
     useViewCartQuery
 } from '@/redux/services/orderApi';
 import { useDispatch } from 'react-redux';
+import { ConfirmationModal } from '../ConfirmationModalProps';
 import CustomLoader from '../CustomLoader';
 import { showToast } from '../Toast';
 
@@ -45,9 +46,11 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const dispatch = useDispatch();
+    const [showClearModal, setShowClearModal] = useState<boolean>(false);
+
     const [createPayment, { isLoading: isPaymentLoading }] = useCreateOrderMutation(undefined)
 
-    const { data: cartData, isLoading: isCartLoading, refetch } = useViewCartQuery(undefined, {
+    const { data: cartData, isLoading: isCartLoading, isFetching, refetch } = useViewCartQuery(undefined, {
         refetchOnMountOrArgChange: true,
     });
     const [refreshing, setRefreshing] = useState(false);
@@ -100,24 +103,25 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
         }, 600);
     };
 
+
     const handleClearCart = async () => {
-        Alert.alert('Clear Cart', 'Are you sure you want to remove all items?', [
-            { text: 'Cancel', style: 'cancel' },
-            {
-                text: 'Clear All',
-                style: 'destructive',
-                onPress: async () => {
-                    try {
-                        await deleteCart(undefined).unwrap();
-                        setLocalQuantities({});
-                        dispatch(clearCart());
-                    } catch (err) {
-                        console.error("Clear failed:", err);
-                    }
-                }
-            }
-        ]);
+        setShowClearModal(true);
     };
+
+
+    const confirmClearCart = async () => {
+        setShowClearModal(false);
+        try {
+            await deleteCart(undefined).unwrap();
+            setLocalQuantities({});
+            dispatch(clearCart());
+            showToast('Cart cleared successfully!');
+        } catch (err: any) {
+            const errorMsg = err?.data?.message || 'Failed to clear cart. Please try again.';
+            showToast("Error", errorMsg);
+        }
+    };
+
 
     const handleRemoveItem = async (productId: string) => {
         try {
@@ -127,6 +131,30 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
             console.error("Remove failed:", err);
         }
     };
+
+    // payment 
+    const handlerPayment = async () => {
+        try {
+            const res = await createPayment({}).unwrap()
+            if (!res?.success) {
+                throw new Error(res?.message || "Something went wrong while creating order!")
+            }
+            dispatch(clearCart());
+            if (res?.data?.paymentUrl) {
+                Linking.openURL(res?.data?.paymentUrl);
+            }
+        } catch (error: any) {
+            if (Platform.OS === "android") {
+                showToast(error?.data?.message || error?.message || 'Error occurred!')
+            } else {
+                showToast("Error", error?.data?.message || error?.message || 'Error occurred!')
+            }
+        }
+    }
+
+    // Loader
+    const showLoader = isCartLoading || isFetching;
+
 
     const renderItem = ({ item }: { item: any }) => {
         const displayQty = localQuantities[item.product?._id] ?? item.quantity;
@@ -163,15 +191,6 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                 <View style={styles.cardBottom}>
                     <View style={styles.quantityContainer}>
                         <CustomButton
-                            onPress={() => handleUpdateQuantity(item.product?._id, item.quantity, 1)}
-                            icon={<PlusIcon />}
-                            width={40}
-                            height={40}
-                            borderRadius={100}
-                            color={Colors.NEUTRAL0}
-                        />
-                        <H6 color={Colors.NEUTRAL0} italic style={styles.qtyText}>{displayQty}</H6>
-                        <CustomButton
                             onPress={() => handleUpdateQuantity(item.product?._id, item.quantity, -1)}
                             icon={<MinusIcon />}
                             width={40}
@@ -179,6 +198,16 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                             borderRadius={100}
                             color={Colors.NEUTRAL0}
                         />
+                         <H6 color={Colors.NEUTRAL0} italic style={styles.qtyText}>{displayQty}</H6>
+                        <CustomButton
+                            onPress={() => handleUpdateQuantity(item.product?._id, item.quantity, 1)}
+                            icon={<PlusIcon />}
+                            width={40}
+                            height={40}
+                            borderRadius={100}
+                            color={Colors.NEUTRAL0}
+                        />
+                       
                     </View>
                     <View style={[styles.statusBadge, { backgroundColor: item.product?.isAvailable !== false ? '#22C55E33' : '#EF444433' }]}>
                         <View style={[styles.statusDot, { backgroundColor: item.product?.isAvailable !== false ? '#22C55E' : '#EF4444' }]} />
@@ -191,24 +220,7 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
         );
     };
 
-    const handlerPayment = async () => {
-        try {
-            const res = await createPayment({}).unwrap()
-            if (!res?.success) {
-                throw new Error(res?.message || "Something went wrong while creating order!")
-            }
-            dispatch(clearCart());
-            if (res?.data?.paymentUrl) {
-                Linking.openURL(res?.data?.paymentUrl);
-            }
-        } catch (error: any) {
-            if (Platform.OS === "android") {
-                showToast(error?.data?.message || error?.message || 'Error occurred!')
-            } else {
-                showToast("Error", error?.data?.message || error?.message || 'Error occurred!')
-            }
-        }
-    }
+
 
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -233,7 +245,7 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
             </View>
 
 
-            {isCartLoading ? (
+            {showLoader ? (
                 <View style={styles.loaderContainer}>
                     <CustomLoader />
                 </View>
@@ -278,6 +290,16 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                     <View style={{ height: 12 }} />
                 </View>
             )}
+
+            <ConfirmationModal
+                visible={showClearModal}
+                title="Clear Cart?"
+                description="Are you sure you want to remove all items from your cart?"
+                confirmText="Clear All"
+                icon={<WarningIcon size={28} />}
+                onCancel={() => setShowClearModal(false)}
+                onConfirm={confirmClearCart}
+            />
         </SafeAreaView>
     );
 };
@@ -369,11 +391,12 @@ const styles = StyleSheet.create({
     },
     quantityContainer: {
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginTop:hp(10)
     },
     qtyText: {
         marginHorizontal: 15,
-        marginTop: 15,
+        // marginTop: 15,
         minWidth: 20,
         textAlign: 'center'
     },

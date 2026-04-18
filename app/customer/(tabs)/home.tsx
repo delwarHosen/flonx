@@ -1,10 +1,10 @@
 import { BartenderIcons } from '@/assets/images/icons/BarRelatedIcon/BartenderIcons';
 import { QueuedIcon } from '@/assets/images/icons/BarRelatedIcon/QueuedIcon';
 import { ScanIcon } from '@/assets/images/icons/BarRelatedIcon/ScanIcon';
-import { NotificationIcon } from '@/assets/images/icons/ProfileInfoIcons/NotificationIcon';
 import { CustomButton } from '@/components/CustomButton';
 import CustomLoader from '@/components/CustomLoader';
 import EmptyStateCard from '@/components/EmptyStateCardProps';
+import NotificationBell from '@/components/Profile/NotificationBell';
 import QRScannerModal from '@/components/QRScannerModal/QRScannerModal';
 import { showToast } from '@/components/Toast';
 import { Body1, Body3, ButtonText, Caption1, H2, H5, H6 } from '@/components/typo/Typography';
@@ -208,11 +208,8 @@ const HomeScreen: React.FC = () => {
                                         <Body3 italic color={Colors.PLACEHOLLDER_TEXT}>Welcome to FLÖNX</Body3>
                                     </View>
                                 </View>
-                                <TouchableOpacity
-                                    onPress={() => router.push("/customer/notification")}
-                                    style={styles.notificationBtn}>
-                                    <NotificationIcon size={24} />
-                                </TouchableOpacity>
+                               
+                                <NotificationBell notificationPath="/customer/notification" />
                             </View>
 
                             <View style={styles.sectionTitle}>
@@ -345,7 +342,7 @@ const styles = StyleSheet.create({
     },
     bottomActions: {
         marginTop: hp(16),
-        gap: hp(12),
+        gap: hp(16),
         marginBottom: hp(20),
         paddingHorizontal: wp(20),
     },

@@ -51,7 +51,7 @@ if (!__DEV__) {
     showToast(error.message || "An unexpected error occurred", "error");
   });
 } else {
-  
+
   const globalHandler = ErrorUtils.getGlobalHandler();
   ErrorUtils.setGlobalHandler((error, isFatal) => {
     showToast(error.message, "error");
@@ -76,6 +76,7 @@ function AppInit() {
           if (isExpired) {
             await SecureStore.deleteItemAsync('accessToken');
             await SecureStore.deleteItemAsync('rememberMe');
+
           } else if (decoded.isGuest) {
             dispatch(setCredentials({ role: 'guest', token: existingToken }));
             return;
@@ -85,6 +86,7 @@ function AppInit() {
           } else {
             await SecureStore.deleteItemAsync('accessToken');
             await SecureStore.deleteItemAsync('rememberMe');
+
           }
         } catch (e) {
           await SecureStore.deleteItemAsync('accessToken');
@@ -108,6 +110,8 @@ function AppInit() {
 
   return null;
 }
+
+
 
 function RootLayoutInner() {
   const colorScheme = useColorScheme();
@@ -167,6 +171,10 @@ function RootLayoutInner() {
         >
           <Stack.Screen name="index" />
           <Stack.Screen name="onboarding" />
+          <Stack.Screen
+            name="(auth)"
+            options={{ animation: 'none' }}
+          />
         </Stack>
         <StatusBar style="light" />
       </ThemeProvider>

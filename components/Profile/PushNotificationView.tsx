@@ -3,34 +3,63 @@ import SectionTitle from '@/components/SectionTitle';
 import { Body3, Caption3 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { hp, wp } from '@/utils/responsive';
-import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Platform, StyleSheet, ToastAndroid, View } from 'react-native';
+import { OneSignal } from 'react-native-onesignal';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { showToast } from '../Toast';
 
 const PushNotificationView = () => {
     const [isEnabled, setIsEnabled] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    // current permission state check
+    useEffect(() => {
+        const checkPermission = async () => {
+            const permission = await OneSignal.Notifications.getPermissionAsync();
+            setIsEnabled(permission);
+        };
+        checkPermission();
+    }, []);
+
     const toggleSwitch = async () => {
         const previousState = isEnabled;
         const newValue = !isEnabled;
 
-        
         setIsEnabled(newValue);
 
         try {
             setLoading(true);
-            
-            
-            await new Promise(resolve => setTimeout(resolve, 1000));
 
-            showToast( `Notification ${newValue ? 'Enabled' : 'Disabled'}`)
-            
+            if (newValue) {
+                const granted = await OneSignal.Notifications.requestPermission(true);
+                if (granted) {
+                    OneSignal.User.pushSubscription.optIn();
+                } else {
+                    // permission denied হলে revert
+                    setIsEnabled(false);
+                    if (Platform.OS === 'android') {
+                        ToastAndroid.show(
+                            'Please enable notifications from device settings',
+                            ToastAndroid.SHORT
+                        );
+                    }
+                    return;
+                }
+            } else {
+                OneSignal.User.pushSubscription.optOut();
+            }
+
+            if (Platform.OS === 'android') {
+                ToastAndroid.show(
+                    `Notification ${newValue ? 'Enabled' : 'Disabled'}`,
+                    ToastAndroid.SHORT
+                );
+            }
         } catch (error) {
-            
             setIsEnabled(previousState);
-            showToast("Failed to update settings")
+            if (Platform.OS === 'android') {
+                ToastAndroid.show('Failed to update settings', ToastAndroid.SHORT);
+            }
         } finally {
             setLoading(false);
         }
@@ -51,11 +80,11 @@ const PushNotificationView = () => {
                             Receive important updates about your properties, payments, projects, and account activity.
                         </Caption3>
                     </View>
-                    
+
                     <CustomToggleButton
                         value={isEnabled}
                         onValueChange={toggleSwitch}
-                        disabled={loading} 
+                        disabled={loading}
                     />
                 </View>
             </View>

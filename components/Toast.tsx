@@ -89,7 +89,8 @@ export default function Toast() {
 const styles = StyleSheet.create({
     toast: {
         position: 'absolute',
-        top: hp(100),
+        // top: hp(100),
+        bottom:hp(200),
         left: 20,
         right: 20,
         borderRadius: 8,

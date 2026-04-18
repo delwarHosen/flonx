@@ -94,6 +94,6 @@ const styles = StyleSheet.create({
         marginLeft: 15,
     },
     addButton: {
-        marginTop: -50,
+        marginTop: -30,
     },
 });

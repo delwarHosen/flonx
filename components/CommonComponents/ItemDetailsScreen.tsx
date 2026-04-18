@@ -2,13 +2,13 @@ import { MinusIcon } from '@/assets/images/icons/BarRelatedIcon/MinusIcon';
 import { PlusIcon } from '@/assets/images/icons/BarRelatedIcon/PlusIcon';
 import { OrderTabIcon } from '@/assets/images/icons/icon';
 import { Colors } from '@/constants/theme';
-import { addItem, clearCart } from '@/redux/cartSlice';
+import { clearCart, setItemQuantity } from '@/redux/cartSlice';
 import { useAddToCartMutation, useDeleteCartMutation } from '@/redux/services/orderApi';
 import { RootState } from '@/redux/store';
 import { hp, wp } from '@/utils/responsive';
 import { Image } from 'expo-image';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useCallback, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
@@ -36,15 +36,18 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({ checkoutPath }) =
             existingCart?: string;
         }>();
     const router = useRouter();
-    const [quantity, setQuantity] = useState(1);
+    // const [quantity, setQuantity] = useState(1);
+
 
     const [addToCart, { isLoading }] = useAddToCartMutation();
     const [deleteCart] = useDeleteCartMutation();
 
     const dispatch = useDispatch();
     const cartItems = useSelector((state: RootState) => state.cart.items);
+    const existingQty = cartItems[itemId] || 0;
 
     const token = useSelector((state: any) => state.auth.token);
+    const [quantity, setQuantity] = useState(existingQty > 0 ? existingQty : 1);
 
     const handleAdd = () => setQuantity(prev => prev + 1);
     const handleRemove = () => quantity > 1 && setQuantity(prev => prev - 1);
@@ -70,16 +73,21 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({ checkoutPath }) =
     };
 
     // 
-    useFocusEffect(
-        useCallback(() => {
-            setQuantity(1);
-        }, [])
-    );
+    // useFocusEffect(
+    //     useCallback(() => {
+    //         setQuantity(1);
+    //     }, [])
+    // );
+
+    useEffect(() => {
+
+        setQuantity(existingQty > 0 ? existingQty : 1);
+    }, [existingQty]);
 
     const handleAddToCart = async () => {
         if (!itemId) return;
         if (itemStatus !== 'in_stock') {
-            showToast('This item is currently out of stock.')
+            showToast('This item is currently out of stock.');
             return;
         }
 
@@ -87,11 +95,10 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({ checkoutPath }) =
             const result = await addToCart({ productId: itemId, quantity }).unwrap();
             const cartItem = result?.items?.find((i: any) => i.product === itemId);
 
-
-            dispatch(addItem({ id: itemId, barId }));
+            // ✅ addItem এর বদলে setItemQuantity
+            dispatch(setItemQuantity({ id: itemId, quantity, barId }));
 
             const previousItems: any[] = existingCart ? JSON.parse(existingCart) : [];
-
             const newItem = {
                 _id: cartItem?._id ?? itemId,
                 productId: itemId,
@@ -122,19 +129,19 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({ checkoutPath }) =
                     dispatch(clearCart());
                 } catch (clearErr: any) {
                     if (clearErr?.status !== 404) {
-                        showToast('Failed to clear cart.')
+                        showToast('Failed to clear cart.');
                         return;
                     }
                 }
                 try {
                     await addToCart({ productId: itemId, quantity }).unwrap();
-                    dispatch(addItem({ id: itemId, barId }));
+                    dispatch(setItemQuantity({ id: itemId, quantity, barId }));
                     navigateToCheckout();
                 } catch {
-                    showToast('Failed to add item.')
+                    showToast('Failed to add item.');
                 }
             } else {
-                showToast(message || 'Something went wrong.',)
+                showToast(message || 'Something went wrong.');
             }
         }
     };

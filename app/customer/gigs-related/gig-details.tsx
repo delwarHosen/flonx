@@ -604,6 +604,7 @@ const styles = StyleSheet.create({
     },
     buttonWrapper: {
         flex: 1,
+        marginTop:hp(16)
     },
 
     assignedRow: {
