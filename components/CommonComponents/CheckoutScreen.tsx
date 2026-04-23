@@ -1,10 +1,9 @@
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     FlatList,
-    Linking,
     Platform,
     RefreshControl,
     StyleSheet,
@@ -33,6 +32,8 @@ import {
     useUpdateCartQuantityMutation,
     useViewCartQuery
 } from '@/redux/services/orderApi';
+import { savePaymentHistory } from '@/utils/paymentHistory';
+import { useStripe } from '@stripe/stripe-react-native';
 import { useDispatch } from 'react-redux';
 import { ConfirmationModal } from '../ConfirmationModalProps';
 import CustomLoader from '../CustomLoader';
@@ -43,10 +44,12 @@ interface CheckoutScreenProps {
 }
 
 const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
+    const { initPaymentSheet, presentPaymentSheet } = useStripe();
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const dispatch = useDispatch();
     const [showClearModal, setShowClearModal] = useState<boolean>(false);
+    const [isReady, setIsReady] = useState(false);
 
     const [createPayment, { isLoading: isPaymentLoading }] = useCreateOrderMutation(undefined)
 
@@ -77,6 +80,7 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
         await refetch();
         setRefreshing(false);
     };
+
 
     const handleUpdateQuantity = (productId: string, currentQty: number, delta: number) => {
         const localQty = localQuantities[productId] ?? currentQty;
@@ -132,28 +136,69 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
         }
     };
 
-    // payment 
+    // payment
     const handlerPayment = async () => {
         try {
-            const res = await createPayment({}).unwrap()
-            if (!res?.success) {
-                throw new Error(res?.message || "Something went wrong while creating order!")
-            }
-            dispatch(clearCart());
-            if (res?.data?.paymentUrl) {
-                Linking.openURL(res?.data?.paymentUrl);
-            }
-        } catch (error: any) {
-            if (Platform.OS === "android") {
-                showToast(error?.data?.message || error?.message || 'Error occurred!')
-            } else {
-                showToast("Error", error?.data?.message || error?.message || 'Error occurred!')
-            }
-        }
-    }
+            console.log('Step 1: createPayment call...');
+            const data = await createPayment({}).unwrap();
+            console.log('Step 2: data =', JSON.stringify(data));
 
-    // Loader
-    const showLoader = isCartLoading || isFetching;
+            console.log('Step 3: initPaymentSheet...');
+            const { error: initError } = await initPaymentSheet({
+                paymentIntentClientSecret: data.clientSecret,
+                merchantDisplayName: 'Flonx',
+            });
+            console.log('Step 4: initError =', initError);
+
+            if (initError) {
+                showToast(initError.message);
+                return;
+            }
+
+            console.log('Step 5: presentPaymentSheet...');
+            const { error: paymentError } = await presentPaymentSheet();
+            console.log('Step 6: paymentError =', paymentError);
+
+            if (paymentError) {
+                if (paymentError.code !== 'Canceled') {
+                    showToast(paymentError.message);
+                }
+                return;
+            }
+
+            console.log('Step 7: Payment success!');
+            await savePaymentHistory({
+                orderId: data.orderId,
+                bartender: data.bartender,
+                amount: totalPrice,
+                paidAt: new Date().toISOString(),
+                status: 'paid',
+            });
+
+            dispatch(clearCart());
+            setLocalQuantities({});
+            showToast('Payment successful!');
+
+            const targetPath = paymentPath.includes('guest')
+                ? '/guest/order'
+                : '/customer/orders';
+
+            router.replace(targetPath as any);
+
+        } catch (error: any) {
+            console.log('CATCH error =', JSON.stringify(error));
+            const errorMessage = error?.data?.message || error?.message || 'Payment failed!';
+            showToast(errorMessage);
+        }
+    };
+
+    useEffect(() => {
+        if (!isFetching && !isCartLoading) {
+            setIsReady(true);
+        }
+    }, [isFetching, isCartLoading]);
+
+    const showLoader = isCartLoading;
 
 
     const renderItem = ({ item }: { item: any }) => {
@@ -198,7 +243,7 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                             borderRadius={100}
                             color={Colors.NEUTRAL0}
                         />
-                         <H6 color={Colors.NEUTRAL0} italic style={styles.qtyText}>{displayQty}</H6>
+                        <H6 color={Colors.NEUTRAL0} italic style={styles.qtyText}>{displayQty}</H6>
                         <CustomButton
                             onPress={() => handleUpdateQuantity(item.product?._id, item.quantity, 1)}
                             icon={<PlusIcon />}
@@ -207,7 +252,7 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                             borderRadius={100}
                             color={Colors.NEUTRAL0}
                         />
-                       
+
                     </View>
                     <View style={[styles.statusBadge, { backgroundColor: item.product?.isAvailable !== false ? '#22C55E33' : '#EF444433' }]}>
                         <View style={[styles.statusDot, { backgroundColor: item.product?.isAvailable !== false ? '#22C55E' : '#EF4444' }]} />
@@ -245,7 +290,12 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
             </View>
 
 
-            {showLoader ? (
+            {!isReady || showLoader || isFetching  ? (
+                <View style={styles.loaderContainer}>
+                    <CustomLoader />
+                </View>
+            ) : isFetching ? (
+
                 <View style={styles.loaderContainer}>
                     <CustomLoader />
                 </View>
@@ -392,7 +442,7 @@ const styles = StyleSheet.create({
     quantityContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop:hp(10)
+        marginTop: hp(10)
     },
     qtyText: {
         marginHorizontal: 15,

@@ -150,7 +150,7 @@ const TipSelectionContent: React.FC<TipSelectionProps> = ({
                         {showCustomInput && (
                             <View style={styles.inputSection}>
                                 <Caption1 color={Colors.NEUTRAL0} style={{ marginBottom: 16 }}>
-                                    Enter Tip Amount *
+                                    Enter Tip Amount ($)
                                 </Caption1>
                                 <View style={styles.inputContainer}>
                                     <TextInput

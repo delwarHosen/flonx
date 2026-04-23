@@ -11,7 +11,7 @@ import {
 interface CustomToggleProps {
     value: boolean;
     onValueChange: (value: boolean) => void;
-    disabled?: boolean; // এই প্রপার্টিটি এখানে যোগ করা হয়েছে
+    disabled?: boolean;
     style?: StyleProp<ViewStyle>;
 }
 
@@ -23,7 +23,7 @@ const THUMB_PADDING = 3;
 const CustomToggleButton: React.FC<CustomToggleProps> = ({ 
     value, 
     onValueChange, 
-    disabled = false, // ডিফল্ট ভ্যালু false
+    disabled = false, 
     style 
 }) => {
     const animatedValue = useRef(new Animated.Value(value ? 1 : 0)).current;

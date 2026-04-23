@@ -31,7 +31,7 @@ export const StatusInfoCard: React.FC<StatusInfoCardProps> = ({
             ? new Date(value).toLocaleDateString('en-GB', {
               day: 'numeric', month: 'long', year: 'numeric'
             })
-            : '—'}
+            : '—aa'}
         </Body2>
       </View>
     </View>

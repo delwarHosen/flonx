@@ -8,11 +8,12 @@ import { FORM_FIELDS, FORM_LABELS, FORM_PLACEHOLDERS } from '@/constants/form';
 import { Colors } from '@/constants/theme';
 import { useForm } from '@/hooks/useForm';
 import { setCredentials } from '@/redux/authSlice';
-import { baseApis } from '@/redux/base';
+import { baseApis, setLastLoginTime } from '@/redux/base';
+import { setCartRole } from '@/redux/cartSlice';
 import { useLoginMutation } from '@/redux/services/authApi';
 import { hp, wp } from '@/utils/responsive';
 import { validateEmail, validatePassword } from '@/utils/validation';
-import { Link, useRouter } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { jwtDecode } from "jwt-decode";
 import React from 'react';
@@ -20,23 +21,15 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacit
 import { OneSignal } from 'react-native-onesignal';
 import { useDispatch } from 'react-redux';
 
-
 export default function LoginScreen() {
   const router = useRouter();
   const dispatch = useDispatch();
   const [isRemembered, setIsRemembered] = React.useState(false);
 
-  // const userRole = useSelector((state: RootState) => state.auth.userRole);
+  const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const [loginSubmit, { isLoading }] = useLoginMutation();
 
-
-  const {
-    values,
-    errors,
-    touched,
-    handleChange,
-    handleSubmit,
-  } = useForm({
+  const { values, errors, touched, handleChange, handleSubmit } = useForm({
     initialValues: {
       [FORM_FIELDS.EMAIL]: "",
       [FORM_FIELDS.PASSWORD]: "",
@@ -47,67 +40,55 @@ export default function LoginScreen() {
     },
 
     onSubmit: async (values) => {
-      // console.log('Submit triggered');
-
       try {
         const deviceState = await OneSignal.User.pushSubscription.getIdAsync();
         const playerId = deviceState ?? null;
-        // console.log('OneSignal Player ID:', playerId)
+
         const res = await loginSubmit({
           email: values[FORM_FIELDS.EMAIL],
           password: values[FORM_FIELDS.PASSWORD],
-          playerId
+          playerId,
         }).unwrap();
-
-        // console.log('Login res:', res);
 
         if (res?.success && res?.data?.accessToken) {
           const token = res.data.accessToken;
 
-          // const deviceState = await OneSignal.User.pushSubscription.getIdAsync();
-          // const playerId = deviceState ?? null;
-          // console.log('OneSignal Player ID:', playerId);
-
           await SecureStore.setItemAsync('accessToken', token);
           await SecureStore.setItemAsync('refreshToken', res.data.refreshToken || '');
+
           await SecureStore.setItemAsync('rememberMe', isRemembered ? 'true' : 'false');
 
           const decoded: any = jwtDecode(token);
           const roleFromToken = decoded.role;
 
           if (roleFromToken) {
-            dispatch(baseApis.util.invalidateTags(['Profile']));
+            setLastLoginTime();
             dispatch(setCredentials({ role: roleFromToken, token }));
+            dispatch(setCartRole(roleFromToken));
+            dispatch(baseApis.util.resetApiState());
+            dispatch(baseApis.util.invalidateTags(['Profile']));
 
-            // send player id
-            // if (playerId) {
-            //   try {
-            //     await updatePlayerId({ playerId }).unwrap();
-            //   } catch (e: any) {
-            //     console.log('updatePlayerId error:', e);
-            //    
-            //   }
-            // }
-            // Success toast
-            showToast("Login Successful!", 'success');
+            showToast('Login Successful!', 'success');
 
-            if (roleFromToken === 'bartender') {
-              router.replace("/bartender/(tabs)/browse");
-            } else {
-              router.replace("/customer/(tabs)/home");
-            }
+            setTimeout(() => {
+              if (returnTo) {
+                router.replace(decodeURIComponent(returnTo) as any);
+              } else if (roleFromToken === 'bartender') {
+                router.replace('/bartender/(tabs)/browse');
+              } else {
+                router.replace('/customer/(tabs)/home');
+              }
+            }, 300);
+
           }
         }
       } catch (error: any) {
-        // console.log('ERROR CAUGHT:', JSON.stringify(error)); // 
         const message =
           error?.data?.message ||
           error?.data?.error ||
           error?.message ||
-          "Login failed. Please try again.";
-
-        console.log('MESSAGE:', message); // 
-        // showToast(message, 'error');
+          'Login failed. Please try again.';
+        showToast(message, 'error');
       }
     },
   });
@@ -184,7 +165,6 @@ export default function LoginScreen() {
                 <Body3 color={Colors.BRAND_PRIMARY}> Create an account</Body3>
               </TouchableOpacity>
             </View>
-
           </View>
         </View>
       </ScrollView>

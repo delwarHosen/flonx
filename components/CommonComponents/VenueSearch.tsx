@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/theme'
+import { useCameraScanner } from '@/hooks/useCameraScanner'
 import { useGetAllVenuesQuery } from '@/redux/services/venueApi'
 import { hp, wp } from '@/utils/responsive'
 import { useRouter } from 'expo-router'
@@ -8,6 +9,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import BarCardComponents from '../cardComponents/BarCardComponents'
 import CustomLoader from '../CustomLoader'
 import EmptyStateCard from '../EmptyStateCardProps'
+import QRScannerModal from '../QRScannerModal/QRScannerModal'
+import { showToast } from '../Toast'
 import SearchBar from './SearchBar'
 
 interface VenueSearchProps {
@@ -20,6 +23,9 @@ const VenueSearch: React.FC<VenueSearchProps> = ({ shopItemPath }) => {
     const [query, setQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState('');
     const [refreshing, setRefreshing] = useState(false);
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
+
+    const { checkPermission } = useCameraScanner();
 
     useEffect(() => {
         const handler = setTimeout(() => setDebouncedQuery(query), 500);
@@ -30,10 +36,7 @@ const VenueSearch: React.FC<VenueSearchProps> = ({ shopItemPath }) => {
         searchTerm: debouncedQuery,
     });
 
-    // console.log("vanue search", data)
-
     const venues = data?.result || [];
-
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -41,15 +44,46 @@ const VenueSearch: React.FC<VenueSearchProps> = ({ shopItemPath }) => {
         setRefreshing(false);
     };
 
+    const handleOpenScanner = async () => {
+        const isAllowed = await checkPermission();
+        if (isAllowed) setIsScannerOpen(true);
+    };
+
+    const onScanSuccess = (qrData: string) => {
+        setIsScannerOpen(false);
+
+        try {
+            const segments = qrData.split('/').filter(Boolean);
+            const barId = segments[segments.length - 1];
+
+            if (barId) {
+                router.push({
+                    pathname: shopItemPath,
+                    params: { barId },
+                });
+            } else {
+                showToast("Error, Invalid QR Code");
+            }
+        } catch {
+            showToast("Error, Could not read QR Code");
+        }
+    };
+
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+
+            <QRScannerModal
+                isVisible={isScannerOpen}
+                onClose={() => setIsScannerOpen(false)}
+                onScan={onScanSuccess}
+            />
+
             <SearchBar
                 placeholder="Search"
                 value={query}
                 onChangeText={setQuery}
-            // onScanPress={() => console.log("Open Scanner")}
+                onScanPress={handleOpenScanner}
             />
-
 
             {(isLoading || (isFetching && !refreshing)) && !venues.length ? (
                 <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: 20 }}>

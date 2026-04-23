@@ -185,6 +185,7 @@ export default function EmailVerifyOtp() {
                     width="100%"
                     height={hp(44)}
                     borderRadius={100}
+                    style={{marginTop:hp(16)}}
                   />
                 )}
               </View>

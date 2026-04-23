@@ -96,7 +96,7 @@ const HomeScreen: React.FC = () => {
                     params: { barId: barId },
                 });
             } else {
-                
+
                 showToast("Error, Invalid QR Code")
             }
         } catch {
@@ -208,7 +208,7 @@ const HomeScreen: React.FC = () => {
                                         <Body3 italic color={Colors.PLACEHOLLDER_TEXT}>Welcome to FLÖNX</Body3>
                                     </View>
                                 </View>
-                               
+
                                 <NotificationBell notificationPath="/customer/notification" />
                             </View>
 
@@ -217,7 +217,11 @@ const HomeScreen: React.FC = () => {
                             </View>
                         </View>
                     }
-                    ListEmptyComponent={<EmptyStateCard message="No active orders found" />}
+                    ListEmptyComponent={
+                        <View style={{paddingHorizontal:wp(20)}}>
+                            <EmptyStateCard message="No active orders found" />
+                        </View>
+                    }
                     ListFooterComponent={
                         <View style={styles.bottomActions}>
                             <CustomButton
@@ -302,7 +306,7 @@ const styles = StyleSheet.create({
     sectionTitle: {
         marginTop: hp(5),
         marginBottom: hp(5),
-        marginHorizontal:wp(16)
+        marginHorizontal: wp(16)
     },
     orderCard: {
         backgroundColor: Colors.INPUT_BACKGROUND,

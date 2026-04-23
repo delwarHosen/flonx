@@ -1,9 +1,12 @@
+
 import { OrderTabIcon } from '@/assets/images/icons/icon';
 import { Colors } from '@/constants/theme';
+import { setItemQuantity } from '@/redux/cartSlice';
 import { useAddToCartMutation, useViewCartQuery } from '@/redux/services/orderApi';
+import { RootState } from '@/redux/store';
 import { fp, hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
     FlatList,
     Platform,
@@ -13,6 +16,7 @@ import {
     View
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
 import CustomLoader from '../CustomLoader';
 import SectionTitle from '../SectionTitle';
 import { showToast } from '../Toast';
@@ -73,49 +77,97 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
 }) => {
     const router = useRouter();
     const insets = useSafeAreaInsets();
+    const dispatch = useDispatch();
 
     const [addToCart] = useAddToCartMutation();
 
-    // Redux বাদ — শুধু API থেকে cart data
+    // Per-item loading state to prevent overlapping API calls
+    const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
+
+    // Accumulates rapid taps before flushing to API
+    const pendingRef = useRef<Record<string, number>>({});
+    // Debounce timer per item
+    const timerRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+    // Snapshot of cart qty at the moment debounce starts (for accurate rollback)
+    const baseQtyRef = useRef<Record<string, number>>({});
+
+    const reduxCart = useSelector((state: RootState) => state.cart.items);
+    const reduxBarId = useSelector((state: RootState) => state.cart.barId);
+
+    const getCartQty = (productId: string) => reduxCart[productId] || 0;
+
+    // NOTE: No useFocusEffect refetch here.
+    // Parent controls query via skip: !token — when token arrives after login,
+    // RTK Query automatically fetches. Manual refetch causes crash if query not started.
+
+    const currentVenueTotalItems = useMemo(() => {
+        return items.reduce((sum, i) => sum + getCartQty(i._id), 0);
+    }, [items, reduxCart]);
+
+    const totalPrice = useMemo(() => {
+        return items.reduce((sum, item) => {
+            return sum + getCartQty(item._id) * (item.price || 0);
+        }, 0);
+    }, [items, reduxCart]);
+
     const { data: cartData } = useViewCartQuery(undefined, {
-        refetchOnMountOrArgChange: true,
+        refetchOnMountOrArgChange: false,
     });
 
+    const hasOtherVenueItems =
+        reduxBarId !== null &&
+        reduxBarId !== barId &&
+        Object.values(reduxCart).some((qty) => qty > 0);
 
-
-
-    const cartItems: { productId: string; quantity: number }[] = cartData?.items || [];
-
-    // current venue এর items cart এ কতটা আছে
-    const currentVenueItemIds = items.map((i) => i._id);
-
-    const getCartQty = (productId: string) =>
-        cartItems.find((c: any) => c.product?._id === productId)?.quantity || 0;
-
-    const currentVenueTotalItems = currentVenueItemIds.reduce(
-        (sum, id) => sum + getCartQty(id), 0
-    );
-
-    // অন্য venue এর item cart এ আছে কিনা
-    const hasOtherVenueItems = cartItems.some(
-        (c: any) => !currentVenueItemIds.includes(c.product?._id)
-    );
-
-    const totalPrice = items.reduce((sum, item) => {
-        return sum + getCartQty(item._id) * (item.price || 0);
-    }, 0);
-
-    const handleAddToCart = async (item: VenueItem) => {
+    const handleAddToCart = (item: VenueItem) => {
         if (hasOtherVenueItems) {
             showToast('Clear your cart before ordering from another venue.');
             return;
         }
 
-        try {
-            await addToCart({ productId: item._id, quantity: 1 }).unwrap();
-        } catch (error: any) {
-            showToast(error?.data?.message || 'Failed to add item.');
+        // First tap of this batch — snapshot real redux qty BEFORE any optimistic updates
+        if (!Object.prototype.hasOwnProperty.call(baseQtyRef.current, item._id)) {
+            baseQtyRef.current[item._id] = reduxCart[item._id] || 0;
         }
+
+        // Increment pending counter
+        pendingRef.current[item._id] = (pendingRef.current[item._id] || 0) + 1;
+
+        // Optimistic UI — always baseQty + pendingCount, never re-read reduxCart mid-batch
+        // Key fix: baseQtyRef is set once per batch, so stale closure cannot cause overshoot
+        const optimisticQty = baseQtyRef.current[item._id] + pendingRef.current[item._id];
+        dispatch(setItemQuantity({ id: item._id, quantity: optimisticQty, barId }));
+
+        // Clear existing debounce timer for this item
+        if (timerRef.current[item._id]) {
+            clearTimeout(timerRef.current[item._id]);
+        }
+
+        // Debounce: wait 400ms after last tap, then fire ONE API call
+        timerRef.current[item._id] = setTimeout(async () => {
+            const tapsToFlush = pendingRef.current[item._id] || 1;
+            const baseQty = baseQtyRef.current[item._id] ?? 0;
+
+            // Clear batch tracking before async call
+            pendingRef.current[item._id] = 0;
+            delete baseQtyRef.current[item._id];
+
+            setLoadingItems(prev => ({ ...prev, [item._id]: true }));
+
+            try {
+                await addToCart({ productId: item._id, quantity: tapsToFlush }).unwrap();
+            } catch (error: any) {
+                // Rollback to qty before this entire batch
+                dispatch(setItemQuantity({
+                    id: item._id,
+                    quantity: baseQty,
+                    barId,
+                }));
+                showToast(error?.data?.message || 'Failed to add item.');
+            } finally {
+                setLoadingItems(prev => ({ ...prev, [item._id]: false }));
+            }
+        }, 400);
     };
 
     const buildExistingCart = () =>
@@ -139,6 +191,9 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                 <FlatList
                     data={items}
                     keyExtractor={(item) => item._id}
+                    initialNumToRender={10}
+                    maxToRenderPerBatch={10}
+                    windowSize={5}
                     renderItem={({ item }) => (
                         <ItemCard
                             item={{

@@ -43,7 +43,7 @@ export default function EditProfileView() {
             [FORM_FIELDS.EXPERIENCE]: (value: string) => isBartender ? validateExperience(value) : "",
         },
         onSubmit: async (formValues) => {
-           
+
             // console.log("handleSubmit called with values:", JSON.stringify(formValues));
             // console.log("Local Image URI:", localImage);
 
@@ -89,7 +89,7 @@ export default function EditProfileView() {
                     await updateProfile(payload).unwrap();
                 }
 
-                
+
                 showToast("Profile updated successfully!")
 
 
@@ -101,7 +101,8 @@ export default function EditProfileView() {
 
             } catch (error: any) {
                 console.error("Update error detail:", JSON.stringify(error, null, 2));
-                showToast("Update failed! Please try again.")
+                if (error?.status === 401) return;
+                showToast("Update failed! Please try again.");
             }
         },
     });

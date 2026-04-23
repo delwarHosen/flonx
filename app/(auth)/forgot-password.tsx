@@ -106,6 +106,7 @@ export default function ForgotPassword() {
                                 width="100%"
                                 height={hp(44)}
                                 borderRadius={100}
+                                style={{marginTop:hp(16)}}
                             />
                         </View>
                     </View>

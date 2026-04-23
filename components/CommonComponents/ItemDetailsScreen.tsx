@@ -3,7 +3,8 @@ import { PlusIcon } from '@/assets/images/icons/BarRelatedIcon/PlusIcon';
 import { OrderTabIcon } from '@/assets/images/icons/icon';
 import { Colors } from '@/constants/theme';
 import { clearCart, setItemQuantity } from '@/redux/cartSlice';
-import { useAddToCartMutation, useDeleteCartMutation } from '@/redux/services/orderApi';
+import { useAddToCartMutation, useDeleteCartMutation, useUpdateCartQuantityMutation } from '@/redux/services/orderApi';
+
 import { RootState } from '@/redux/store';
 import { hp, wp } from '@/utils/responsive';
 import { Image } from 'expo-image';
@@ -40,6 +41,7 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({ checkoutPath }) =
 
 
     const [addToCart, { isLoading }] = useAddToCartMutation();
+    const [updateCartQuantity] = useUpdateCartQuantityMutation();
     const [deleteCart] = useDeleteCartMutation();
 
     const dispatch = useDispatch();
@@ -48,6 +50,8 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({ checkoutPath }) =
 
     const token = useSelector((state: any) => state.auth.token);
     const [quantity, setQuantity] = useState(existingQty > 0 ? existingQty : 1);
+
+    const initialQtyRef = React.useRef(existingQty);
 
     const handleAdd = () => setQuantity(prev => prev + 1);
     const handleRemove = () => quantity > 1 && setQuantity(prev => prev - 1);
@@ -72,16 +76,10 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({ checkoutPath }) =
         });
     };
 
-    // 
-    // useFocusEffect(
-    //     useCallback(() => {
-    //         setQuantity(1);
-    //     }, [])
-    // );
-
+   
     useEffect(() => {
-
         setQuantity(existingQty > 0 ? existingQty : 1);
+        initialQtyRef.current = existingQty;
     }, [existingQty]);
 
     const handleAddToCart = async () => {
@@ -91,16 +89,30 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({ checkoutPath }) =
             return;
         }
 
-        try {
-            const result = await addToCart({ productId: itemId, quantity }).unwrap();
-            const cartItem = result?.items?.find((i: any) => i.product === itemId);
+       
+        if (existingQty > 0 && quantity === initialQtyRef.current) {
+            const previousItems: any[] = existingCart ? JSON.parse(existingCart) : [];
+            router.push({
+                pathname: checkoutPath as any,
+                params: { barId, cartData: JSON.stringify(previousItems) },
+            });
+            return;
+        }
 
-            // ✅ addItem এর বদলে setItemQuantity
+        try {
+            if (existingQty > 0) {
+                // ✅ already cart এ আছে — update করো, add না
+                await updateCartQuantity({ productId: itemId, quantity }).unwrap();
+            } else {
+                
+                await addToCart({ productId: itemId, quantity }).unwrap();
+            }
+
             dispatch(setItemQuantity({ id: itemId, quantity, barId }));
 
             const previousItems: any[] = existingCart ? JSON.parse(existingCart) : [];
             const newItem = {
-                _id: cartItem?._id ?? itemId,
+                _id: itemId,
                 productId: itemId,
                 name: itemName,
                 image: itemImg ?? '',
@@ -145,7 +157,7 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({ checkoutPath }) =
             }
         }
     };
-
+    
 
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -273,7 +285,6 @@ const styles = StyleSheet.create({
     },
     qtyText: {
         marginHorizontal: wp(20),
-        marginTop: hp(20)
     },
     actionButtonContainer: {
         width: "100%",

@@ -1,9 +1,14 @@
+// import '@/tasks/stripeTask'; // ← সবার আগে
+
 import Toast, { showToast } from '@/components/Toast';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { setCredentials } from '@/redux/authSlice';
+import { clearCart, setCartRole, setItemQuantity } from '@/redux/cartSlice';
 import { useGuestLoginMutation } from '@/redux/services/authApi';
+import { useViewCartQuery } from '@/redux/services/orderApi';
 import { store } from '@/redux/store';
 import { getDeviceId } from '@/utils/deviceId';
+import { setCurrentRoute } from '@/utils/routeStore';
 import {
   Nunito_400Regular,
   Nunito_400Regular_Italic,
@@ -16,8 +21,9 @@ import {
   useFonts
 } from "@expo-google-fonts/nunito";
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { StripeProvider } from '@stripe/stripe-react-native';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import { Stack } from 'expo-router';
+import { Stack, usePathname } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from 'expo-status-bar';
@@ -28,13 +34,17 @@ import { LogLevel, OneSignal } from 'react-native-onesignal';
 import 'react-native-reanimated';
 import { Provider, useDispatch } from 'react-redux';
 
+function RouteTracker() {
+  const pathname = usePathname();
+  useEffect(() => {
+    setCurrentRoute(pathname);
+  }, [pathname]);
+  return null;
+}
 
 SplashScreen.preventAutoHideAsync();
-
-
 LogBox.ignoreAllLogs();
 
-// OneSignal Initialization
 OneSignal.Debug.setLogLevel(LogLevel.Verbose);
 OneSignal.initialize(process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID!);
 OneSignal.Notifications.requestPermission(true);
@@ -43,25 +53,25 @@ OneSignal.Notifications.addEventListener('click', (event: any) => {
   console.log('Notification clicked:', data);
 });
 
-// ── Global Error Handler ──
-
-if (!__DEV__) {
-  const globalHandler = ErrorUtils.getGlobalHandler();
-  ErrorUtils.setGlobalHandler((error, isFatal) => {
-    showToast(error.message || "An unexpected error occurred", "error");
-  });
-} else {
-
-  const globalHandler = ErrorUtils.getGlobalHandler();
-  ErrorUtils.setGlobalHandler((error, isFatal) => {
-    showToast(error.message, "error");
-    globalHandler(error, isFatal);
-  });
-}
-
 function AppInit() {
   const dispatch = useDispatch();
   const [guestLogin] = useGuestLoginMutation();
+  const { data: cartData } = useViewCartQuery(undefined);
+
+  useEffect(() => {
+    if (cartData?.items?.length) {
+      dispatch(clearCart());
+      cartData.items.forEach((item: any) => {
+        if (item.product?._id && item.quantity) {
+          dispatch(setItemQuantity({
+            id: item.product._id,
+            quantity: item.quantity,
+            barId: cartData.venue?._id,
+          }));
+        }
+      });
+    }
+  }, [cartData]);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -76,17 +86,19 @@ function AppInit() {
           if (isExpired) {
             await SecureStore.deleteItemAsync('accessToken');
             await SecureStore.deleteItemAsync('rememberMe');
-
           } else if (decoded.isGuest) {
             dispatch(setCredentials({ role: 'guest', token: existingToken }));
+            dispatch(setCartRole('guest'));
             return;
-          } else if (rememberMe === 'true') {
-            dispatch(setCredentials({ role: decoded.role, token: existingToken }));
-            return;
-          } else {
-            await SecureStore.deleteItemAsync('accessToken');
-            await SecureStore.deleteItemAsync('rememberMe');
-
+          } else if (decoded.role === 'customer' || decoded.role === 'bartender') {
+            if (rememberMe === 'true') {
+              dispatch(setCredentials({ role: decoded.role, token: existingToken }));
+              dispatch(setCartRole(decoded.role));
+              return;
+            } else {
+              await SecureStore.deleteItemAsync('accessToken');
+              await SecureStore.deleteItemAsync('rememberMe');
+            }
           }
         } catch (e) {
           await SecureStore.deleteItemAsync('accessToken');
@@ -99,6 +111,7 @@ function AppInit() {
         if (res?.accessToken) {
           await SecureStore.setItemAsync('accessToken', res.accessToken);
           dispatch(setCredentials({ role: 'guest', token: res.accessToken }));
+          dispatch(setCartRole('guest'));
         }
       } catch (e: any) {
         showToast(e.message || 'Auto guest login error', 'error');
@@ -111,12 +124,8 @@ function AppInit() {
   return null;
 }
 
-
-
 function RootLayoutInner() {
   const colorScheme = useColorScheme();
-
-  // Keep Awake logic with error handling via Toast
 
   useEffect(() => {
     const activate = async () => {
@@ -126,7 +135,6 @@ function RootLayoutInner() {
         showToast("Keep Awake: " + err.message, "info");
       }
     };
-
     activate();
     return () => {
       deactivateKeepAwake();
@@ -160,24 +168,27 @@ function RootLayoutInner() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#0D0D1A' }}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: '#0D0D1A' },
-            animation: 'slide_from_right',
-            animationDuration: 300,
-          }}
-        >
-          <Stack.Screen name="index" />
-          <Stack.Screen name="onboarding" />
-          <Stack.Screen
-            name="(auth)"
-            options={{ animation: 'none' }}
-          />
-        </Stack>
-        <StatusBar style="light" />
-      </ThemeProvider>
+      <StripeProvider publishableKey={process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY!}>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <RouteTracker />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: '#0D0D1A' },
+              animation: 'slide_from_right',
+              animationDuration: 300,
+            }}
+          >
+            <Stack.Screen name="index" />
+            <Stack.Screen name="onboarding" />
+            <Stack.Screen
+              name="(auth)"
+              options={{ animation: 'none' }}
+            />
+          </Stack>
+          <StatusBar style="light" />
+        </ThemeProvider>
+      </StripeProvider>
       <Toast />
     </View>
   );

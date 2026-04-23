@@ -94,7 +94,8 @@ export const orderApi = baseApis.injectEndpoints({
                 url: "/order/create-order",
                 method: "POST"
             }),
-            invalidatesTags: ["order", "Cart"],
+            transformResponse: (response: any) => response.data,
+            invalidatesTags: ["order"],
         }),
 
         // get All Order
@@ -109,6 +110,7 @@ export const orderApi = baseApis.injectEndpoints({
             }),
             transformResponse: (response: any) => response.data,
             providesTags: ["order"],
+            keepUnusedDataFor: 0,
         }),
 
         // patch picked up order

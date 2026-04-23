@@ -1,17 +1,9 @@
-import { showToast } from '@/components/Toast';
-import { configureStore, isRejectedWithValue, Middleware } from '@reduxjs/toolkit';
+
+import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './authSlice';
 import { baseApis } from './base';
 import cartReducer from './cartSlice';
-
-
-export const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
-  if (isRejectedWithValue(action)) {
-    const errorMessage = (action.payload as any)?.data?.message || "Something went wrong!";
-    showToast(errorMessage, "error");
-  }
-  return next(action);
-};
+import { rtkQueryErrorLogger } from './middleware/errorMiddleware';
 
 export const store = configureStore({
   reducer: {
@@ -21,8 +13,8 @@ export const store = configureStore({
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
-      baseApis.middleware, 
-      rtkQueryErrorLogger 
+      baseApis.middleware,
+      rtkQueryErrorLogger
     ),
 });
 

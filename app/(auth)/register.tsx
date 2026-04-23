@@ -9,6 +9,7 @@ import { useForm } from '@/hooks/useForm';
 import { useRegisterMutation } from '@/redux/services/authApi';
 import { RootState } from '@/redux/store';
 import { getPlaceDetails, getPlaceSuggestions } from '@/utils/getPlaceApi';
+import { hp } from '@/utils/responsive';
 import { validateName, validatePassword, validatePhoneNumber } from '@/utils/validation';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
@@ -309,6 +310,7 @@ export default function RegisterScreen() {
                 width="100%"
                 height={rs(44, 48, 52)}
                 borderRadius={100}
+                style={{marginTop:hp(16)}}
               />
             </View>
 

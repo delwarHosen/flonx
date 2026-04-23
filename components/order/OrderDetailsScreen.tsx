@@ -151,6 +151,7 @@ const OrderDetailsScreen = ({ tipRoute }: OrderDetailsScreenProps) => {
             borderRadius={100}
             backgroundColor={Colors.NEUTRAL0}
             color={Colors.BRAND_PRIMARY}
+            style={{ marginTop: hp(16) }}
           />
         </View>
 

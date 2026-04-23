@@ -6,7 +6,7 @@ export default function GuestOrderTab() {
     <OrderListScreen
       routes={{
         currentOrder: '/guest/current-order',
-        pastOrderDetail: '/guest/orders-details/my-orders',
+        pastOrderDetail: '/guest/my-orders',
         pickupOrder: '/guest/pickup-order',
       }}
     />

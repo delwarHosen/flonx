@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -14,7 +14,6 @@ import { RootState } from '@/redux/store';
 import { hp, wp } from '@/utils/responsive';
 import { useSelector } from 'react-redux';
 
-import * as SecureStore from 'expo-secure-store';
 import CustomLoader from '../CustomLoader';
 
 const CURRENT_STATUSES = ['PENDING', 'QUEUED', 'IN_PROGRESS', 'READY_FOR_PIC'];
@@ -54,24 +53,30 @@ const formatStatus = (status: string) => status.replace(/_/g, ' ');
 const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
   const role = useSelector((state: RootState) => state.auth.userRole);
   const [refreshing, setRefreshing] = useState(false);
-
-  useEffect(() => {
-    const check = async () => {
-      const token = await SecureStore.getItemAsync('accessToken');
-      // console.log("OrderList — token decoded:", JSON.stringify(jwtDecode(token!), null, 2));
-    };
-    check();
-  }, []);
-
+  const [isFocusRefetching, setIsFocusRefetching] = useState(false);
   const [selectedTab, setSelectedTab] = useState<'Current Orders' | 'Past Orders'>('Current Orders');
   const router = useRouter();
 
   const { data, isLoading, isError, refetch } = useGetOrderQuery(
     { page: 1, limit: 50 },
-    { skip: false }
+    {
+      skip: false,
+      refetchOnMountOrArgChange: true,
+    }
   );
 
   const allOrders = data?.result || [];
+
+  useFocusEffect(
+    useCallback(() => {
+      const refetchOnFocus = async () => {
+        setIsFocusRefetching(true);
+        await refetch();
+        setIsFocusRefetching(false);
+      };
+      refetchOnFocus();
+    }, [refetch])
+  );
 
   const filteredOrders = allOrders.filter((order: any) =>
     selectedTab === 'Current Orders'
@@ -128,7 +133,6 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
     return (
       <TouchableOpacity onPress={handlePress} style={styles.orderCard} activeOpacity={0.8}>
 
-        {/* ── Header: status/date top left ── */}
         <View style={styles.cardHeader}>
           {!isPast ? (
             <Body3 color={getStatusColor(item.status)} italic>
@@ -141,7 +145,6 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
           )}
         </View>
 
-        {/* ── Items list ── */}
         {item.items?.map((orderItem: any, index: number) => {
           const product = orderItem.product;
           const productImage = product?.image || null;
@@ -175,19 +178,15 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
           );
         })}
 
-        {/* ── Footer: divider + price left, see more right ── */}
         <View style={styles.cardFooterWrapper}>
           <View style={styles.footerDivider} />
           <View style={styles.cardFooter}>
-
             <View style={styles.priceContainer}>
               <Body1 color={Colors.NEUTRAL0}>Total Price</Body1>
               <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: 2 }}>
                 ${item.totalPrice}
               </Caption1>
             </View>
-
-
             <CustomButton
               title="See More"
               onPress={handlePress}
@@ -205,7 +204,9 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <SectionTitle title="My Orders" />
+      <View style={{ paddingVertical: hp(16) }}>
+        <SectionTitle title="My Orders" />
+      </View>
 
       <View style={styles.tabWrapper}>
         {(['Current Orders', 'Past Orders'] as const).map((tab) => (
@@ -223,7 +224,7 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
       </View>
 
       <View style={{ flex: 1, marginTop: hp(10) }}>
-        {isLoading ? (
+        {isLoading || isFocusRefetching ? (
           <View style={styles.centerContainer}>
             <CustomLoader />
           </View>
@@ -268,16 +269,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: wp(20),
     justifyContent: 'space-between',
-    // paddingBottom: hp(10), 
-    backgroundColor: Colors.APP_BACKGROUND, 
-    // zIndex: 10,
+    backgroundColor: Colors.APP_BACKGROUND,
   },
   tabItem: {
     width: '48%',
   },
   listContent: {
     paddingHorizontal: wp(20),
-    paddingTop: hp(5), 
+    paddingTop: hp(5),
     paddingBottom: hp(20),
   },
   orderCard: {
@@ -290,9 +289,6 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     flexDirection: 'row',
-    // justifyContent: 'space-between',
-    // justifyContent:"flex-end",
-    // alignItems: 'center',
     marginBottom: hp(10),
     paddingHorizontal: 4,
   },
@@ -319,7 +315,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: wp(12),
   },
-
   footerDivider: {
     height: 1,
     backgroundColor: Colors.BORDER_COLOR,
@@ -335,7 +330,6 @@ const styles = StyleSheet.create({
   priceContainer: {
     flex: 1,
   },
-
   cardFooterWrapper: {
     marginTop: hp(10),
   },

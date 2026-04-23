@@ -9,7 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.delwarhosen.Flonx",
+      "associatedDomains": [
+        "applinks:rnj64vmh-3500.inc1.devtunnels.ms"
+      ]
     },
     "android": {
       "adaptiveIcon": {
@@ -23,6 +27,24 @@
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "rnj64vmh-3500.inc1.devtunnels.ms",
+              "pathPrefix": "/venue"
+            },
+            {
+              "scheme": "https",
+              "host": "rnj64vmh-3500.inc1.devtunnels.ms",
+              "pathPrefix": "/payment_success"
+            }
+          ]
+        }
       ]
     },
     "web": {
@@ -57,7 +79,14 @@
       ],
       "expo-font",
       "expo-secure-store",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "",
+          "enableGooglePay": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

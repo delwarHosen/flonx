@@ -333,7 +333,7 @@ const UpdateGig: React.FC = () => {
                     )}
 
                     <FormInput
-                        label="Hourly Rate"
+                        label="Hourly Rate ($)"
                         placeholder="Enter hourly rate"
                         type="number"
                         value={hourlyRate}
@@ -365,6 +365,7 @@ const UpdateGig: React.FC = () => {
                             onPress={handleUpdate}
                             width="100%"
                             disabled={updating}
+                            style={{marginTop:hp(16)}}
                         />
                     </View>
                 </ScrollView>

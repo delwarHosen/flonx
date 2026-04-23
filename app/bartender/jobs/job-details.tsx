@@ -144,7 +144,7 @@ const JobDetails = () => {
 
                         <StatusInfoCard
                             label="Applied on"
-                            value={item.createdAt}
+                            value={item.applyDate}
                             statusText="Applied"
                             statusColor={"#FFB020"}
                             statusBg={"#FFB02033"}
