@@ -96,7 +96,7 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
+     style={{ flex: 1, backgroundColor: Colors.APP_BACKGROUND }}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -181,7 +181,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: wp(20)
+    paddingHorizontal: wp(20),
+    backgroundColor: Colors.APP_BACKGROUND
   },
   form: {
     marginTop: hp(32),

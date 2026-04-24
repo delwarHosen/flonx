@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import CustomLoader from '../CustomLoader';
+// import CustomLoader from '../CustomLoader';
 import SectionTitle from '../SectionTitle';
 import { showToast } from '../Toast';
 import BarCardComponents from '../cardComponents/BarCardComponents';
@@ -96,14 +96,6 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
 
     const getCartQty = (productId: string) => reduxCart[productId] || 0;
 
-    // NOTE: No useFocusEffect refetch here.
-    // Parent controls query via skip: !token — when token arrives after login,
-    // RTK Query automatically fetches. Manual refetch causes crash if query not started.
-
-    const currentVenueTotalItems = useMemo(() => {
-        return items.reduce((sum, i) => sum + getCartQty(i._id), 0);
-    }, [items, reduxCart]);
-
     const totalPrice = useMemo(() => {
         return items.reduce((sum, item) => {
             return sum + getCartQty(item._id) * (item.price || 0);
@@ -118,6 +110,11 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
         reduxBarId !== null &&
         reduxBarId !== barId &&
         Object.values(reduxCart).some((qty) => qty > 0);
+
+    const currentVenueTotalItems = useMemo(() => {
+        if (hasOtherVenueItems) return 0;
+        return items.reduce((sum, i) => sum + getCartQty(i._id), 0);
+    }, [items, reduxCart, hasOtherVenueItems]);
 
     const handleAddToCart = (item: VenueItem) => {
         if (hasOtherVenueItems) {
@@ -169,6 +166,8 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
             }
         }, 400);
     };
+
+
 
     const buildExistingCart = () =>
         items
@@ -242,7 +241,7 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                             )}
 
                             {categories && categories.length > 0 && (
-                                <View style={{ marginVertical: hp(15) }}>
+                                <View style={{ marginBottom: hp(16) }}>
                                     <FlatList
                                         horizontal
                                         data={categories}
@@ -265,7 +264,7 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                                 </View>
                             )}
 
-                            {isProdLoading && !isLoading && <CustomLoader />}
+                            {/* {isProdLoading && !isLoading && <CustomLoader size={40} />} */}
                         </View>
                     }
                     refreshControl={
@@ -278,7 +277,7 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                     }
                 />
 
-                {currentVenueTotalItems > 0 && (
+                {currentVenueTotalItems > 0 && !hasOtherVenueItems && (
                     <View style={[
                         styles.modalOverlay,
                         { bottom: Platform.OS === 'ios' ? insets.bottom + 10 : hp(55) }

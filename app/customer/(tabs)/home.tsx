@@ -175,7 +175,7 @@ const HomeScreen: React.FC = () => {
 
             {(isProfileLoading || isOrderLoading) && !currentOrders.length && !refreshing ? (
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <CustomLoader size={35} />
+                    <CustomLoader size={40} />
                 </View>
             ) : (
                 <FlatList

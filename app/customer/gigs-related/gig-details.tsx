@@ -35,11 +35,8 @@ const GigDetails = () => {
     const [markJobAsComplete] = useMarkJobAsCompleteMutation();
     const [cancelJob] = useCancelJobMutation();
 
-    // console.log("from gig details", item)
+    
 
-    // console.log("Create Job", item)
-    // console.log("single job item:", JSON.stringify(item, null, 2))
-    // console.log("bartender data:", item.bartender);
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
         await refetch();
@@ -139,10 +136,6 @@ const GigDetails = () => {
         }, 300);
     };
 
-
-    // console.log("applicants:", JSON.stringify(item.applicants, null, 2));
-    // console.log("item.rating:", item.rating);
-    // console.log("item._id:", item._id);
 
     const renderBottomSection = () => {
         // console.log("Current initialTab:", initialTab);

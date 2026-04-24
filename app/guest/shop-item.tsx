@@ -1,6 +1,10 @@
 import ShopItemsScreen from '@/components/CommonComponents/ShopItemsScreen';
 import CustomLoader from '@/components/CustomLoader';
-import { useGetAllVenuesQuery, useGetCategoriesByVenueQuery, useGetProductsByVenueQuery } from '@/redux/services/venueApi';
+import {
+    useGetCategoriesByVenueQuery,
+    useGetProductsByVenueQuery,
+    useGetVenueByIdQuery,
+} from '@/redux/services/venueApi';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
@@ -9,37 +13,38 @@ export default function GuestShopItem() {
     const { barId } = useLocalSearchParams<{ barId: string }>();
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-    const { data: venuesData } = useGetAllVenuesQuery({});
-    const currentVenue = venuesData?.result?.find((v: any) => v._id === barId);
+    //  useGetVenueByIdQuery use koro — getAllVenues call kora expensive & unnecessary
+    const { data: currentVenue } = useGetVenueByIdQuery(barId, { skip: !barId });
 
-
-    const { data: categories, isLoading: isCatLoading } = useGetCategoriesByVenueQuery(barId, {
+    const { data: categoryData, isLoading: isCatLoading } = useGetCategoriesByVenueQuery(barId, {
         skip: !barId,
     });
 
+    // categories response: { meta, result: [...] }
+    const categories = categoryData?.result ?? [];
 
-
-    const {
-        data: productsData,
-        isFetching: isProdFetching,
-        isLoading: isProdFirstLoad,
-        refetch
-    } = useGetProductsByVenueQuery({ venueId: barId }, { skip: !barId });
-    // console.log("sopItem useGetProductsByVenueQuery", productsData)
+    // Auto-select first category
     useEffect(() => {
-        if (categories?.length && !selectedCategory) {
+        if (categories.length > 0 && !selectedCategory) {
             setSelectedCategory(categories[0]._id);
         }
     }, [categories]);
 
-    const activeItems = (productsData ?? []).filter((item: any) =>
-        !selectedCategory ? true : item.category?._id === selectedCategory
+    // categoryId API-level e pass koro — client-side filter lagbe na
+    const {
+        data: productsData = [],
+        isFetching: isProdFetching,
+        isLoading: isProdFirstLoad,
+        refetch,
+    } = useGetProductsByVenueQuery(
+        { venueId: barId, categoryId: selectedCategory ?? undefined },
+        { skip: !barId }
     );
 
-    if ((isCatLoading || isProdFirstLoad) && !isProdFetching) {
+    if (isCatLoading || isProdFirstLoad) {
         return (
-            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                <CustomLoader/>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <CustomLoader />
             </View>
         );
     }
@@ -54,7 +59,7 @@ export default function GuestShopItem() {
                 address: currentVenue.address,
             } : undefined}
             categories={categories}
-            items={activeItems}
+            items={productsData}
             isProdLoading={isProdFetching}
             selectedCategory={selectedCategory}
             onCategorySelect={setSelectedCategory}

@@ -10,7 +10,7 @@ import { ButtonText } from '@/components/typo/Typography'
 import { FORM_FIELDS } from '@/constants/form'
 import { IMAGE_COMPONENTS } from '@/constants/image.index'
 import { Colors } from '@/constants/theme'
-import { useGetProfileQuery } from '@/redux/services/authApi'
+import { useGetBartenderByIdQuery, useGetProfileQuery } from '@/redux/services/authApi'
 import { RootState } from '@/redux/store'
 import { hp, wp } from '@/utils/responsive'
 import { Href, useRouter } from 'expo-router'
@@ -24,22 +24,26 @@ export default function MyProfileView() {
     const router = useRouter();
     const userRole = useSelector((state: RootState) => state.auth.userRole);
     const isBartander = userRole === "bartender";
-    const { data: profile, isLoading } = useGetProfileQuery({});
-    // console.log("Profile", profile)
+    const { data: profile, isLoading } = useGetProfileQuery(undefined);
+    const { data: bartenderDetail } = useGetBartenderByIdQuery(profile?._id, {
+        skip: !isBartander || !profile?._id,
+    });
+
+  
     const handleEdit = () => {
         const path: Href = userRole === 'bartender'
             ? {
                 pathname: "/bartender/profile/edit-profile",
                 params: {
-                    [FORM_FIELDS.FULL_NAME]: "Roberts Junior",
-                    [FORM_FIELDS.CONTACT_NO]: "+1 (212) 555-0148",
-                    [FORM_FIELDS.EXPERIENCE]: "2 Years"
+                    [FORM_FIELDS.FULL_NAME]: profile?.name ?? '',
+                    [FORM_FIELDS.CONTACT_NO]: profile?.phone ?? '',
+                    [FORM_FIELDS.EXPERIENCE]: profile?.experience ?? '',
                 }
             }
             : {
                 pathname: "/customer/edit-profile",
                 params: {
-                    [FORM_FIELDS.FULL_NAME]: "Roberts Junior"
+                    [FORM_FIELDS.FULL_NAME]: profile?.name ?? '',
                 }
             };
 
@@ -49,7 +53,7 @@ export default function MyProfileView() {
     if (isLoading) {
         return (
             <View style={{ flex: 1 }}>
-                <CustomLoader size={20} />
+                <CustomLoader size={40} />
             </View>
         )
     }
@@ -76,11 +80,11 @@ export default function MyProfileView() {
                         <ProfileDetailsCard label="Email" value={profile?.email ?? '—'} />
                         <ProfileDetailsCard label="Contact phone" value={profile?.phone ?? '—'} />
                         <ProfileDetailsCard label="Experience" value={profile?.experience ?? '—'} />
-                        <ProfileDetailsCard label="Total Jobs Completed" value="256" />
+                        <ProfileDetailsCard label="Total Jobs Completed" value={bartenderDetail?.totalCompletedJob ?? '—'} />
                         <ProfileDetailsCard
                             label="Overall rating"
                             valueIcon={<StarIcon color='#FFB020' />}
-                            value="4.4 (112)"
+                            value={bartenderDetail?.averageRating ? `${bartenderDetail.averageRating} (${bartenderDetail.totalRatings})` : '—'}
                         />
                     </>
                 ) : (

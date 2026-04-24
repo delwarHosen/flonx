@@ -19,7 +19,7 @@ const ApplicantsList = () => {
     // console.log("jobId received:", jobId);
 
     const { data: applicants = [], isLoading } = useGetJobApplicantsQuery(jobId, { skip: !jobId });
-    // console.log("applicants data:", applicants);
+    console.log("applicants data:", applicants);
 
     const renderApplicantCard = ({ item }: { item: any }) => (
         <TouchableOpacity
@@ -44,7 +44,7 @@ const ApplicantsList = () => {
                     <View style={styles.ratingRow}>
                         <StarIcon color='#FFB020' />
                         <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginLeft: 4 }}>
-                            {item.bartender.rating ?? '4.5'} ({item.bartender.reviewCount ?? 5})
+                            {item.bartender.avgRating ?? '4.5'} ({item.bartender.totalRatingCount ?? 5})
                         </Caption1>
                     </View>
                 </View>
@@ -61,7 +61,7 @@ const ApplicantsList = () => {
 
             {isLoading ? (
                 <View style={styles.loaderContainer}>
-                    <CustomLoader />
+                    <CustomLoader size={40} />
                 </View>
             ) : (
                 <FlatList

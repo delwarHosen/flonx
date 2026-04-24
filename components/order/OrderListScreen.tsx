@@ -226,7 +226,7 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
       <View style={{ flex: 1, marginTop: hp(10) }}>
         {isLoading || isFocusRefetching ? (
           <View style={styles.centerContainer}>
-            <CustomLoader />
+            <CustomLoader size={40}/>
           </View>
         ) : isError ? (
           <View style={styles.centerContainer}>

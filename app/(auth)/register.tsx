@@ -310,7 +310,7 @@ export default function RegisterScreen() {
                 width="100%"
                 height={rs(44, 48, 52)}
                 borderRadius={100}
-                style={{marginTop:hp(16)}}
+                style={{ marginTop: hp(16) }}
               />
             </View>
 
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     backgroundColor: Colors.APP_BACKGROUND,
-
+    paddingVertical: hp(100)
   },
   containerStyle: {
     flex: 1,
@@ -339,8 +339,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: rs(16, 20, 24),
     paddingVertical: rs(16, 24, 32),
-    minHeight: height,
-    // marginVertical: hp(20)
+    // minHeight: height,
+    backgroundColor: Colors.APP_BACKGROUND,
   },
   form: {
     marginTop: rs(12, 16, 20),

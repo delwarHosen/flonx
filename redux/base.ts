@@ -38,21 +38,21 @@ const baseQueryWithAuth = async (args: any, api: any, extraOptions: any) => {
             url.includes('/auth/verify-reset-otp') ||
             url.includes('/auth/reset-password');
 
-        // ← isRedirectingToLogin check আগে করো
+       
         if (isAuthEndpoint || isRedirectingToLogin || (Date.now() - lastLoginTime < 3000)) {
             return result;
         }
 
-        // ← Logout হচ্ছে কিনা check করো
+        
         const { store } = require('@/redux/store');
         const currentRole = store.getState().auth.userRole;
         
-        // role null হলে মানে logout হয়ে গেছে — কিছু করো না
+        
         if (!currentRole) return result;
 
         const currentToken = await SecureStore.getItemAsync('accessToken');
         
-        // token নেই মানে logout হয়ে গেছে — কিছু করো না
+       
         if (!currentToken) return result;
 
         try {

@@ -129,6 +129,14 @@ export const authApi = baseApis.injectEndpoints({
             transformResponse: (response: any) => response.data,
         }),
 
+        // bartender profile
+        getBartenderById: builder.query({
+            query: (bartenderId: string) => ({
+                url: `/bartender/get-single/${bartenderId}`,
+                method: 'GET',
+            }),
+            transformResponse: (response: any) => response.data,
+        }),
 
     }),
     overrideExisting: true,
@@ -147,4 +155,5 @@ export const {
     useGetProfileQuery,
     useUpdateProfileMutation,
     useGuestLoginMutation,
+    useGetBartenderByIdQuery
 } = authApi;

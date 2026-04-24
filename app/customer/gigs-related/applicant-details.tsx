@@ -54,7 +54,7 @@ const ApplicantDetails = () => {
         return (
             <SafeAreaView style={styles.container}>
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                   <CustomLoader/>
+                    <CustomLoader />
                 </View>
             </SafeAreaView>
         );
@@ -72,22 +72,18 @@ const ApplicantDetails = () => {
     }
 
 
-    const handleAssignConfirm = () => {
-        setShowAssignModal(false);
-        console.log("applicationId being sent:", applicationId);
-
-        setTimeout(async () => {
-            setLoading(true);
-            try {
-                await acceptApplication(applicationId).unwrap();
-                setLoading(false);
-                router.push("/customer/(tabs)/gigs");
-            } catch (error) {
-                setLoading(false);
-                console.error("Assignment failed", error);
-            }
-        }, 300);
-    };
+  const handleAssignConfirm = async () => {
+    setShowAssignModal(false);
+    setLoading(true);
+    try {
+        await acceptApplication(applicationId).unwrap();
+        setLoading(false);
+        router.push("/customer/gigs") 
+    } catch (error) {
+        setLoading(false);
+        console.error("Assignment failed", error);
+    }
+};
 
 
     return (
@@ -122,10 +118,7 @@ const ApplicantDetails = () => {
                         bottomLabel={applicant.totalJobs.toString()}
                     />
 
-                    {/* <DetailsCardComponents
-                        topLabel="Overall Rating"
-                        bottomLabel={`${applicant.rating} (${applicant.reviewCount})`}
-                    /> */}
+
 
                     <DetailsCardComponents topLabel="Bio" bottomLabel={applicant.bio} />
 
@@ -144,6 +137,7 @@ const ApplicantDetails = () => {
                         width="100%"
                         height={hp(44)}
                         borderRadius={100}
+                        style={{ marginTop: 16 }}
                     />
                 </View>
             </ScrollView>
@@ -156,7 +150,7 @@ const ApplicantDetails = () => {
                     alignItems: 'center',
                     zIndex: 999
                 }]}>
-                    <CustomLoader />
+                    <CustomLoader size={40} />
                 </View>
             )}
 

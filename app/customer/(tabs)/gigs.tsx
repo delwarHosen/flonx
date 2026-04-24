@@ -26,32 +26,23 @@ const tabTypeMap: Record<string, string> = {
 const GigsScreen = () => {
   const [activeTab, setActiveTab] = useState("Active");
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [cachedData, setCachedData] = useState<Record<string, any[]>>({});
   const router = useRouter();
+  const { activeTab: paramTab } = useLocalSearchParams<{ activeTab: string }>();
 
-  const { resetTab } = useLocalSearchParams<{ resetTab?: string }>();
+
   useEffect(() => {
-    if (resetTab) {
-      setActiveTab(resetTab);
+    if (paramTab) {
+      setActiveTab(paramTab);
     }
-  }, [resetTab]);
+  }, [paramTab]);
+
 
   const { data, isLoading, isFetching, refetch } = useGetMyJobsQuery(
     { type: tabTypeMap[activeTab] },
-    { refetchOnMountOrArgChange: true }
-  );
-
-  // tracking Cashe
-  useEffect(() => {
-    if (!isFetching && data?.result) {
-      setCachedData(prev => ({
-        ...prev,
-        [activeTab]: data.result
-      }));
+    {
+      refetchOnMountOrArgChange: true,
     }
-  }, [isFetching, data, activeTab]);
-
-
+  );
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -60,34 +51,32 @@ const GigsScreen = () => {
   }, [refetch]);
 
 
-  const showLoader = useMemo(() => {
-    const hasCache = cachedData[activeTab]?.length > 0;
-    return isFetching && !hasCache && !refreshing;
-  }, [isFetching, cachedData, activeTab, refreshing]);
-
-
   const filteredData = useMemo(() => {
-    const source = cachedData[activeTab] || data?.result || [];
+    const source = data?.result || [];
+
     return source
       .filter((job: any) => {
-        if (activeTab === 'Active') return job.status === 'Open';
-        if (activeTab === 'Assigned') return job.status === 'Assigned';
-        if (activeTab === 'Completed') return job.status === 'Completed';
-        if (activeTab === 'Cancelled') return job.status === 'Cancelled';
+        const status = job.status?.toLowerCase();
+        if (activeTab === 'Active') return status === 'open';
+        if (activeTab === 'Assigned') return status === 'assigned';
+        if (activeTab === 'Completed') return status === 'completed';
+        if (activeTab === 'Cancelled') return status === 'cancelled';
         return true;
       })
       .sort((a: any, b: any) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
-  }, [cachedData, activeTab, data]);
+  }, [data, activeTab]);
 
-  // const showLoader = (isLoading || isFetching) && !refreshing;
+
+  const showLoader = isFetching && !refreshing;
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={{ paddingVertical: hp(10) }}>
         <SectionTitle title='Gigs' />
       </View>
+
 
       <View style={{ height: hp(60) }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabList}>
@@ -107,7 +96,7 @@ const GigsScreen = () => {
 
       {showLoader ? (
         <View style={styles.loaderContainer}>
-          <CustomLoader />
+          <CustomLoader size={40} />
         </View>
       ) : (
         <FlatList
@@ -148,21 +137,16 @@ const GigsScreen = () => {
   );
 };
 
-
-
 const CreatGig = () => {
   const router = useRouter();
   return (
     <View style={styles.createCard}>
-      
       <View style={{ flex: 1, marginRight: wp(10), justifyContent: 'center' }}>
         <Body2 color={Colors.NEUTRAL0}>Create a New Gig</Body2>
         <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: hp(8) }}>
           Provide the details to publish your job.
         </Caption1>
       </View>
-
-    
       <View style={{ justifyContent: 'center', alignItems: 'center' }}>
         <CustomButton
           onPress={() => router.push('/customer/gigs-related/add-gig')}
@@ -176,7 +160,6 @@ const CreatGig = () => {
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -201,7 +184,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingHorizontal: wp(20),
-    paddingBottom: 0,
+    paddingBottom: 20,
   },
   loaderContainer: {
     flex: 1,
@@ -216,10 +199,10 @@ const styles = StyleSheet.create({
     marginBottom: hp(20),
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center', // এটিই ভার্টিক্যালি সেন্টার করার প্রধান প্রপার্টি
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: Colors.BORDER_COLOR,
-    minHeight: hp(80), // একটি মিনিমাম হাইট দিয়ে দেখতে পারেন
+    minHeight: hp(80),
   },
 });
 

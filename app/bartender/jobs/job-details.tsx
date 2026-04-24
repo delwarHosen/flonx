@@ -22,9 +22,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const JobDetails = () => {
     const [showCompleteModal, setShowCompleteModal] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
-    // Added a separate state for Cancel Assignment Modal
     const [showCancelAssignmentModal, setShowCancelAssignmentModal] = useState(false);
-    // const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -40,8 +38,6 @@ const JobDetails = () => {
         refetchOnFocus: true,
     });
 
-    // console.log("Single data from job-details",item)
-
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
         await refetch();
@@ -49,15 +45,12 @@ const JobDetails = () => {
     }, [refetch]);
 
     const [cancelApplication] = useCancelApplicationMutation();
-    const [cancelJob] = useCancelJobMutation();
+    const [cancelJob, { isLoading: isCancellingJob }] = useCancelJobMutation();
 
-
-
-    // const item = getJobs.find(j => j.id === id);
     if (isLoading || (isFetching && !refreshing)) return (
         <SafeAreaView style={styles.container}>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <CustomLoader />
+                <CustomLoader size={40} />
             </View>
         </SafeAreaView>
     );
@@ -79,13 +72,11 @@ const JobDetails = () => {
 
     const statusColors = getStatusColors(item?.status);
 
-
     const confirmComplete = () => {
         setShowCompleteModal(false);
         setTimeout(async () => {
             setLoading(true);
             try {
-                // API Call logic here
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 router.back();
             } catch (error) {
@@ -94,54 +85,55 @@ const JobDetails = () => {
         }, 300);
     };
 
+    // Cancel Application → go back to Applied tab
+    const confirmCancelAssignment = async () => {
+      
+        setShowCancelAssignmentModal(false);
 
-    const confirmCancelApplication = async () => {
-        setShowCancelModal(false);
-        setLoading(true);
+        await new Promise(resolve => setTimeout(resolve, 500));
+
         try {
-            const res = await cancelApplication(jobId).unwrap();
-            showToast(res?.message || "Application cancelled successfully!", "success");
+           
+            const res = await cancelJob(jobId).unwrap();
+            showToast(res?.message || "Assignment cancelled successfully", "success");
             router.back();
+
         } catch (error: any) {
-            showToast(error?.data?.message || "Something went wrong!", "error");
-        } finally {
-            setLoading(false);
+            showToast(error?.data?.message || "Failed to cancel assignment", "error");
         }
     };
 
+    // Cancel Assignment → go to Cancelled tab directly
+    const confirmCancelApplication = async () => {
+        setShowCancelModal(false);
 
-    // cancle applicatin which the customer was assigned me 
-    const confirmCancelAssignment = () => {
-        setShowCancelAssignmentModal(false);
         setTimeout(async () => {
             setLoading(true);
             try {
-                const res = await cancelJob(jobId).unwrap();
-                showToast(res?.message || "Assignment cancelled successfully", "success");
-                setLoading(false);
+                const res = await cancelApplication(jobId).unwrap();
+                showToast(res?.message || "Application cancelled successfully!", "success");
 
                 setTimeout(() => {
-                    router.back();
+                    router.replace({
+                        pathname: '/bartender/(tabs)/my-jobs',
+                        params: { initialTab: 'Applied' },
+                    });
                 }, 100);
-
             } catch (error: any) {
+                showToast(error?.data?.message || "Something went wrong!", "error");
+            } finally {
                 setLoading(false);
-                const errorMsg = error?.data?.message || "Failed to cancel assignment";
-                showToast(errorMsg, "error");
             }
-        }, 300);
+        }, 700);
     };
-
 
 
     const renderBottomSection = () => {
         switch (initialTab) {
 
-            // ─── 1st Page: Open ──────────
             case 'open':
                 return (
                     <>
-
                         <StatusInfoCard
                             label="Applied on"
                             value={item.applyDate}
@@ -158,11 +150,9 @@ const JobDetails = () => {
                             style={{ marginTop: 12 }}
                             backgroundColor={Colors.COLOR_DANGER}
                         />
-
                     </>
                 );
 
-            // ─── 2nd Page: Assigned ───────────────────────────────────────
             case 'assigned':
                 return (
                     <>
@@ -187,7 +177,6 @@ const JobDetails = () => {
                     </>
                 );
 
-            // ─── 3rd Page: Completed ──────────────────────────────────────
             case 'completed':
                 return (
                     <>
@@ -195,14 +184,11 @@ const JobDetails = () => {
                             label="Assignmed on"
                             value={item.completedDate}
                             statusText="Assigned"
-                            // statusColors={statusColors}
                             statusColor={"#3D8BFF"}
                             statusBg={"#3D8BFF33"}
                         />
-
-
                         <View style={[styles.buttonContainer]}>
-                            <View >
+                            <View>
                                 <Caption2 style={{ marginBottom: hp(12) }} color={Colors.PLACEHOLLDER_TEXT}>Your Rating</Caption2>
                                 <View style={{ flexDirection: "row", gap: 5 }}>
                                     {item?.rating ? (
@@ -220,14 +206,11 @@ const JobDetails = () => {
                                 </View>
                             </View>
                         </View>
-
                     </>
                 );
 
-            // ─── 4th Page: Cancelled ──────────────────────────────────────
             case 'cancelled':
                 const cancelledByValue = item.cancelledBy?.toLowerCase();
-
                 let displayLabel = "—";
                 if (cancelledByValue === 'bartender') {
                     displayLabel = "Me";
@@ -238,14 +221,11 @@ const JobDetails = () => {
                 }
                 return (
                     <>
-
-
                         <View style={{ marginBottom: hp(12), marginTop: hp(16) }}>
                             <DetailsCardComponents
                                 topLabel="Cancelled By"
                                 bottomLabel={displayLabel}
                             />
-
                             <DetailsCardComponents
                                 topLabel="Cancelled On"
                                 bottomLabel={
@@ -259,8 +239,6 @@ const JobDetails = () => {
                                 }
                             />
                         </View>
-
-
                     </>
                 );
 
@@ -272,20 +250,17 @@ const JobDetails = () => {
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
 
-            {/* Loader */}
-            {loading && (
-                <View style={[StyleSheet.absoluteFill, {
-                    backgroundColor: 'rgba(0,0,0,0.6)',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 999
-                }]}>
-                    <CustomLoader />
-                </View>
-            )}
+            {isCancellingJob && (
+            <View style={[StyleSheet.absoluteFill, {
+                backgroundColor: 'rgba(0,0,0,0.7)',
+                justifyContent: 'center',
+                alignItems: 'center',
+                zIndex: 9999, 
+            }]}>
+                <CustomLoader size={40} />
+            </View>
+        )}
 
-
-            {/* Back Header */}
             <View style={{ paddingTop: "4%" }}>
                 <SectionTitle title='Job Details' />
             </View>
@@ -302,7 +277,6 @@ const JobDetails = () => {
                     />
                 }
             >
-
                 <Body1 color={Colors.NEUTRAL0} italic style={styles.title}>{item?.title}</Body1>
                 <View style={[styles.statusBadge, { backgroundColor: statusColors.bg }]}>
                     <View style={[styles.dot, { backgroundColor: statusColors.text }]} />
@@ -310,61 +284,57 @@ const JobDetails = () => {
                 </View>
 
                 <GigBasicDetails item={item} />
-
                 <PaymentInfoCard item={item} />
-
-
                 {renderBottomSection()}
-
             </ScrollView>
 
+            {showCompleteModal && (
+                <ConfirmationModal
+                    visible={showCompleteModal}
+                    title="Mark Job as Complete?"
+                    description="Are you sure you want to mark this job as completed?"
+                    confirmText="Confirm"
+                    onCancel={() => setShowCompleteModal(false)}
+                    onConfirm={confirmComplete}
+                    icon={<WarningIcon size={28} />}
+                    confirmColor="#8B5CF6"
+                    confirmSecondaryColor="#A78BFA"
+                />
+            )}
 
-            {/* Mark Job as Complete Modal */}
-            <ConfirmationModal
-                visible={showCompleteModal}
-                title="Mark Job as Complete?"
-                description="Are you sure you want to mark this job as completed?"
-                confirmText="Confirm"
-                onCancel={() => setShowCompleteModal(false)}
-                onConfirm={confirmComplete}
-                icon={<WarningIcon size={28} />}
-                confirmColor="#8B5CF6"
-                confirmSecondaryColor="#A78BFA"
-            />
+            {showCancelModal && (
+                <ConfirmationModal
+                    visible={showCancelModal}
+                    title="Cancel Application?"
+                    description="Are you sure you want to cancel your application? You will no longer be considered for this job."
+                    confirmText="Confirm"
+                    onCancel={() => setShowCancelModal(false)}
+                    onConfirm={confirmCancelApplication}
+                    icon={<WarningIcon size={28} />}
+                    confirmColor="#8B5CF6"
+                    confirmSecondaryColor="#A78BFA"
+                />
+            )}
 
-            {/* Cancel Application Modal */}
-            <ConfirmationModal
-                visible={showCancelModal}
-                title="Cancel Application?"
-                description="Are you sure you want to cancel your application?You will no longer be considered for this job."
-                confirmText="Confirm"
-                onCancel={() => setShowCancelModal(false)}
-                // onConfirm={confirmCancelAssignment}
-                onConfirm={confirmCancelApplication}
-                icon={<WarningIcon size={28} />}
-                confirmColor="#8B5CF6"
-                confirmSecondaryColor="#A78BFA"
-            />
 
-            {/* Cancel Assignment Modal */}
-            <ConfirmationModal
-                visible={showCancelAssignmentModal}
-                title="Cancel Assignment?"
-                description="Are you sure you want to cancel this assignment?You will be removed from this job."
-                confirmText="Yes, Cancel"
-                onCancel={() => setShowCancelAssignmentModal(false)}
-                onConfirm={confirmCancelAssignment}
-                icon={<WarningIcon size={28} color="#EF4444" />}
-                confirmColor="#822CE7"
-                confirmSecondaryColor="#BB82FF"
-            />
+            {showCancelAssignmentModal && (
+                <ConfirmationModal
+                    visible={showCancelAssignmentModal}
+                    title="Cancel Assignment?"
+                    description="Are you sure you want to cancel this assignment? You will be removed from this job."
+                    confirmText="Yes, Cancel"
+                    onCancel={() => setShowCancelAssignmentModal(false)}
+                    onConfirm={confirmCancelAssignment}
+                    icon={<WarningIcon size={28} color="#EF4444" />}
+                    confirmColor="#822CE7"
+                    confirmSecondaryColor="#BB82FF"
+                />
+            )}
+
         </SafeAreaView>
     );
 };
 
-
-
-// ---- Gig details----->
 const GigBasicDetails = ({ item }: { item: any }) => (
     <>
         <DetailsCardComponents topLabel="Location" bottomLabel={item.address} />
@@ -393,9 +363,6 @@ const GigBasicDetails = ({ item }: { item: any }) => (
         <DetailsCardComponents topLabel="Details" bottomLabel={item.description} />
     </>
 );
-
-
-// <----------Payment Card-------->
 
 const PaymentInfoCard = ({ item }: { item: any }) => {
     const start = item.startDateTime ? new Date(item.startDateTime) : null;
@@ -430,21 +397,12 @@ const PaymentInfoCard = ({ item }: { item: any }) => {
     );
 };
 
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: Colors.APP_BACKGROUND,
         marginBottom: hp(20)
     },
-    headerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: wp(20),
-        paddingVertical: hp(12),
-    },
-
     scrollContent: {
         paddingHorizontal: wp(20),
         paddingBottom: "20%",
@@ -468,8 +426,6 @@ const styles = StyleSheet.create({
         borderRadius: 2,
         marginRight: 6,
     },
-
-
     paymentCard: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 12,
@@ -493,16 +449,29 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    paymentTitle: {
-        // marginBottom: 12,
-    },
     payRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginBottom: 10,
     },
+    buttonContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: "space-between",
+        padding: 16,
+        backgroundColor: Colors.INPUT_BACKGROUND,
+        borderWidth: 1,
+        borderRadius: 10,
+        marginBottom: 10
+    },
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: wp(20),
+        paddingVertical: hp(12),
+    },
     actionRow: {
-
         flexDirection: 'row',
         justifyContent: "center",
         gap: 10
@@ -546,16 +515,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.BRAND_PRIMARY
     },
-    buttonContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: "space-between",
-        padding: 16,
-        backgroundColor: Colors.INPUT_BACKGROUND,
-        borderWidth: 1,
-        borderRadius: 10,
-        marginBottom: 10
-    }
 });
 
 export default JobDetails;

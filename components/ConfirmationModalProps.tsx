@@ -8,7 +8,7 @@ import { AnimatedModal } from './AnimatedModal';
 
 interface ConfirmationModalProps {
     visible: boolean;
-    icon?: React.ReactNode;
+    icon?: React.ReactNode | (() => React.ReactNode);
     title: string;
     description: string;
     cancelText?: string;
@@ -39,7 +39,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             <View style={styles.card}>
                 {icon && (
                     <View style={styles.iconPlaceholder}>
-                        {icon}
+                       {typeof icon === 'function' ? icon() : icon}
                     </View>
                 )}
 

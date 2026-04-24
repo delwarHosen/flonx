@@ -109,7 +109,7 @@ const BrowseScreen: React.FC = () => {
 
             {isLoading && !refreshing && (
                 <View style={styles.loaderOverlay}>
-                    <CustomLoader  />
+                    <CustomLoader size={40}/>
                 </View>
             )}
 

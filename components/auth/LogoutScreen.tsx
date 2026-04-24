@@ -68,7 +68,7 @@ export default function LogoutScreen({ redirectRoute = '/select-role' }: LogoutS
         <SafeAreaView style={styles.container}>
             {loading && (
                 <View style={styles.loaderOverlay}>
-                    <CustomLoader />
+                    <CustomLoader size={40}/>
                 </View>
             )}
             <ConfirmationModal

@@ -86,8 +86,8 @@ const VenueSearch: React.FC<VenueSearchProps> = ({ shopItemPath }) => {
             />
 
             {(isLoading || (isFetching && !refreshing)) && !venues.length ? (
-                <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: 20 }}>
-                    <CustomLoader size={30} />
+                <View style={{ flex:1, justifyContent: "center", alignItems: "center" }}>
+                    <CustomLoader size={40} />
                 </View>
             ) : (
                 <FlatList
@@ -98,7 +98,7 @@ const VenueSearch: React.FC<VenueSearchProps> = ({ shopItemPath }) => {
                             item={{
                                 name: item.name,
                                 logo: item.logo,
-                                status: 'open',
+                                status: item.isOpen === false ? 'close' : 'open',
                                 location: item.address,
                             }}
                             onPress={() => router.push({

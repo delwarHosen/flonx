@@ -150,6 +150,8 @@ export const jobApi = baseApis.injectEndpoints({
                 method: "PATCH",
             }),
             transformResponse: (respons: any) => respons.data,
+            
+            invalidatesTags: (result, error) => [{ type: 'Jobs', id: 'LIST' }],
         }),
 
         // getMyApplications
@@ -181,6 +183,7 @@ export const jobApi = baseApis.injectEndpoints({
             invalidatesTags: [
                 { type: 'Jobs' as const, id: 'LIST' },
                 { type: 'Applications' as const },
+                { type: 'Applications' as const }
             ],
         }),
 

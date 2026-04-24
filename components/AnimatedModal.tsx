@@ -5,9 +5,9 @@ import {
     KeyboardAvoidingView,
     Modal,
     Platform,
-    ScrollView,
     StyleSheet,
-    TouchableWithoutFeedback
+    TouchableWithoutFeedback,
+    View,
 } from 'react-native';
 
 export const AnimatedModal: React.FC<{ visible: boolean; children: React.ReactNode }> = ({
@@ -36,31 +36,25 @@ export const AnimatedModal: React.FC<{ visible: boolean; children: React.ReactNo
     if (!mounted) return null;
 
     return (
-        <Modal 
-            transparent 
-            visible={visible} 
-            animationType="none" 
+        <Modal
+            transparent
+            visible={visible}
+            animationType="none"
             statusBarTranslucent
-            onRequestClose={() => Keyboard.dismiss()}
+            onRequestClose={Keyboard.dismiss}
         >
             <KeyboardAvoidingView
-                
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
             >
+                {/* ✅ ScrollView সরিয়ে View দিলাম */}
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <Animated.View style={[styles.overlay, { opacity }]}>
-                      
-                        <ScrollView 
-                            contentContainerStyle={styles.scrollContent}
-                            bounces={false}
-                            keyboardShouldPersistTaps="handled"
-                        >
+                        <View style={styles.centeredWrapper}>
                             <Animated.View style={[styles.centeredView, { transform: [{ scale }] }]}>
                                 {children}
                             </Animated.View>
-                        </ScrollView>
-                        
+                        </View>
                     </Animated.View>
                 </TouchableWithoutFeedback>
             </KeyboardAvoidingView>
@@ -73,8 +67,8 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.72)',
     },
-    scrollContent: {
-        flexGrow: 1,
+    centeredWrapper: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 28,

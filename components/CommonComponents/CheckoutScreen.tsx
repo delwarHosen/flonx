@@ -273,72 +273,69 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                 <SectionTitle title='Checkout' />
             </View>
 
-            <View style={styles.clearHeader}>
-                {cartItems.length > 0 && (
-                    <TouchableOpacity
-                        onPress={handleClearCart}
-                        style={styles.buttonClear}
-                        disabled={isDeletingAll}
-                    >
-                        {isDeletingAll ? (
-                            <ActivityIndicator size="small" color={Colors.NEUTRAL0} />
-                        ) : (
-                            <Caption1 color={Colors.NEUTRAL0}>Clear Cart</Caption1>
-                        )}
-                    </TouchableOpacity>
-                )}
-            </View>
-
-
-            {!isReady || showLoader || isFetching  ? (
+            {/* Check Loading First to Center it on screen */}
+            {(!isReady || isCartLoading || isFetching) && !refreshing ? (
                 <View style={styles.loaderContainer}>
-                    <CustomLoader />
-                </View>
-            ) : isFetching ? (
-
-                <View style={styles.loaderContainer}>
-                    <CustomLoader />
+                    <CustomLoader size={40} />
                 </View>
             ) : (
-                <FlatList
-                    data={cartItems}
-                    keyExtractor={(item) => item._id}
-                    renderItem={renderItem}
-                    contentContainerStyle={styles.listContent}
-                    showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={
-                        <EmptyStateCard message='Your cart is empty' />
-                    }
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={refreshing}
-                            onRefresh={handleRefresh}
-                            tintColor={Colors.BRAND_PRIMARY}
-                            colors={[Colors.BRAND_PRIMARY]}
-                        />
-                    }
-                />
-            )}
-
-            {cartItems?.length > 0 && (
-                <View style={[styles.footer, { paddingBottom: Platform.OS === 'ios' ? insets.bottom + 15 : "12%" }]}>
-                    <View style={styles.totalRow}>
-                        <Body4 color={Colors.NEUTRAL0}>Total</Body4>
-                        <H5 color={Colors.NEUTRAL0}>${totalPrice.toFixed(2)}</H5>
+                <>
+                    <View style={styles.clearHeader}>
+                        {cartItems.length > 0 && (
+                            <TouchableOpacity
+                                onPress={handleClearCart}
+                                style={styles.buttonClear}
+                                disabled={isDeletingAll}
+                            >
+                                {isDeletingAll ? (
+                                    <ActivityIndicator size="small" color={Colors.NEUTRAL0} />
+                                ) : (
+                                    <Caption1 color={Colors.NEUTRAL0}>Clear Cart</Caption1>
+                                )}
+                            </TouchableOpacity>
+                        )}
                     </View>
 
-                    <CustomButton
-                        title="Checkout"
-                        isLoading={isPaymentLoading}
-                        onPress={() => handlerPayment()}
-                        width="100%"
-                        height={hp(48)}
-                        borderRadius={100}
-                        backgroundColor={Colors.NEUTRAL0}
-                        color={Colors.BRAND_PRIMARY}
+                    <FlatList
+                        data={cartItems}
+                        keyExtractor={(item) => item._id}
+                        renderItem={renderItem}
+                        contentContainerStyle={styles.listContent}
+                        showsVerticalScrollIndicator={false}
+                        ListEmptyComponent={
+                            <EmptyStateCard message='Your cart is empty' />
+                        }
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={refreshing}
+                                onRefresh={handleRefresh}
+                                tintColor={Colors.BRAND_PRIMARY}
+                                colors={[Colors.BRAND_PRIMARY]}
+                            />
+                        }
                     />
-                    <View style={{ height: 12 }} />
-                </View>
+
+                    {cartItems?.length > 0 && (
+                        <View style={[styles.footer, { paddingBottom: Platform.OS === 'ios' ? insets.bottom + 15 : hp(70) }]}>
+                            <View style={styles.totalRow}>
+                                <Body4 color={Colors.NEUTRAL0}>Total</Body4>
+                                <H5 color={Colors.NEUTRAL0}>${totalPrice.toFixed(2)}</H5>
+                            </View>
+
+                            <CustomButton
+                                title="Checkout"
+                                isLoading={isPaymentLoading}
+                                onPress={() => handlerPayment()}
+                                width="100%"
+                                height={hp(48)}
+                                borderRadius={100}
+                                backgroundColor={Colors.NEUTRAL0}
+                                color={Colors.BRAND_PRIMARY}
+                            />
+                            <View style={{ height: 12 }} />
+                        </View>
+                    )}
+                </>
             )}
 
             <ConfirmationModal

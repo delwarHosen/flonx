@@ -33,7 +33,7 @@ const BrowsDetailsScreen = () => {
         return (
             <SafeAreaView style={styles.container}>
                 <View style={styles.loaderOverlay}>
-                    <CustomLoader />
+                    <CustomLoader size={40}/>
                 </View>
             </SafeAreaView>
         );
