@@ -33,7 +33,6 @@ export default function EmailVerifyOtp() {
   const [canResend, setCanResend] = useState<boolean>(false);
   const inputRef = useRef<TextInput | null>(null);
 
-  // API Hooks
   const [verifyEmail, { isLoading: isVerifying }] = useVerifyEmailMutation();
   const [resendCode, { isLoading: isResending }] = useResendVerifyCodeMutation();
 
@@ -59,33 +58,34 @@ export default function EmailVerifyOtp() {
       if (res.success) {
         setTimer(30);
         setCanResend(false);
-        setCode('');
-
         showToast(res.message || 'Verification code sent again!', 'success');
+
+        setTimeout(() => {
+          setCode('');
+          inputRef.current?.blur();
+          setTimeout(() => {
+            inputRef.current?.focus();
+          }, 100);
+        }, 300);
       }
     } catch (error: any) {
       const errorMsg = error?.data?.message || "Failed to resend code";
-
       showToast(errorMsg, 'error');
     }
   };
 
-
-  // submit verify code
   const handleVerify = async () => {
     if (code.length !== CODE_LENGTH) {
-      showToast('Please enter full 6-digit code')
+      showToast('Please enter full 6-digit code');
       return;
     }
 
     try {
-
+      const currentCode = code;
       const payload = {
         email: email,
-        verifyCode: Number(code),
+        verifyCode: Number(currentCode),
       };
-
-      // console.log("Sending Payload:", payload);
 
       const res = await verifyEmail(payload).unwrap();
 
@@ -105,9 +105,13 @@ export default function EmailVerifyOtp() {
       }
     } catch (error: any) {
       console.log("Verify Error:", error);
-      // Ekhon ar validation error ashar kotha na
       const errorMsg = error?.data?.message || "Verification failed!";
-      showToast(errorMsg), 'error'
+      showToast(errorMsg, 'error');
+      setCode('');
+      setTimeout(() => {
+        inputRef.current?.blur();
+        setTimeout(() => inputRef.current?.focus(), 100);
+      }, 300);
     }
   };
 
@@ -129,7 +133,13 @@ export default function EmailVerifyOtp() {
                 Verification Code
               </Body2>
 
-              <TouchableOpacity activeOpacity={1} onPress={() => inputRef.current?.focus()}>
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={() => {
+                  inputRef.current?.blur();
+                  setTimeout(() => inputRef.current?.focus(), 200);
+                }}
+              >
                 <View style={styles.otpContainer}>
                   {Array.from({ length: CODE_LENGTH }).map((_, index) => (
                     <View
@@ -158,10 +168,14 @@ export default function EmailVerifyOtp() {
                 keyboardType="number-pad"
                 maxLength={CODE_LENGTH}
                 style={styles.hiddenInput}
+                autoFocus={true}
+                showSoftInputOnFocus={true}
+                caretHidden={true}
+                contextMenuHidden={true}
               />
 
               <View style={styles.resendContainer}>
-                <Body3 color={Colors.PLACEHOLLDER_TEXT}>Didn’t receive the code?</Body3>
+                <Body3 color={Colors.PLACEHOLLDER_TEXT}>Didn't receive the code?</Body3>
                 {canResend ? (
                   <TouchableOpacity onPress={handleResend} disabled={isResending}>
                     <Body3 color={Colors.BRAND_PRIMARY} style={styles.resendText}>
@@ -180,12 +194,12 @@ export default function EmailVerifyOtp() {
                   </View>
                 ) : (
                   <CustomButton
-                    title="Verif code"
+                    title="Verify code"
                     onPress={handleVerify}
                     width="100%"
                     height={hp(44)}
                     borderRadius={100}
-                    style={{marginTop:hp(16)}}
+                    style={{ marginTop: hp(16) }}
                   />
                 )}
               </View>
@@ -234,6 +248,7 @@ const styles = StyleSheet.create({
     width: 1,
     height: 1,
     opacity: 0,
+    top: -999,
   },
   resendContainer: {
     flexDirection: 'row',
@@ -241,8 +256,7 @@ const styles = StyleSheet.create({
     marginTop: hp(16),
     marginBottom: hp(20),
   },
-  resendText: {
-  },
+  resendText: {},
   timerText: {
     color: Colors.BRAND_PRIMARY,
   },

@@ -31,6 +31,8 @@ const GigDetails = () => {
         refetchOnFocus: true,
     });
 
+console.log()
+
     const [deleteJob] = useDeleteJobMutation();
     const [markJobAsComplete] = useMarkJobAsCompleteMutation();
     const [cancelJob] = useCancelJobMutation();
@@ -47,7 +49,7 @@ const GigDetails = () => {
     if ((isLoading || isFetching) && !item) return (
         <SafeAreaView style={styles.container}>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <CustomLoader />
+                <CustomLoader size={40}/>
             </View>
         </SafeAreaView>
     );
@@ -351,7 +353,7 @@ const GigDetails = () => {
                     alignItems: 'center',
                     zIndex: 999
                 }]}>
-                    <CustomLoader size={55} />
+                    <CustomLoader size={40} />
                 </View>
             )}
 
@@ -407,7 +409,7 @@ const GigDetails = () => {
                     alignItems: 'center',
                     zIndex: 999
                 }]}>
-                    <CustomLoader size={55} />
+                    <CustomLoader size={40} />
                 </View>
             )}
 

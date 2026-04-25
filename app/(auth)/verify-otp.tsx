@@ -47,43 +47,51 @@ export default function VerifyOtp() {
 
   const handleResend = () => {
     if (!canResend) return;
-    setTimer(300);
+    setTimer(30);
     setCanResend(false);
-    setCode('');
-    showToast('Verification code sent again!',)
+    showToast('Verification code sent again!');
+
+    setTimeout(() => {
+      setCode('');
+      inputRef.current?.blur();
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }, 300);
   };
 
   const handleVerify = async () => {
     if (code.length !== CODE_LENGTH) {
-      showToast('Please enter full 6-digit code')
+      showToast('Please enter full 6-digit code');
       return;
     }
 
     try {
+      const currentCode = code;
       const payload = {
         email: email,
-        resetCode: Number(code), // Key must be 'resetCode'
+        resetCode: Number(currentCode),
       };
-
-      // console.log("Submitting Payload:", payload);
 
       const res = await verifyOtp(payload).unwrap();
 
       if (res?.success) {
-        showToast(res.message || "OTP Verified!",)
+        showToast(res.message || "OTP Verified!");
         router.push({
           pathname: '/(auth)/set-new-password',
-          params: { email: email, code: code }
+          params: { email: email, code: currentCode }
         });
       }
     } catch (error: any) {
-      // Error message handle kora
       const errorMsg = error?.data?.message || "Invalid OTP";
       showToast(errorMsg);
+      setCode('');
+      setTimeout(() => {
+        inputRef.current?.blur();
+        setTimeout(() => inputRef.current?.focus(), 100);
+      }, 300);
     }
   };
-
-  
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.APP_BACKGROUND }}>
@@ -104,7 +112,13 @@ export default function VerifyOtp() {
                 Verification Code
               </Body2>
 
-              <TouchableOpacity activeOpacity={1} onPress={() => inputRef.current?.focus()}>
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={() => {
+                  inputRef.current?.blur();
+                  setTimeout(() => inputRef.current?.focus(), 200);
+                }}
+              >
                 <View style={styles.otpContainer}>
                   {Array.from({ length: CODE_LENGTH }).map((_, index) => (
                     <View
@@ -133,10 +147,14 @@ export default function VerifyOtp() {
                 keyboardType="number-pad"
                 maxLength={CODE_LENGTH}
                 style={styles.hiddenInput}
+                autoFocus={true}
+                showSoftInputOnFocus={true}
+                caretHidden={true}
+                contextMenuHidden={true}
               />
 
               <View style={styles.resendContainer}>
-                <Body3 color={Colors.PLACEHOLLDER_TEXT}>Didn’t receive the code?</Body3>
+                <Body3 color={Colors.PLACEHOLLDER_TEXT}>Didn't receive the code?</Body3>
                 {canResend ? (
                   <TouchableOpacity onPress={handleResend}>
                     <Body3 color={Colors.BRAND_PRIMARY} style={styles.resendText}>Resend Code</Body3>
@@ -149,7 +167,7 @@ export default function VerifyOtp() {
               <View style={{ marginTop: 10 }}>
                 {loading ? (
                   <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
-                    <CustomLoader size={45} />
+                    <CustomLoader size={40} />
                   </View>
                 ) : (
                   <CustomButton
@@ -158,7 +176,7 @@ export default function VerifyOtp() {
                     width="100%"
                     height={hp(44)}
                     borderRadius={100}
-                    style={{marginTop:hp(16)}}
+                    style={{ marginTop: hp(16) }}
                   />
                 )}
               </View>
@@ -198,22 +216,20 @@ const styles = StyleSheet.create({
   },
   otpText: {
     fontSize: 24,
-    // fontWeight: '600',
   },
   hiddenInput: {
     position: 'absolute',
     width: 1,
     height: 1,
     opacity: 0,
+    top: -999,
   },
   resendContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 16,
   },
-  resendText: {
-    // fontWeight: '600',
-  },
+  resendText: {},
   timerText: {
     color: Colors.BRAND_PRIMARY,
   },

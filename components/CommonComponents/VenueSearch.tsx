@@ -36,6 +36,7 @@ const VenueSearch: React.FC<VenueSearchProps> = ({ shopItemPath }) => {
         searchTerm: debouncedQuery,
     });
 
+    // console.log("ALL Venue", data)
     const venues = data?.result || [];
 
     const onRefresh = async () => {
@@ -86,7 +87,7 @@ const VenueSearch: React.FC<VenueSearchProps> = ({ shopItemPath }) => {
             />
 
             {(isLoading || (isFetching && !refreshing)) && !venues.length ? (
-                <View style={{ flex:1, justifyContent: "center", alignItems: "center" }}>
+                <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
                     <CustomLoader size={40} />
                 </View>
             ) : (
@@ -101,10 +102,16 @@ const VenueSearch: React.FC<VenueSearchProps> = ({ shopItemPath }) => {
                                 status: item.isOpen === false ? 'close' : 'open',
                                 location: item.address,
                             }}
-                            onPress={() => router.push({
-                                pathname: shopItemPath,
-                                params: { barId: item._id }
-                            })}
+                            onPress={() => {
+                                if (item.isOpen === false) {
+                                    showToast("This venue is currently closed");
+                                    return;
+                                }
+                                router.push({
+                                    pathname: shopItemPath,
+                                    params: { barId: item._id }
+                                });
+                            }}
                         />
                     )}
                     ListEmptyComponent={

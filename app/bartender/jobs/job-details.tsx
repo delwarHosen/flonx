@@ -30,7 +30,7 @@ const JobDetails = () => {
         id: string;
         applicationId: string;
         jobId: string;
-        initialTab: string
+        initialTab: string;
     }>();
 
     const { currentData: item, isLoading, isFetching, refetch } = useGetSingleJobQuery(id, {
@@ -85,25 +85,19 @@ const JobDetails = () => {
         }, 300);
     };
 
-    // Cancel Application → go back to Applied tab
     const confirmCancelAssignment = async () => {
-      
         setShowCancelAssignmentModal(false);
-
         await new Promise(resolve => setTimeout(resolve, 500));
 
         try {
-           
             const res = await cancelJob(jobId).unwrap();
             showToast(res?.message || "Assignment cancelled successfully", "success");
             router.back();
-
         } catch (error: any) {
             showToast(error?.data?.message || "Failed to cancel assignment", "error");
         }
     };
 
-    // Cancel Assignment → go to Cancelled tab directly
     const confirmCancelApplication = async () => {
         setShowCancelModal(false);
 
@@ -126,7 +120,6 @@ const JobDetails = () => {
             }
         }, 700);
     };
-
 
     const renderBottomSection = () => {
         switch (initialTab) {
@@ -181,9 +174,9 @@ const JobDetails = () => {
                 return (
                     <>
                         <StatusInfoCard
-                            label="Assignmed on"
+                            label="Completed on"
                             value={item.completedDate}
-                            statusText="Assigned"
+                            statusText="Completed"
                             statusColor={"#3D8BFF"}
                             statusBg={"#3D8BFF33"}
                         />
@@ -251,15 +244,15 @@ const JobDetails = () => {
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
 
             {isCancellingJob && (
-            <View style={[StyleSheet.absoluteFill, {
-                backgroundColor: 'rgba(0,0,0,0.7)',
-                justifyContent: 'center',
-                alignItems: 'center',
-                zIndex: 9999, 
-            }]}>
-                <CustomLoader size={40} />
-            </View>
-        )}
+                <View style={[StyleSheet.absoluteFill, {
+                    backgroundColor: 'rgba(0,0,0,0.7)',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 9999,
+                }]}>
+                    <CustomLoader size={40} />
+                </View>
+            )}
 
             <View style={{ paddingTop: "4%" }}>
                 <SectionTitle title='Job Details' />
@@ -315,7 +308,6 @@ const JobDetails = () => {
                     confirmSecondaryColor="#A78BFA"
                 />
             )}
-
 
             {showCancelAssignmentModal && (
                 <ConfirmationModal

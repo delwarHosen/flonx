@@ -53,7 +53,7 @@ export default function CustomerShopItems() {
     if (isCatLoading || isLoading) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <CustomLoader />
+                <CustomLoader size={40}/>
             </View>
         );
     }

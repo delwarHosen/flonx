@@ -1,4 +1,4 @@
-// import '@/tasks/stripeTask'; // ← সবার আগে
+// import '@/tasks/stripeTask'; 
 
 import Toast, { showToast } from '@/components/Toast';
 import { useColorScheme } from '@/hooks/use-color-scheme';

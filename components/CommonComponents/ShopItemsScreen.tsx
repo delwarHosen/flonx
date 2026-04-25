@@ -1,8 +1,7 @@
-
 import { OrderTabIcon } from '@/assets/images/icons/icon';
 import { Colors } from '@/constants/theme';
 import { setItemQuantity } from '@/redux/cartSlice';
-import { useAddToCartMutation, useViewCartQuery } from '@/redux/services/orderApi';
+import { useAddToCartMutation } from '@/redux/services/orderApi';
 import { RootState } from '@/redux/store';
 import { fp, hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
@@ -102,9 +101,9 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
         }, 0);
     }, [items, reduxCart]);
 
-    const { data: cartData } = useViewCartQuery(undefined, {
-        refetchOnMountOrArgChange: false,
-    });
+    // const { data: cartData } = useViewCartQuery(undefined, {
+    //     refetchOnMountOrArgChange: false,
+    // });
 
     const hasOtherVenueItems =
         reduxBarId !== null &&
@@ -181,6 +180,7 @@ const ShopItemsScreen: React.FC<ShopItemsScreenProps> = ({
                 quantity: getCartQty(i._id),
             }));
 
+            
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: Colors.APP_BACKGROUND }} edges={['top']}>
             <View style={styles.headerWrapper}>

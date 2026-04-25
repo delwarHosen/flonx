@@ -1,6 +1,7 @@
 import { StarIcon } from '@/assets/images/icons/BarRelatedIcon/StarIcon';
 import { DetailsCardComponents } from '@/components/cardComponents/DetailsCardComponents';
 import { CustomButton } from '@/components/CustomButton';
+import CustomLoader from '@/components/CustomLoader';
 import SectionTitle from '@/components/SectionTitle';
 import { Body1, Body2, Body3, Caption2 } from '@/components/typo/Typography';
 import { IMAGE_COMPONENTS } from '@/constants/image.index';
@@ -9,7 +10,7 @@ import { useGetProfileQuery } from '@/redux/services/authApi';
 import { useGetBartenderByIdQuery } from '@/redux/services/bartenderApi';
 import { useAddRatingMutation } from '@/redux/services/jobApi';
 import { hp, wp } from '@/utils/responsive';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,7 +21,7 @@ const ApplicantProfileDetails = () => {
         jobId: string;
         existingRating: string;
     }>();
-    const router = useRouter()
+    // const router = useRouter()
     const [modalVisible, setModalVisible] = useState(false);
     const [rating, setRating] = useState(0);
     const [isRated, setIsRated] = useState(!!existingRating && Number(existingRating) > 0);
@@ -33,13 +34,15 @@ const ApplicantProfileDetails = () => {
         bartenderId, { skip: !bartenderId }
     );
 
+    // console.log("bardender Details:", bartender)
+
     const { data: profile } = useGetProfileQuery({});
-    console.log("customer id:", profile?._id);
+    // console.log("customer id:", profile?._id);
     // ratting endpoinds
     const [addRating, { isLoading: isRatingLoading }] = useAddRatingMutation();
 
-    console.log("bartenderId:", bartenderId);
-    console.log("rating:", rating);
+    // console.log("bartenderId:", bartenderId);
+    // console.log("rating:", rating);
 
     const applicant = bartender ? {
         id: bartender._id,
@@ -50,7 +53,7 @@ const ApplicantProfileDetails = () => {
             ? bartender.profile_image
             : IMAGE_COMPONENTS.profileImg,
         experience: bartender.experience ?? 'N/A',
-        totalJobs: bartender.totalCompletedJobs ?? 0,
+        totalJobs: bartender.totalCompletedJob ?? 0,
         rating: bartender.averageRating ?? 0,
         reviewCount: bartender.totalRatings ?? 0,
         bio: bartender.bio ?? 'No bio available',
@@ -59,8 +62,16 @@ const ApplicantProfileDetails = () => {
     // console.log("profile_image:", bartender?.profile_image);
     // console.log("profile_image trimmed:", bartender?.profile_image?.trim());
     // console.log("full bartender data:", JSON.stringify(bartender, null, 2));
-    console.log("jobId param:", jobId);
-    console.log("bartenderId param:", bartenderId);
+    // console.log("jobId param:", jobId);
+    // console.log("bartenderId param:", bartenderId);
+
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                <CustomLoader size={40} />
+            </View>
+        );
+    }
 
     if (!applicant) {
         return (
@@ -168,15 +179,8 @@ const ApplicantProfileDetails = () => {
                             />
                             <CustomButton
                                 onPress={async () => {
-                                    // console.log("Submit pressed, rating:", rating);
+
                                     if (rating === 0) return;
-
-                                    // console.log("Submitting rating:", {
-                                    //     bartender: bartenderId,
-                                    //     job: jobId,
-                                    //     rating: rating,
-                                    // });
-
                                     try {
                                         const result = await addRating({
                                             bartender: bartenderId,
@@ -201,7 +205,7 @@ const ApplicantProfileDetails = () => {
                                         }
                                     }
                                 }}
-                                title={isRatingLoading ? 'Submitting...' : 'Submit'}
+                                title={isRatingLoading ? 'Submitting' : 'Submit'}
                                 width="90%"
                                 height={hp(44)}
                                 borderRadius={100}

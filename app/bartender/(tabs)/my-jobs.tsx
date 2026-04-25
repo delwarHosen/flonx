@@ -29,10 +29,14 @@ export default function JobsScreen() {
     }
   }, [initialTab]);
 
+  // const { data: applications = [], isLoading, isFetching, refetch } = useGetMyApplicationsQuery(undefined, {
+  //   refetchOnMountOrArgChange: true,
+  // });
+
   const { data: applications = [], isLoading, isFetching, refetch } = useGetMyApplicationsQuery(undefined, {
     refetchOnMountOrArgChange: true,
+    refetchOnFocus: true,
   });
-
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -48,8 +52,8 @@ export default function JobsScreen() {
   };
 
   const showLoader = useMemo(() => {
-    return isFetching && applications.length === 0 && !refreshing;
-  }, [isFetching, applications, refreshing]);
+    return (isFetching && !refreshing) || tabLoading; 
+  }, [isFetching, refreshing, tabLoading]);
 
   const filteredData = applications.filter((app: any) => {
     if (!app.job) return false;
@@ -122,9 +126,9 @@ export default function JobsScreen() {
             />
           )}
           ListEmptyComponent={
-           <View style={{marginTop:16}}>
-             <EmptyStateCard message={`No ${activeTab} Jobs found`} />
-           </View>
+            <View style={{ marginTop: 16 }}>
+              <EmptyStateCard message={`No ${activeTab} Jobs found`} />
+            </View>
           }
         />
       )}

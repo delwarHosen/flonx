@@ -44,7 +44,7 @@ export default function GuestShopItem() {
     if (isCatLoading || isProdFirstLoad) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <CustomLoader />
+                <CustomLoader size={40}/>
             </View>
         );
     }

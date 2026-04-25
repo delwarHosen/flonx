@@ -37,7 +37,7 @@ export default function DeleteAccountView() {
     const handleCancel = (): void => {
         setShowConfirmModal(false);
         setShowPasswordModal(false);
-        router.back();
+        setTimeout(() => router.back(), 300);
     };
 
     const handleContinue = (): void => {
@@ -74,6 +74,8 @@ export default function DeleteAccountView() {
 
                     showToast(res.message || "Account deleted successfully",)
                     setShowPasswordModal(false);
+
+                    router.dismissAll();
                     router.replace("/(auth)/login");
                 }
             } catch (error: any) {

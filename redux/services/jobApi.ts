@@ -97,6 +97,7 @@ export const jobApi = baseApis.injectEndpoints({
             invalidatesTags: (result, error, jobId) => [
                 { type: 'Jobs', id: jobId },
                 { type: 'Jobs', id: 'LIST' },
+                { type: 'Applications' },
             ],
         }),
 

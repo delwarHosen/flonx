@@ -1,6 +1,7 @@
+import { useStripe } from '@stripe/stripe-react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     ActivityIndicator,
     FlatList,
@@ -26,17 +27,21 @@ import { Body1, Body2, Body4, Caption1, Caption3, H5, H6 } from '../typo/Typogra
 import { WarningIcon } from '@/assets/images/icons/ProfileInfoIcons/WarningIcon';
 import { addItem, clearCart, deleteItemCompletely, removeItem as removeLocalItem } from '@/redux/cartSlice';
 import {
+    SavedCard,
     useCreateOrderMutation,
     useDeleteCartMutation,
+    useLazyGetSavedCardsQuery,
     useRemoveCartItemMutation,
+    useSaveCardMutation,
     useUpdateCartQuantityMutation,
     useViewCartQuery
 } from '@/redux/services/orderApi';
 import { savePaymentHistory } from '@/utils/paymentHistory';
-import { useStripe } from '@stripe/stripe-react-native';
 import { useDispatch } from 'react-redux';
 import { ConfirmationModal } from '../ConfirmationModalProps';
 import CustomLoader from '../CustomLoader';
+import SaveCardPermissionModal from '../SaveCardPermissionModal';
+import SavedCardsModal from '../Savedcardsmodal';
 import { showToast } from '../Toast';
 
 interface CheckoutScreenProps {
@@ -45,27 +50,43 @@ interface CheckoutScreenProps {
 
 const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
     const { initPaymentSheet, presentPaymentSheet } = useStripe();
+
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const dispatch = useDispatch();
+    const isGuest = paymentPath.includes('guest');
+
     const [showClearModal, setShowClearModal] = useState<boolean>(false);
     const [isReady, setIsReady] = useState(false);
 
-    const [createPayment, { isLoading: isPaymentLoading }] = useCreateOrderMutation(undefined)
+    // ── Saved Cards State ──
+    const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
+    const [showCardsModal, setShowCardsModal] = useState(false);
+    const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+    const [isFetchingCards, setIsFetchingCards] = useState(false);
+    const [isSavedCardPaying, setIsSavedCardPaying] = useState(false);
+
+    // ── Save Card Permission State ──
+    const [showSaveCardModal, setShowSaveCardModal] = useState(false);
+    const [pendingSuccessData, setPendingSuccessData] = useState<any>(null);
+    const [newCardInfo, setNewCardInfo] = useState<{ last4: string; brand: string } | null>(null);
+
+    const [createPayment, { isLoading: isPaymentLoading }] = useCreateOrderMutation(undefined);
+    const [saveCard] = useSaveCardMutation();
+    const [triggerGetSavedCards] = useLazyGetSavedCardsQuery();
 
     const { data: cartData, isLoading: isCartLoading, isFetching, refetch } = useViewCartQuery(undefined, {
         refetchOnMountOrArgChange: true,
     });
     const [refreshing, setRefreshing] = useState(false);
 
-    // const { data: cartData, isLoading: isCartLoading, isFetching, refetch } = useViewCartQuery(undefined);
     const [updateCartQuantity] = useUpdateCartQuantityMutation();
     const [removeCartItem, { isLoading: isCartRemoving }] = useRemoveCartItemMutation();
     const [deleteCart, { isLoading: isDeletingAll }] = useDeleteCartMutation();
 
-    const [selectItem, setSelectItem] = useState<string | null>(null)
+    const [selectItem, setSelectItem] = useState<string | null>(null);
     const [localQuantities, setLocalQuantities] = useState<Record<string, number>>({});
-    const debounceTimers = React.useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+    const debounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
     const cartItems = cartData?.items || [];
 
@@ -74,13 +95,11 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
         return sum + item.price * qty;
     }, 0);
 
-
     const handleRefresh = async () => {
         setRefreshing(true);
         await refetch();
         setRefreshing(false);
     };
-
 
     const handleUpdateQuantity = (productId: string, currentQty: number, delta: number) => {
         const localQty = localQuantities[productId] ?? currentQty;
@@ -89,29 +108,20 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
 
         setLocalQuantities(prev => ({ ...prev, [productId]: newQuantity }));
 
-        if (delta > 0) {
-            dispatch(addItem({ id: productId }));
-        } else {
-            dispatch(removeLocalItem({ id: productId }));
-        }
+        if (delta > 0) dispatch(addItem({ id: productId }));
+        else dispatch(removeLocalItem({ id: productId }));
 
-        if (debounceTimers.current[productId]) {
-            clearTimeout(debounceTimers.current[productId]);
-        }
+        if (debounceTimers.current[productId]) clearTimeout(debounceTimers.current[productId]);
         debounceTimers.current[productId] = setTimeout(async () => {
             try {
                 await updateCartQuantity({ productId, quantity: newQuantity }).unwrap();
-            } catch (err) {
+            } catch {
                 setLocalQuantities(prev => ({ ...prev, [productId]: currentQty }));
             }
         }, 600);
     };
 
-
-    const handleClearCart = async () => {
-        setShowClearModal(true);
-    };
-
+    const handleClearCart = () => setShowClearModal(true);
 
     const confirmClearCart = async () => {
         setShowClearModal(false);
@@ -121,89 +131,156 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
             dispatch(clearCart());
             showToast('Cart cleared successfully!');
         } catch (err: any) {
-            const errorMsg = err?.data?.message || 'Failed to clear cart. Please try again.';
-            showToast("Error", errorMsg);
+            showToast('Error', err?.data?.message || 'Failed to clear cart.');
         }
     };
-
 
     const handleRemoveItem = async (productId: string) => {
         try {
             await removeCartItem(productId).unwrap();
             dispatch(deleteItemCompletely({ id: productId }));
         } catch (err) {
-            console.error("Remove failed:", err);
+            console.error('Remove failed:', err);
         }
     };
 
-    // payment
+    // ── Main checkout button handler ──
     const handlerPayment = async () => {
         try {
-            console.log('Step 1: createPayment call...');
-            const data = await createPayment({}).unwrap();
-            console.log('Step 2: data =', JSON.stringify(data));
+            // Guest হলে সরাসরি new card payment
+            if (isGuest) {
+                await payWithNewCard();
+                return;
+            }
 
-            console.log('Step 3: initPaymentSheet...');
+            setIsFetchingCards(true);
+            const result = await triggerGetSavedCards().unwrap();
+            console.log('💳 Saved Cards Response:', JSON.stringify(result, null, 2));
+            const cards = result?.data || [];
+            setSavedCards(cards);
+
+            if (cards.length > 0) {
+                setSelectedCardId(cards[0].id);
+                setShowCardsModal(true);
+            } else {
+                await payWithNewCard();
+            }
+        } catch (error: any) {
+            console.log('💳 getSavedCards error:', JSON.stringify(error, null, 2));
+            // saved cards fetch fail হলেও new card দিয়ে try করুন
+            await payWithNewCard();
+        } finally {
+            setIsFetchingCards(false);
+        }
+    };
+
+    // ── Pay with NEW card (Stripe sheet) ──
+    const payWithNewCard = async () => {
+        setShowCardsModal(false);
+        try {
+            const data = await createPayment({}).unwrap();
+            console.log('📦 createPayment (new card) response:', JSON.stringify(data, null, 2));
+
             const { error: initError } = await initPaymentSheet({
                 paymentIntentClientSecret: data.clientSecret,
                 merchantDisplayName: 'Flonx',
             });
-            console.log('Step 4: initError =', initError);
 
             if (initError) {
                 showToast(initError.message);
                 return;
             }
 
-            console.log('Step 5: presentPaymentSheet...');
             const { error: paymentError } = await presentPaymentSheet();
-            console.log('Step 6: paymentError =', paymentError);
 
             if (paymentError) {
-                if (paymentError.code !== 'Canceled') {
-                    showToast(paymentError.message);
-                }
+                if (paymentError.code !== 'Canceled') showToast(paymentError.message);
                 return;
             }
 
-            console.log('Step 7: Payment success!');
-            await savePaymentHistory({
-                orderId: data.orderId,
-                bartender: data.bartender,
-                amount: totalPrice,
-                paidAt: new Date().toISOString(),
-                status: 'paid',
+            // Guest হলে সরাসরি success, card save modal নেই
+            if (isGuest) {
+                await onPaymentSuccess(data);
+                return;
+            }
+
+            // Customer হলে card save করতে চান কিনা জিজ্ঞেস করুন
+            setPendingSuccessData(data);
+            setNewCardInfo({
+                last4: data.last4 || '',
+                brand: data.brand || '',
             });
-
-            dispatch(clearCart());
-            setLocalQuantities({});
-            showToast('Payment successful!');
-
-            const targetPath = paymentPath.includes('guest')
-                ? '/guest/order'
-                : '/customer/orders';
-
-            router.replace(targetPath as any);
+            setShowSaveCardModal(true);
 
         } catch (error: any) {
-            console.log('CATCH error =', JSON.stringify(error));
-            const errorMessage = error?.data?.message || error?.message || 'Payment failed!';
-            showToast(errorMessage);
+            showToast(error?.data?.message || error?.message || 'Payment failed!');
         }
     };
 
-    useEffect(() => {
-        if (!isFetching && !isCartLoading) {
-            setIsReady(true);
+    // ── Save card - Yes ──
+    const handleSaveCard = async () => {
+        setShowSaveCardModal(false);
+        try {
+            await saveCard({
+                paymentIntentId: pendingSuccessData?.paymentIntentId,
+                orderId: pendingSuccessData?.orderId,
+            }).unwrap();
+            showToast('Card saved successfully!');
+        } catch (err) {
+            console.log('💾 saveCard error:', JSON.stringify(err, null, 2));
         }
+        await onPaymentSuccess(pendingSuccessData);
+    };
+
+    // ── Save card - No ──
+    const handleSkipSaveCard = async () => {
+        setShowSaveCardModal(false);
+        await onPaymentSuccess(pendingSuccessData);
+    };
+
+    // ── Pay with SAVED card ──
+    const payWithSavedCard = async () => {
+        if (!selectedCardId) return;
+        console.log('💰 Paying with savedCard ID:', selectedCardId);
+        setIsSavedCardPaying(true);
+        try {
+            const data = await createPayment({ paymentMethodId: selectedCardId }).unwrap();
+            console.log('✅ createPayment response:', JSON.stringify(data, null, 2));
+            setShowCardsModal(false);
+            await onPaymentSuccess(data);
+        } catch (error: any) {
+            console.log('❌ payWithSavedCard error:', JSON.stringify(error, null, 2));
+            setShowCardsModal(false);
+            showToast(error?.data?.message || error?.message || 'Payment failed!');
+        } finally {
+            setIsSavedCardPaying(false);
+        }
+    };
+
+    // ── Common success handler ──
+    const onPaymentSuccess = async (data: any) => {
+        await savePaymentHistory({
+            orderId: data.orderId,
+            bartender: data.bartender,
+            amount: totalPrice,
+            paidAt: new Date().toISOString(),
+            status: 'paid',
+        });
+
+        dispatch(clearCart());
+        setLocalQuantities({});
+        showToast('Payment successful!');
+
+        const targetPath = isGuest ? '/guest/order' : '/customer/orders';
+        router.replace(targetPath as any);
+    };
+
+    useEffect(() => {
+        if (!isFetching && !isCartLoading) setIsReady(true);
     }, [isFetching, isCartLoading]);
-
-    const showLoader = isCartLoading;
-
 
     const renderItem = ({ item }: { item: any }) => {
         const displayQty = localQuantities[item.product?._id] ?? item.quantity;
-
         return (
             <View style={styles.card}>
                 <View style={styles.cardTop}>
@@ -218,13 +295,13 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                     <TouchableOpacity
                         disabled={isCartRemoving}
                         onPress={() => {
-                            setSelectItem(item?.product?._id)
-                            handleRemoveItem(item.product?._id)
+                            setSelectItem(item?.product?._id);
+                            handleRemoveItem(item.product?._id);
                         }}
                         style={styles.deleteBtn}
                     >
                         {isCartRemoving && item.product?._id === selectItem ? (
-                            <ActivityIndicator size={'small'} color={'#EF4444'} />
+                            <ActivityIndicator size="small" color="#EF4444" />
                         ) : (
                             <DeleteIcon />
                         )}
@@ -252,10 +329,13 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                             borderRadius={100}
                             color={Colors.NEUTRAL0}
                         />
-
                     </View>
-                    <View style={[styles.statusBadge, { backgroundColor: item.product?.isAvailable !== false ? '#22C55E33' : '#EF444433' }]}>
-                        <View style={[styles.statusDot, { backgroundColor: item.product?.isAvailable !== false ? '#22C55E' : '#EF4444' }]} />
+                    <View style={[styles.statusBadge, {
+                        backgroundColor: item.product?.isAvailable !== false ? '#22C55E33' : '#EF444433'
+                    }]}>
+                        <View style={[styles.statusDot, {
+                            backgroundColor: item.product?.isAvailable !== false ? '#22C55E' : '#EF4444'
+                        }]} />
                         <Caption3 color={item.product?.isAvailable !== false ? '#22C55E' : '#EF4444'}>
                             {item.product?.isAvailable !== false ? 'In Stock' : 'Out Of Stock'}
                         </Caption3>
@@ -265,15 +345,12 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
         );
     };
 
-
-
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
             <View style={styles.headerWrapper}>
-                <SectionTitle title='Checkout' />
+                <SectionTitle title="Checkout" />
             </View>
 
-            {/* Check Loading First to Center it on screen */}
             {(!isReady || isCartLoading || isFetching) && !refreshing ? (
                 <View style={styles.loaderContainer}>
                     <CustomLoader size={40} />
@@ -302,9 +379,7 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                         renderItem={renderItem}
                         contentContainerStyle={styles.listContent}
                         showsVerticalScrollIndicator={false}
-                        ListEmptyComponent={
-                            <EmptyStateCard message='Your cart is empty' />
-                        }
+                        ListEmptyComponent={<EmptyStateCard message="Your cart is empty" />}
                         refreshControl={
                             <RefreshControl
                                 refreshing={refreshing}
@@ -316,7 +391,9 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                     />
 
                     {cartItems?.length > 0 && (
-                        <View style={[styles.footer, { paddingBottom: Platform.OS === 'ios' ? insets.bottom + 15 : hp(70) }]}>
+                        <View style={[styles.footer, {
+                            paddingBottom: Platform.OS === 'ios' ? insets.bottom + 15 : hp(70)
+                        }]}>
                             <View style={styles.totalRow}>
                                 <Body4 color={Colors.NEUTRAL0}>Total</Body4>
                                 <H5 color={Colors.NEUTRAL0}>${totalPrice.toFixed(2)}</H5>
@@ -324,8 +401,8 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
 
                             <CustomButton
                                 title="Checkout"
-                                isLoading={isPaymentLoading}
-                                onPress={() => handlerPayment()}
+                                isLoading={isPaymentLoading || isFetchingCards}
+                                onPress={handlerPayment}
                                 width="100%"
                                 height={hp(48)}
                                 borderRadius={100}
@@ -347,6 +424,32 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                 onCancel={() => setShowClearModal(false)}
                 onConfirm={confirmClearCart}
             />
+
+            {/* Guest নয় এমন customer এর জন্য save card modal */}
+            {!isGuest && (
+                <SaveCardPermissionModal
+                    visible={showSaveCardModal}
+                    last4={newCardInfo?.last4 || ''}
+                    brand={newCardInfo?.brand || ''}
+                    onSave={handleSaveCard}
+                    onSkip={handleSkipSaveCard}
+                />
+            )}
+
+            {/* Saved cards modal শুধু customer এর জন্য */}
+            {!isGuest && (
+                <SavedCardsModal
+                    visible={showCardsModal}
+                    paymentMethods={savedCards}
+                    selectedCardId={selectedCardId}
+                    onSelectCard={setSelectedCardId}
+                    onPayWithSelected={payWithSavedCard}
+                    onPayWithNewCard={payWithNewCard}
+                    onClose={() => setShowCardsModal(false)}
+                    isLoading={isSavedCardPaying}
+                    totalAmount={totalPrice}
+                />
+            )}
         </SafeAreaView>
     );
 };
@@ -354,24 +457,14 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
 export default CheckoutScreen;
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: Colors.APP_BACKGROUND
-    },
-    loaderContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    headerWrapper: {
-        paddingVertical: hp(8),
-        paddingBottom: hp(10)
-    },
+    container: { flex: 1, backgroundColor: Colors.APP_BACKGROUND },
+    loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    headerWrapper: { paddingVertical: hp(8), paddingBottom: hp(10) },
     clearHeader: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
         paddingHorizontal: wp(20),
-        marginBottom: hp(15)
+        marginBottom: hp(15),
     },
     buttonClear: {
         backgroundColor: Colors.COLOR_DANGER,
@@ -380,87 +473,36 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         alignItems: 'center',
         minWidth: 100,
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
-    listContent: {
-        paddingHorizontal: wp(20),
-        paddingBottom: hp(150)
-    },
-
+    listContent: { paddingHorizontal: wp(20), paddingBottom: hp(150) },
     card: {
         backgroundColor: Colors.INPUT_BACKGROUND,
         borderRadius: 14,
         padding: 12,
         marginBottom: 16,
         borderWidth: 1,
-        borderColor: '#2A2344'
+        borderColor: '#2A2344',
     },
-    cardTop: {
-        flexDirection: 'row',
-        marginBottom: hp(12)
-    },
-    itemImage: {
-        width: wp(78),
-        height: 78,
-        borderRadius: 12,
-        backgroundColor: '#FEE2E2'
-    },
-    itemInfo: {
-        flex: 1,
-        marginLeft: wp(15),
-        justifyContent: 'center'
-    },
-    ingredients: {
-        fontSize: 12,
-        marginVertical: 4,
-        lineHeight: 16
-    },
-    price: {
-        marginTop: 2
-    },
+    cardTop: { flexDirection: 'row', marginBottom: hp(12) },
+    itemImage: { width: wp(78), height: 78, borderRadius: 12, backgroundColor: '#FEE2E2' },
+    itemInfo: { flex: 1, marginLeft: wp(15), justifyContent: 'center' },
+    ingredients: { fontSize: 12, marginVertical: 4, lineHeight: 16 },
+    price: { marginTop: 2 },
     deleteBtn: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: "#EF444433",
-        alignItems: "center",
-        justifyContent: "center"
+        width: 36, height: 36, borderRadius: 18,
+        backgroundColor: '#EF444433', alignItems: 'center', justifyContent: 'center',
     },
-    divider: {
-        height: 1,
-        backgroundColor: "#2A2448",
-        marginTop: 6
-    },
-    cardBottom: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-    },
-    quantityContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: hp(10)
-    },
-    qtyText: {
-        marginHorizontal: 15,
-        // marginTop: 15,
-        minWidth: 20,
-        textAlign: 'center'
-    },
+    divider: { height: 1, backgroundColor: '#2A2448', marginTop: 6 },
+    cardBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    quantityContainer: { flexDirection: 'row', alignItems: 'center', marginTop: hp(10) },
+    qtyText: { marginHorizontal: 15, minWidth: 20, textAlign: 'center' },
     statusBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 20,
-        marginTop: 15
+        flexDirection: 'row', alignItems: 'center',
+        paddingHorizontal: 10, paddingVertical: 4,
+        borderRadius: 20, marginTop: 15,
     },
-    statusDot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-        marginRight: 4
-    },
+    statusDot: { width: 6, height: 6, borderRadius: 3, marginRight: 4 },
     footer: {
         backgroundColor: Colors.BRAND_PRIMARY,
         paddingHorizontal: wp(20),
@@ -470,12 +512,12 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 0,
         width: '100%',
-        elevation: 10
+        elevation: 10,
     },
     totalRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: hp(15)
+        marginBottom: hp(15),
     },
 });

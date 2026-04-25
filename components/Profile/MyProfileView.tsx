@@ -29,7 +29,7 @@ export default function MyProfileView() {
         skip: !isBartander || !profile?._id,
     });
 
-  
+
     const handleEdit = () => {
         const path: Href = userRole === 'bartender'
             ? {
@@ -52,7 +52,7 @@ export default function MyProfileView() {
 
     if (isLoading) {
         return (
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
                 <CustomLoader size={40} />
             </View>
         )

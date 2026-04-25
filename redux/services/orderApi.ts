@@ -1,4 +1,15 @@
+
 import { baseApis } from "../base";
+
+
+export interface SavedCard {
+    id: string;
+    brand: string;
+    last4: string;
+    expMonth: number;
+    expYear: number;
+    type: string;
+}
 
 export const orderApi = baseApis.injectEndpoints({
     endpoints: (builder) => ({
@@ -43,7 +54,7 @@ export const orderApi = baseApis.injectEndpoints({
                             if (item) item.quantity = quantity;
                         })
                     );
-                } catch {}
+                } catch { }
             },
         }),
 
@@ -65,7 +76,7 @@ export const orderApi = baseApis.injectEndpoints({
                             );
                         })
                     );
-                } catch {}
+                } catch { }
             },
         }),
 
@@ -84,18 +95,37 @@ export const orderApi = baseApis.injectEndpoints({
                             draft.items = [];
                         })
                     );
-                } catch {}
+                } catch { }
             },
         }),
 
         // POST /order/create-order
         createOrder: builder.mutation({
-            query: () => ({
+            query: (body) => ({
                 url: "/order/create-order",
-                method: "POST"
+                method: "POST",
+                body,
             }),
             transformResponse: (response: any) => response.data,
             invalidatesTags: ["order"],
+        }),
+
+        // Permition check the payment info 
+        saveCard: builder.mutation({
+            query: (body) => ({
+                url: '/stripe/save-payment-info',
+                method: 'POST',
+                body,
+            }),
+            transformResponse: (response: any) => response.data,
+        }),
+
+        // paymentMethod
+        getSavedCards: builder.query<{ data: SavedCard[] }, void>({
+            query: () => ({
+                url: '/customer/payment-methods',
+                method: 'GET',
+            }),
         }),
 
         // get All Order
@@ -148,4 +178,6 @@ export const {
     useGetOrderQuery,
     useUpdateOrderStatusMutation,
     useTipToBartenderMutation,
+    useLazyGetSavedCardsQuery,
+    useSaveCardMutation 
 } = orderApi;
