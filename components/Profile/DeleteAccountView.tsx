@@ -7,12 +7,12 @@ import { Body1, Body2, Caption1, Caption3 } from "@/components/typo/Typography";
 import { FORM_FIELDS, FORM_LABELS, FORM_PLACEHOLDERS } from "@/constants/form";
 import { Colors } from "@/constants/theme";
 import { useForm } from "@/hooks/useForm";
+import { logout } from "@/redux/authSlice";
 import { useDeleteAccountMutation } from "@/redux/services/authApi";
 import { RootState } from "@/redux/store";
 import { fp, hp, wp } from "@/utils/responsive";
 import { validatePassword } from "@/utils/validation";
 import { useRouter } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
 import React, { useState } from 'react';
 import {
     KeyboardAvoidingView,
@@ -21,12 +21,12 @@ import {
     View
 } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { showToast } from "../Toast";
 
 export default function DeleteAccountView() {
     const router = useRouter();
-
+    const dispatch = useDispatch();
     const [deleteAccount, { isLoading: isDeleting }] = useDeleteAccountMutation();
     const userRole = useSelector((state: RootState) => state.auth.userRole);
 
@@ -68,15 +68,14 @@ export default function DeleteAccountView() {
                 const res = await deleteAccount(payload).unwrap();
 
                 if (res?.success) {
-                    await SecureStore.deleteItemAsync('accessToken');
-
-
-
-                    showToast(res.message || "Account deleted successfully",)
+                    showToast(res.message || "Account deleted successfully");
                     setShowPasswordModal(false);
+                    dispatch(logout());
 
-                    router.dismissAll();
-                    router.replace("/(auth)/login");
+                    setTimeout(() => {
+                        router.replace("/(auth)/login");
+                    }, 100);
+                    
                 }
             } catch (error: any) {
                 showToast(error?.data?.message || "Incorrect password or failed to delete account")

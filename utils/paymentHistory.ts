@@ -14,7 +14,7 @@ export const savePaymentHistory = async (record: PaymentRecord) => {
     try {
         const existing = await AsyncStorage.getItem(KEY);
         const history: PaymentRecord[] = existing ? JSON.parse(existing) : [];
-        history.unshift(record); // নতুনটা সামনে
+        history.unshift(record); 
         await AsyncStorage.setItem(KEY, JSON.stringify(history));
     } catch (err) {
         console.error('Failed to save payment history:', err);

@@ -147,7 +147,7 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
     // ── Main checkout button handler ──
     const handlerPayment = async () => {
         try {
-            // Guest হলে সরাসরি new card payment
+
             if (isGuest) {
                 await payWithNewCard();
                 return;
@@ -155,7 +155,7 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
 
             setIsFetchingCards(true);
             const result = await triggerGetSavedCards().unwrap();
-            console.log('💳 Saved Cards Response:', JSON.stringify(result, null, 2));
+            console.log(' Saved Cards Response:', JSON.stringify(result, null, 2));
             const cards = result?.data || [];
             setSavedCards(cards);
 
@@ -166,8 +166,7 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                 await payWithNewCard();
             }
         } catch (error: any) {
-            console.log('💳 getSavedCards error:', JSON.stringify(error, null, 2));
-            // saved cards fetch fail হলেও new card দিয়ে try করুন
+            console.log(' getSavedCards error:', JSON.stringify(error, null, 2));
             await payWithNewCard();
         } finally {
             setIsFetchingCards(false);
@@ -179,7 +178,7 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
         setShowCardsModal(false);
         try {
             const data = await createPayment({}).unwrap();
-            console.log('📦 createPayment (new card) response:', JSON.stringify(data, null, 2));
+            console.log(' createPayment (new card) response:', JSON.stringify(data, null, 2));
 
             const { error: initError } = await initPaymentSheet({
                 paymentIntentClientSecret: data.clientSecret,
@@ -220,36 +219,36 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
     // ── Save card - Yes ──
     const handleSaveCard = async () => {
         setShowSaveCardModal(false);
-        try {
-            await saveCard({
-                paymentIntentId: pendingSuccessData?.paymentIntentId,
-                orderId: pendingSuccessData?.orderId,
-            }).unwrap();
-            showToast('Card saved successfully!');
-        } catch (err) {
-            console.log('💾 saveCard error:', JSON.stringify(err, null, 2));
-        }
         await onPaymentSuccess(pendingSuccessData);
     };
 
     // ── Save card - No ──
     const handleSkipSaveCard = async () => {
         setShowSaveCardModal(false);
+        try {
+            await saveCard({
+                paymentIntentId: pendingSuccessData?.paymentIntentId,
+                // orderId: pendingSuccessData?.orderId,
+            }).unwrap();
+        } catch (err) {
+            console.log('removeCard error:', JSON.stringify(err, null, 2));
+        }
         await onPaymentSuccess(pendingSuccessData);
     };
+
 
     // ── Pay with SAVED card ──
     const payWithSavedCard = async () => {
         if (!selectedCardId) return;
-        console.log('💰 Paying with savedCard ID:', selectedCardId);
+        console.log(' Paying with savedCard ID:', selectedCardId);
         setIsSavedCardPaying(true);
         try {
             const data = await createPayment({ paymentMethodId: selectedCardId }).unwrap();
-            console.log('✅ createPayment response:', JSON.stringify(data, null, 2));
+            console.log(' createPayment response:', JSON.stringify(data, null, 2));
             setShowCardsModal(false);
             await onPaymentSuccess(data);
         } catch (error: any) {
-            console.log('❌ payWithSavedCard error:', JSON.stringify(error, null, 2));
+            console.log(' payWithSavedCard error:', JSON.stringify(error, null, 2));
             setShowCardsModal(false);
             showToast(error?.data?.message || error?.message || 'Payment failed!');
         } finally {

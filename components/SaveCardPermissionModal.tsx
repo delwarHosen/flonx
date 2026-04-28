@@ -180,8 +180,13 @@ const styles = StyleSheet.create({
         marginBottom: hp(12),
     },
     skipBtn: {
-        paddingVertical: hp(10),
+        paddingVertical: hp(15),
         width: '100%',
         alignItems: 'center',
+        backgroundColor:"#822CE71A",
+        borderRadius:100,
+        marginBottom: hp(16),
+        borderWidth:1,
+        borderColor:Colors.BORDER_COLOR
     },
 });

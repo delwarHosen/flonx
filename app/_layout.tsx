@@ -6,7 +6,7 @@ import { setCredentials } from '@/redux/authSlice';
 import { clearCart, setCartRole, setItemQuantity } from '@/redux/cartSlice';
 import { useGuestLoginMutation } from '@/redux/services/authApi';
 import { useViewCartQuery } from '@/redux/services/orderApi';
-import { store } from '@/redux/store';
+import { RootState, store } from '@/redux/store';
 import { getDeviceId } from '@/utils/deviceId';
 import { setCurrentRoute } from '@/utils/routeStore';
 import {
@@ -23,7 +23,7 @@ import {
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import { Stack, usePathname } from 'expo-router';
+import { Stack, usePathname, useRouter, useSegments } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from 'expo-status-bar';
@@ -32,15 +32,7 @@ import React, { useEffect } from 'react';
 import { LogBox, View } from 'react-native';
 import { LogLevel, OneSignal } from 'react-native-onesignal';
 import 'react-native-reanimated';
-import { Provider, useDispatch } from 'react-redux';
-
-function RouteTracker() {
-  const pathname = usePathname();
-  useEffect(() => {
-    setCurrentRoute(pathname);
-  }, [pathname]);
-  return null;
-}
+import { Provider, useDispatch, useSelector } from 'react-redux';
 
 SplashScreen.preventAutoHideAsync();
 LogBox.ignoreAllLogs();
@@ -53,6 +45,40 @@ OneSignal.Notifications.addEventListener('click', (event: any) => {
   console.log('Notification clicked:', data);
 });
 
+// ── Route Tracker ─────────────────────────────────────────────
+function RouteTracker() {
+  const pathname = usePathname();
+  useEffect(() => {
+    setCurrentRoute(pathname);
+  }, [pathname]);
+  return null;
+}
+
+// ── Auth Guard ────────────────────────────────────────────────
+function AuthGuard() {
+  const token = useSelector((state: RootState) => state.auth.token);
+  const userRole = useSelector((state: RootState) => state.auth.userRole);
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    const inAuthGroup = segments[0] === '(auth)';
+    const inSelectRole = segments[0] === 'select-role';
+    const inOnboarding = segments[0] === 'onboarding';
+    const inBartenderInfo = segments[0] === 'bartender-info';
+
+    if (inAuthGroup || inSelectRole || inOnboarding || inBartenderInfo) return;
+
+    const isAuthenticated = token && (userRole === 'customer' || userRole === 'bartender');
+    if (!isAuthenticated) {
+      router.replace('/(auth)/login');
+    }
+  }, [token, userRole, segments]);
+
+  return null;
+}
+
+// ── App Init ──────────────────────────────────────────────────
 function AppInit() {
   const dispatch = useDispatch();
   const [guestLogin] = useGuestLoginMutation();
@@ -124,6 +150,7 @@ function AppInit() {
   return null;
 }
 
+// ── Root Layout Inner ─────────────────────────────────────────
 function RootLayoutInner() {
   const colorScheme = useColorScheme();
 
@@ -170,7 +197,9 @@ function RootLayoutInner() {
     <View style={{ flex: 1, backgroundColor: '#0D0D1A' }}>
       <StripeProvider publishableKey={process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY!}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <AppInit />
           <RouteTracker />
+          <AuthGuard />
           <Stack
             screenOptions={{
               headerShown: false,
@@ -194,10 +223,10 @@ function RootLayoutInner() {
   );
 }
 
+// ── Root Layout ───────────────────────────────────────────────
 export default function RootLayout() {
   return (
     <Provider store={store}>
-      <AppInit />
       <RootLayoutInner />
     </Provider>
   );

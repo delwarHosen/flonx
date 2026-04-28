@@ -116,7 +116,7 @@ const ApplicantProfileDetails = () => {
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
                             <StarIcon color='#FFB020' />
                             <Body2 color={Colors.NEUTRAL0} style={{ marginLeft: wp(6) }}>
-                                {applicant.rating} ({applicant.reviewCount})
+                                {applicant.rating.toFixed(2)} ({applicant.reviewCount})
                             </Body2>
                         </View>
                     </View>

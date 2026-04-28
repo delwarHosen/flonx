@@ -1,4 +1,4 @@
-import { hp } from '@/utils/responsive';
+import { hp, wp } from '@/utils/responsive';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Image, StyleSheet, View } from 'react-native';
 import { Body1 } from './typo/Typography';
@@ -29,10 +29,8 @@ export default function Toast() {
     const opacity = useRef(new Animated.Value(0)).current;
     const animationRef = useRef<Animated.CompositeAnimation | null>(null);
 
-   
     useEffect(() => {
         toastRef = ({ message, type = 'info', duration = 2000 }) => {
-         
             if (animationRef.current) animationRef.current.stop();
             opacity.setValue(0);
             setState({ message, type, visible: true });
@@ -48,19 +46,16 @@ export default function Toast() {
             });
         };
 
-        
         if (toastQueue.length > 0) {
             const pending = toastQueue.shift()!;
             toastRef(pending);
         }
-
     }, []);
 
     const bgColor =
         state.type === 'success' ? '#822CE7' :
             state.type === 'error' ? '#FE4C5D' :
                 '#1565C0';
-
 
     return (
         <Animated.View
@@ -89,10 +84,11 @@ export default function Toast() {
 const styles = StyleSheet.create({
     toast: {
         position: 'absolute',
-        // top: hp(100),
-        bottom:hp(200),
-        left: 20,
-        right: 20,
+        top: hp(100),
+      
+        alignSelf: 'center',
+        maxWidth: wp(340),  
+        minWidth: wp(120), 
         borderRadius: 8,
         paddingVertical: 12,
         paddingHorizontal: 16,
@@ -108,11 +104,12 @@ const styles = StyleSheet.create({
         width: 28,
         height: 28,
         borderRadius: 6,
+        flexShrink: 0,  
     },
     text: {
         color: '#fff',
         fontSize: 14,
         fontWeight: '500',
-        flex: 1,
+        flexShrink: 1,  
     },
 });

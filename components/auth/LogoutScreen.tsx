@@ -2,11 +2,9 @@ import { WarningIcon } from "@/assets/images/icons/ProfileInfoIcons/WarningIcon"
 import { ConfirmationModal } from "@/components/ConfirmationModalProps";
 import CustomLoader from "@/components/CustomLoader";
 import { Colors } from "@/constants/theme";
-import { logout, setCredentials } from '@/redux/authSlice';
+import { logout } from '@/redux/authSlice';
 import { baseApis } from '@/redux/base';
-import { setCartRole } from "@/redux/cartSlice";
 import { useGuestLoginMutation } from '@/redux/services/authApi';
-import { getDeviceId } from '@/utils/deviceId';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import React, { useState } from 'react';
@@ -28,33 +26,13 @@ export default function LogoutScreen({ redirectRoute = '/select-role' }: LogoutS
     const handleLogout = (): void => {
         setShowModal(false);
         setTimeout(async () => {
-            setLoading(true);
             try {
                 await SecureStore.deleteItemAsync('accessToken');
                 await SecureStore.deleteItemAsync('rememberMe');
-
                 dispatch(logout());
                 dispatch(baseApis.util.resetApiState());
-
-                try {
-                    const deviceId = await getDeviceId();
-                    const res = await guestLogin(deviceId).unwrap();
-                    if (res?.accessToken) {
-                        await SecureStore.setItemAsync('accessToken', res.accessToken);
-                        dispatch(setCredentials({ role: 'guest', token: res.accessToken }));
-                        dispatch(setCartRole('guest'));
-                    }
-                } catch (guestError) {
-                    // guest login fail হলেও navigate করো
-                }
-
-                router.dismissAll();
-                router.replace('/(auth)/login');
             } catch (error) {
-                router.dismissAll();
                 router.replace('/(auth)/login');
-            } finally {
-                setLoading(false);
             }
         }, 300);
     };
@@ -68,7 +46,7 @@ export default function LogoutScreen({ redirectRoute = '/select-role' }: LogoutS
         <SafeAreaView style={styles.container}>
             {loading && (
                 <View style={styles.loaderOverlay}>
-                    <CustomLoader size={40}/>
+                    <CustomLoader size={40} />
                 </View>
             )}
             <ConfirmationModal

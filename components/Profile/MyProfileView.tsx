@@ -84,7 +84,7 @@ export default function MyProfileView() {
                         <ProfileDetailsCard
                             label="Overall rating"
                             valueIcon={<StarIcon color='#FFB020' />}
-                            value={bartenderDetail?.averageRating ? `${bartenderDetail.averageRating} (${bartenderDetail.totalRatings})` : '—'}
+                            value={bartenderDetail?.averageRating ? `${bartenderDetail.averageRating.toFixed(2)} (${bartenderDetail.totalRatings})` : '—'}
                         />
                     </>
                 ) : (

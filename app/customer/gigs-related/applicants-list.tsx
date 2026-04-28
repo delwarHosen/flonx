@@ -44,7 +44,7 @@ const ApplicantsList = () => {
                     <View style={styles.ratingRow}>
                         <StarIcon color='#FFB020' />
                         <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginLeft: 4 }}>
-                            {item.bartender.avgRating ?? '4.5'} ({item.bartender.totalRatingCount ?? 5})
+                            {item.bartender.avgRating.toFixed(2) ?? '4.5'} ({item.bartender.totalRatingCount ?? 5})
                         </Caption1>
                     </View>
                 </View>

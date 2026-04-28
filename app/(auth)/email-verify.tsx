@@ -4,6 +4,7 @@ import CustomLoader from '@/components/CustomLoader';
 import { showToast } from '@/components/Toast';
 import { Body2, Body3, H2 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
+import { setCredentials } from '@/redux/authSlice';
 import { useResendVerifyCodeMutation, useVerifyEmailMutation } from '@/redux/services/authApi';
 import { RootState } from '@/redux/store';
 import { hp, wp } from '@/utils/responsive';
@@ -20,7 +21,7 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const { width } = Dimensions.get('window');
 const CODE_LENGTH = 6;
@@ -32,7 +33,7 @@ export default function EmailVerifyOtp() {
   const [timer, setTimer] = useState<number>(30);
   const [canResend, setCanResend] = useState<boolean>(false);
   const inputRef = useRef<TextInput | null>(null);
-
+  const dispatch = useDispatch();
   const [verifyEmail, { isLoading: isVerifying }] = useVerifyEmailMutation();
   const [resendCode, { isLoading: isResending }] = useResendVerifyCodeMutation();
 
@@ -93,6 +94,8 @@ export default function EmailVerifyOtp() {
         if (res.data?.accessToken) {
           await SecureStore.setItemAsync('accessToken', res.data.accessToken);
           await SecureStore.setItemAsync('refreshToken', res.data.refreshToken);
+
+          dispatch(setCredentials({ role: userRole as any, token: res.data.accessToken }));
         }
 
         showToast(res.message || "Verification Successful!", 'success');

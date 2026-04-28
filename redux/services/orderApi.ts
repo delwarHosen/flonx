@@ -113,7 +113,7 @@ export const orderApi = baseApis.injectEndpoints({
         // Permition check the payment info 
         saveCard: builder.mutation({
             query: (body) => ({
-                url: '/stripe/save-payment-info',
+                url: '/stripe/remove-payment-info',
                 method: 'POST',
                 body,
             }),

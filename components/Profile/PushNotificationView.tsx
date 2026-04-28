@@ -3,22 +3,41 @@ import SectionTitle from '@/components/SectionTitle';
 import { Body3, Caption3 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { hp, wp } from '@/utils/responsive';
-import React, { useEffect, useState } from 'react';
-import { Platform, StyleSheet, ToastAndroid, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { AppState, Platform, StyleSheet, ToastAndroid, View } from 'react-native';
 import { OneSignal } from 'react-native-onesignal';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { showToast } from '../Toast';
 
 const PushNotificationView = () => {
     const [isEnabled, setIsEnabled] = useState(false);
     const [loading, setLoading] = useState(false);
+    const appState = useRef(AppState.currentState);
 
-    // current permission state check
+    const checkPermission = async () => {
+        const permission = await OneSignal.Notifications.getPermissionAsync();
+        const subbed = OneSignal.User.pushSubscription.getOptedIn();
+        setIsEnabled(permission && subbed);
+    };
+
+    // mount এ check
     useEffect(() => {
-        const checkPermission = async () => {
-            const permission = await OneSignal.Notifications.getPermissionAsync();
-            setIsEnabled(permission);
-        };
         checkPermission();
+    }, []);
+
+    // background → foreground এ আসলে re-check
+    useEffect(() => {
+        const subscription = AppState.addEventListener('change', (nextAppState) => {
+            if (
+                appState.current.match(/inactive|background/) &&
+                nextAppState === 'active'
+            ) {
+                checkPermission();
+            }
+            appState.current = nextAppState;
+        });
+
+        return () => subscription.remove();
     }, []);
 
     const toggleSwitch = async () => {
@@ -35,7 +54,6 @@ const PushNotificationView = () => {
                 if (granted) {
                     OneSignal.User.pushSubscription.optIn();
                 } else {
-                    // permission denied হলে revert
                     setIsEnabled(false);
                     if (Platform.OS === 'android') {
                         ToastAndroid.show(
@@ -49,17 +67,11 @@ const PushNotificationView = () => {
                 OneSignal.User.pushSubscription.optOut();
             }
 
-            if (Platform.OS === 'android') {
-                ToastAndroid.show(
-                    `Notification ${newValue ? 'Enabled' : 'Disabled'}`,
-                    ToastAndroid.SHORT
-                );
-            }
+            showToast(`Notification ${newValue ? 'Enabled' : 'Disabled'}`)
         } catch (error) {
             setIsEnabled(previousState);
-            if (Platform.OS === 'android') {
-                ToastAndroid.show('Failed to update settings', ToastAndroid.SHORT);
-            }
+            showToast("Failed to update settings")
+           
         } finally {
             setLoading(false);
         }
