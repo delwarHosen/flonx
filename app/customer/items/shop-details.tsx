@@ -1,4 +1,3 @@
-
 import ShopDetailsScreen from '@/components/CommonComponents/ShopDetailsScreen';
 import CustomLoader from '@/components/CustomLoader';
 import { Colors } from '@/constants/theme';

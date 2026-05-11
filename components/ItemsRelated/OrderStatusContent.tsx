@@ -91,11 +91,61 @@ export const OrderStatusContent: React.FC<OrderStatusContentProps> = ({
         <SectionTitle title="My Orders" />
       </View>
 
+<<<<<<< HEAD
       <View style={styles.content}>
         {/* Order Code Card */}
         <View style={styles.codeCard}>
           <H2 color="white" style={styles.codeText}>{orderCode}</H2>
           <H5 color="white" italic>Order Code</H5>
+=======
+        if (step === OrderStatus.QUEUED) {
+            timer = setTimeout(() => setStep(OrderStatus.IN_PROGRESS), 1500);
+        } else if (step === OrderStatus.IN_PROGRESS) {
+            timer = setTimeout(() => router.push(nextRoute as any), 1500);
+        }
+
+        return () => { if (timer) clearTimeout(timer); };
+    }, [step]);
+
+    const isQueued = step === OrderStatus.QUEUED;
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.header}>
+                <SectionTitle title="My Orders" />
+            </View>
+
+            <View style={styles.content}>
+                <View style={styles.codeCard}>
+                    <H2 color="white" style={styles.codeText}>{orderCode}</H2>
+                    <H5 color="white" italic>Order Code</H5>
+                </View>
+
+                <View style={[styles.statusBox, isQueued ? styles.borderOrange : styles.borderGreen]}>
+                    <View style={[styles.iconCircle, { backgroundColor: isQueued ? '#F9731633' : '#22C55E33' }]}>
+                        <Ionicons
+                            name={isQueued ? 'list' : 'time-outline'}
+                            size={24}
+                            color={isQueued ? '#F97316' : '#22C55E'}
+                        />
+                    </View>
+                    <View style={styles.statusTextContainer}>
+                        <H5 color={isQueued ? '#F97316' : '#22C55E'}>
+                            {isQueued ? 'Queued' : 'In Progress'}
+                        </H5>
+                        <Caption4 color="#999">
+                            {isQueued ? 'Your order is in the queue' : 'Your drink is being prepared'}
+                        </Caption4>
+                    </View>
+                </View>
+
+                <View style={styles.footer}>
+                    <Body3 color="white" align="center">
+                        We'll update you when your order is ready
+                    </Body3>
+                </View>
+            </View>
+>>>>>>> 598b77566d85205196026cfc4e287bae3dbcb0ef
         </View>
 
         {/* Status Box */}
