@@ -1,5 +1,3 @@
-// import '@/tasks/stripeTask'; 
-
 import Toast, { showToast } from '@/components/Toast';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { setCredentials } from '@/redux/authSlice';
@@ -66,8 +64,9 @@ function AuthGuard() {
     const inSelectRole = segments[0] === 'select-role';
     const inOnboarding = segments[0] === 'onboarding';
     const inBartenderInfo = segments[0] === 'bartender-info';
+    const inGuest = segments[0] === 'guest'; 
 
-    if (inAuthGroup || inSelectRole || inOnboarding || inBartenderInfo) return;
+    if (inAuthGroup || inSelectRole || inOnboarding || inBartenderInfo || inGuest) return; 
 
     const isAuthenticated = token && (userRole === 'customer' || userRole === 'bartender');
     if (!isAuthenticated) {
@@ -77,7 +76,6 @@ function AuthGuard() {
 
   return null;
 }
-
 // ── App Init ──────────────────────────────────────────────────
 function AppInit() {
   const dispatch = useDispatch();

@@ -26,7 +26,7 @@ const isIOS = Platform.OS === 'ios';
 // iOS-specific responsive helpers
 const isSmallIOS = isIOS && height < 700;    // iPhone SE, iPhone 8
 const isMediumIOS = isIOS && height >= 700 && height < 844;  // iPhone 11, XR
-const isLargeIOS = isIOS && height >= 844;   // iPhone 12/13/14 Pro and above
+const isLargeIOS = isIOS && height >= 844;   
 
 const iosSpacing = (small: number, medium: number, large: number) => {
     if (!isIOS) return medium;
@@ -90,7 +90,7 @@ export default function SelectRole() {
                     console.log('Guest login error:', e);
                 }
             }
-            router.push("/guest/search" as any);
+            router.replace("/guest/(tabs)/search" as any);
 
         } else if (selectedRole === 'customer' || selectedRole === 'bartender') {
             dispatch(setRole(selectedRole));
