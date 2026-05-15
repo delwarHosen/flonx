@@ -1,48 +1,93 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import React from 'react';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { OrderONIcons } from '@/assets/images/icons/BarRelatedIcon/OrderOnIcon';
 import { LocationIcon } from '@/assets/images/icons/icon';
 import { CustomButton } from '@/components/CustomButton';
-import SectionTitle from '@/components/SectionTitle';
 import { Body2, Body3, Caption1, Caption2, H6 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { useGetVenueByIdQuery } from '@/redux/services/venueApi';
 import { hp } from '@/utils/responsive';
+import SectionTitle from '../SectionTitle';
 
 interface OrderDetailsScreenProps {
   tipRoute: string;
 }
 
 const OrderDetailsScreen = ({ tipRoute }: OrderDetailsScreenProps) => {
-  const params = useLocalSearchParams();
   const router = useRouter();
 
-  const { id, orderCode, totalPrice, date, time, totalQuantity, items, venueId, tipAmount } = params;
+  const {
+    id,
+    orderCode,
+    totalPrice,
+    date,
+    time,
+    totalQuantity,
+    items,
+    venueId,
+    tipAmount,
+    paidTipAmount,
+  } = useLocalSearchParams<{
+    id: string;
+    orderCode: string;
+    totalPrice: string;
+    date: string;
+    time: string;
+    totalQuantity: string;
+    items: string;
+    venueId: string;
+    tipAmount: string;
+    paidTipAmount: string;
+  }>();
 
-  const parsedItems: any[] = items ? JSON.parse(items as string) : [];
-  const parsedTipAmount = tipAmount ? Number(tipAmount) : null;
-  const isTipped = parsedTipAmount && parsedTipAmount > 0;
+  const parsedItems: any[] = items ? JSON.parse(items) : [];
 
-  const { data: venue } = useGetVenueByIdQuery(venueId, { skip: !venueId });
+  const [localTipAmount, setLocalTipAmount] = useState<number>(
+    tipAmount ? Number(tipAmount) : 0
+  );
 
-//   console.log("tipRoute:", tipRoute)
-//   console.log("orderId:", id)
+  useFocusEffect(
+    useCallback(() => {
+      const loadTip = async () => {
+        try {
+          const stored = await AsyncStorage.getItem('TIPPED_ORDERS');
+          if (stored) {
+            const tippedOrders = JSON.parse(stored);
+            const savedTip = tippedOrders[id];
+            if (savedTip && savedTip > 0) {
+              setLocalTipAmount(savedTip);
+              return; // AsyncStorage এ পেলে এখানেই থামো
+            }
+          }
+          // AsyncStorage এ না থাকলে paidTipAmount দেখো
+          if (paidTipAmount && Number(paidTipAmount) > 0) {
+            setLocalTipAmount(Number(paidTipAmount));
+          }
+        } catch {}
+      };
+      loadTip();
+    }, [id, paidTipAmount])
+  );
+
+  const isTipped = localTipAmount > 0;
+
+  const { data: venue } = useGetVenueByIdQuery(venueId as any, { skip: !venueId });
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={{ paddingTop: hp(16) }}>
-        <SectionTitle title="My Order" />
+        <SectionTitle title="My Orders" />
       </View>
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-
         {/* 1. Venue Info */}
         <View style={styles.infoCard}>
           <View style={styles.iconBox}>
@@ -50,7 +95,7 @@ const OrderDetailsScreen = ({ tipRoute }: OrderDetailsScreenProps) => {
               <Image
                 source={{ uri: venue.logo }}
                 style={{ height: 37, width: 37, borderRadius: 10 }}
-                contentFit='cover'
+                contentFit="cover"
               />
             ) : (
               <View style={{ height: 37, width: 37, borderRadius: 10, backgroundColor: '#2D2459' }} />
@@ -91,7 +136,7 @@ const OrderDetailsScreen = ({ tipRoute }: OrderDetailsScreenProps) => {
                 key={orderItem.product?._id || index}
                 style={[
                   styles.itemRow,
-                  index !== parsedItems.length - 1 && { marginBottom: 25 }
+                  index !== parsedItems.length - 1 && { marginBottom: 25 },
                 ]}
               >
                 <View>
@@ -117,22 +162,39 @@ const OrderDetailsScreen = ({ tipRoute }: OrderDetailsScreenProps) => {
         {isTipped ? (
           <View style={[styles.footerCard, { marginTop: 12 }]}>
             <View style={styles.footerRow}>
-              <View>
-                <Body3 color={Colors.PLACEHOLLDER_TEXT} italic style={{ marginBottom: 4 }}>
-                  You tipped the bartender
-                </Body3>
-                <H6 color={Colors.NEUTRAL0}>Order Code: {orderCode}</H6>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                <View style={styles.iconBox}>
+                  <OrderONIcons />
+                </View>
+                <View style={{ marginLeft: 15 }}>
+                  <Body3 color={Colors.PLACEHOLLDER_TEXT} italic style={{ marginBottom: 4 }}>
+                    You tipped the bartender
+                  </Body3>
+                  <H6 color={Colors.NEUTRAL0}>Order Code: {orderCode}</H6>
+                </View>
               </View>
-              <H6 color={Colors.NEUTRAL0}>${parsedTipAmount}</H6>
+              <H6 color={Colors.NEUTRAL0}>${localTipAmount}</H6>
             </View>
           </View>
         ) : (
           <CustomButton
             title="Tip Bartender"
-            onPress={() => router.push({
-              pathname: tipRoute as any,
-              params: { orderId: id }
-            })}
+            onPress={() =>
+              router.push({
+                pathname: tipRoute as any,
+                params: {
+                  orderId: id,
+                  orderCode,
+                  totalPrice,
+                  date,
+                  time,
+                  totalQuantity,
+                  items,
+                  venueId,
+                  tipAmount: String(localTipAmount),
+                },
+              })
+            }
             width="100%"
             height={44}
             color={Colors.NEUTRAL0}
@@ -142,19 +204,16 @@ const OrderDetailsScreen = ({ tipRoute }: OrderDetailsScreenProps) => {
         )}
 
         {/* 5. Back Button */}
-        <View style={{ marginTop: 0 }}>
-          <CustomButton
-            title="Back to orders"
-            onPress={() => router.back()}
-            width="100%"
-            height={44}
-            borderRadius={100}
-            backgroundColor={Colors.NEUTRAL0}
-            color={Colors.BRAND_PRIMARY}
-            style={{ marginTop: hp(16) }}
-          />
-        </View>
-
+        <CustomButton
+          title="Back to orders"
+          onPress={() => router.push("/customer/(tabs)/orders")}
+          width="100%"
+          height={44}
+          borderRadius={100}
+          backgroundColor={Colors.NEUTRAL0}
+          color={Colors.BRAND_PRIMARY}
+          style={{ marginTop: hp(16) }}
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -165,11 +224,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.APP_BACKGROUND,
   },
+
   scrollContent: {
     paddingHorizontal: 20,
     paddingTop: 15,
     paddingBottom: 40,
   },
+
   infoCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -180,22 +241,27 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.BORDER_COLOR,
   },
+
   iconBox: {
     height: 37,
     width: 37,
     borderRadius: 10,
-    backgroundColor: "#FFFFFF1A",
+    backgroundColor: '#FFFFFF1A',
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   infoText: {
     marginLeft: 15,
+    flex: 1,
   },
+
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 8,
   },
+
   itemsCard: {
     backgroundColor: Colors.INPUT_BACKGROUND,
     borderRadius: 16,
@@ -203,19 +269,23 @@ const styles = StyleSheet.create({
     borderColor: Colors.BORDER_COLOR,
     overflow: 'hidden',
   },
+
   cardHeader: {
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: Colors.BORDER_COLOR,
   },
+
   itemList: {
     padding: 16,
   },
+
   itemRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -225,6 +295,7 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.BORDER_COLOR,
     marginTop: 16,
   },
+
   footerCard: {
     backgroundColor: Colors.INPUT_BACKGROUND,
     borderRadius: 16,
@@ -232,11 +303,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.BORDER_COLOR,
   },
+
   footerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-});
+})
 
 export default OrderDetailsScreen;

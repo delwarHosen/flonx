@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
@@ -10,14 +11,12 @@ import SectionTitle from '@/components/SectionTitle';
 import { Body1, Body3, Caption1 } from '@/components/typo/Typography';
 import { Colors } from '@/constants/theme';
 import { useGetOrderQuery } from '@/redux/services/orderApi';
-import { RootState } from '@/redux/store';
 import { hp, wp } from '@/utils/responsive';
-import { useSelector } from 'react-redux';
-
 import CustomLoader from '../CustomLoader';
 
 const CURRENT_STATUSES = ['PENDING', 'QUEUED', 'IN_PROGRESS', 'READY_FOR_PIC'];
 const PAST_STATUSES = ['PICKED', 'CANCELLED', 'DELIVERED', 'REJECTED'];
+const TIPPED_ORDERS_KEY = 'TIPPED_ORDERS';
 
 export interface OrderRoutes {
   currentOrder: string;
@@ -51,24 +50,30 @@ const formatTime = (d: string) =>
 const formatStatus = (status: string) => status.replace(/_/g, ' ');
 
 const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
-  const role = useSelector((state: RootState) => state.auth.userRole);
-  const [refreshing, setRefreshing] = useState(false);
   const [isFocusRefetching, setIsFocusRefetching] = useState(false);
   const [selectedTab, setSelectedTab] = useState<'Current Orders' | 'Past Orders'>('Current Orders');
+  const [limit] = useState(50);
+  const [page] = useState(1);
   const router = useRouter();
+  const [tippedOrders, setTippedOrders] = useState<Record<string, number>>({});
 
   const { data, isLoading, isError, refetch } = useGetOrderQuery(
-    { page: 1, limit: 50 },
-    {
-      skip: false,
-      refetchOnMountOrArgChange: true,
-    }
+    { page, limit },
+    { pollingInterval: 5000 }
   );
 
   const allOrders = data?.result || [];
 
   useFocusEffect(
     useCallback(() => {
+      const loadTippedOrders = async () => {
+        try {
+          const stored = await AsyncStorage.getItem(TIPPED_ORDERS_KEY);
+          if (stored) setTippedOrders(JSON.parse(stored));
+        } catch {}
+      };
+      loadTippedOrders();
+
       const refetchOnFocus = async () => {
         setIsFocusRefetching(true);
         await refetch();
@@ -84,17 +89,16 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
       : PAST_STATUSES.includes(order.status)
   );
 
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await refetch();
-    setRefreshing(false);
-  }, [refetch]);
-
   const renderOrderItem = ({ item }: { item: any }) => {
     const isPast = selectedTab === 'Past Orders';
 
     const handlePress = () => {
       if (isPast) {
+        const localTip = tippedOrders[item._id];
+        const tipAmount = (localTip != null && localTip > 0)
+          ? localTip
+          : (item.tipAmount || 0);
+
         router.push({
           pathname: routes.pastOrderDetail as any,
           params: {
@@ -106,7 +110,7 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
             totalQuantity: item.totalQuantity,
             items: JSON.stringify(item.items),
             venueId: typeof item.venue === 'object' ? item.venue._id : item.venue,
-            tipAmount: item.tipAmount || 0,
+            tipAmount: String(tipAmount),
           },
         });
       } else if (item.status === 'READY_FOR_PIC') {
@@ -117,6 +121,7 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
             status: item.status,
             id: item._id,
             venueName: item.venue?.name || '',
+            colorCode: item.colorCode || '',
           },
         });
       } else {
@@ -125,6 +130,7 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
           params: {
             orderCode: item.orderCode,
             status: item.status,
+            colorCode: item.colorCode || '',
           },
         });
       }
@@ -132,7 +138,6 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
 
     return (
       <TouchableOpacity onPress={handlePress} style={styles.orderCard} activeOpacity={0.8}>
-
         <View style={styles.cardHeader}>
           {!isPast ? (
             <Body3 color={getStatusColor(item.status)} italic>
@@ -147,9 +152,6 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
 
         {item.items?.map((orderItem: any, index: number) => {
           const product = orderItem.product;
-          const productImage = product?.image || null;
-          const productName = product?.name || 'Unknown Item';
-
           return (
             <View
               key={product?._id || index}
@@ -158,21 +160,19 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
                 index !== item.items.length - 1 && styles.itemRowBorder,
               ]}
             >
-              {productImage ? (
-                <Image source={{ uri: productImage }} style={styles.itemImage} contentFit="cover" />
+              {product?.image ? (
+                <Image source={{ uri: product.image }} style={styles.itemImage} contentFit="cover" />
               ) : (
                 <View style={[styles.itemImage, styles.imageFallback]} />
               )}
               <View style={styles.itemInfo}>
-                <Body1 color={Colors.NEUTRAL0}>{productName}</Body1>
-                <View>
-                  <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: 2 }}>
-                    Quantity: {orderItem.quantity}
-                  </Caption1>
-                  <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: 5 }}>
-                    Price: ${orderItem.price}
-                  </Caption1>
-                </View>
+                <Body1 color={Colors.NEUTRAL0}>{product?.name || 'Unknown Item'}</Body1>
+                <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: 2 }}>
+                  Quantity: {orderItem.quantity}
+                </Caption1>
+                <Caption1 color={Colors.PLACEHOLLDER_TEXT} style={{ marginTop: 5 }}>
+                  Price: ${orderItem.price}
+                </Caption1>
               </View>
             </View>
           );
@@ -197,7 +197,6 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
             />
           </View>
         </View>
-
       </TouchableOpacity>
     );
   };
@@ -226,7 +225,7 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
       <View style={{ flex: 1, marginTop: hp(10) }}>
         {isLoading || isFocusRefetching ? (
           <View style={styles.centerContainer}>
-            <CustomLoader size={40}/>
+            <CustomLoader size={40} />
           </View>
         ) : isError ? (
           <View style={styles.centerContainer}>
@@ -241,8 +240,8 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({ routes }) => {
             showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
+                refreshing={isLoading}
+                onRefresh={refetch}
                 tintColor={Colors.BRAND_PRIMARY}
                 colors={[Colors.BRAND_PRIMARY]}
               />
@@ -265,20 +264,24 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.APP_BACKGROUND,
   },
+
   tabWrapper: {
     flexDirection: 'row',
     paddingHorizontal: wp(20),
     justifyContent: 'space-between',
     backgroundColor: Colors.APP_BACKGROUND,
   },
+
   tabItem: {
     width: '48%',
   },
+
   listContent: {
     paddingHorizontal: wp(20),
     paddingTop: hp(5),
     paddingBottom: hp(20),
   },
+
   orderCard: {
     backgroundColor: Colors.INPUT_BACKGROUND,
     borderRadius: 14,
@@ -287,20 +290,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.BORDER_COLOR,
   },
+
   cardHeader: {
     flexDirection: 'row',
     marginBottom: hp(10),
     paddingHorizontal: 4,
   },
+
   itemRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: hp(8),
   },
+
   itemRowBorder: {
     borderBottomWidth: 1,
     borderBottomColor: Colors.BORDER_COLOR,
   },
+
   itemImage: {
     borderWidth: 1,
     borderColor: Colors.BRAND_PRIMARY,
@@ -308,18 +315,22 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 10,
   },
+
   imageFallback: {
     backgroundColor: '#2D2459',
   },
+
   itemInfo: {
     flex: 1,
     marginLeft: wp(12),
   },
+
   footerDivider: {
     height: 1,
     backgroundColor: Colors.BORDER_COLOR,
     marginBottom: hp(10),
   },
+
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -327,17 +338,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     marginTop: hp(4),
   },
+
   priceContainer: {
     flex: 1,
   },
+
   cardFooterWrapper: {
     marginTop: hp(10),
   },
+
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-});
+})
 
 export default OrderListScreen;

@@ -87,7 +87,7 @@ const Typography: React.FC<TypographyProps> = ({
 
     const getLineHeight = () => {
         switch (variant) {
-            case "h1": return 52;
+            case "h1": return 70;
             case "h2": return 40;
             case "h3": return 36;
             case "h4": return 32;

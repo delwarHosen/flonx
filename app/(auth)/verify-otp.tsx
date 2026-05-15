@@ -20,8 +20,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
-const CODE_LENGTH = 6;
-const OTP_BOX_SIZE = Math.min(54, (width * 0.8) / CODE_LENGTH);
+const CODE_LENGTH = 4;
+const OTP_BOX_SIZE = Math.min(60, (width * 0.8) / CODE_LENGTH - 12);
 
 export default function VerifyOtp() {
   const router = useRouter();
@@ -62,7 +62,7 @@ export default function VerifyOtp() {
 
   const handleVerify = async () => {
     if (code.length !== CODE_LENGTH) {
-      showToast('Please enter full 6-digit code');
+      showToast('Please enter full 4-digit code');
       return;
     }
 
@@ -104,7 +104,7 @@ export default function VerifyOtp() {
           <View style={styles.container}>
             <AuthHeading
               title="Verify Your OTP"
-              description="Enter the 6-digit verification code sent to your email address."
+              description="Enter the 4-digit verification code sent to your email address."
             />
 
             <View style={styles.form}>
@@ -174,7 +174,7 @@ export default function VerifyOtp() {
                     title={isVerifying ? "Verifying..." : "Verify Code"}
                     onPress={handleVerify}
                     width="100%"
-                    height={hp(44)}
+                    height={hp(48)}
                     borderRadius={100}
                     style={{ marginTop: hp(16) }}
                   />

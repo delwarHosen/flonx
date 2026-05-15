@@ -10,6 +10,7 @@ const baseQuery = fetchBaseQuery({
   baseUrl: 'https://rnj64vmh-3500.inc1.devtunnels.ms/api/v1',
   prepareHeaders: async (headers) => {
     const token = await SecureStore.getItemAsync('accessToken');
+    // console.log(token)
     if (token) {
       headers.set('Authorization', `${token}`);
     }

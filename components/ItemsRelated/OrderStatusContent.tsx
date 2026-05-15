@@ -1,10 +1,9 @@
 import SectionTitle from '@/components/SectionTitle';
 import { Body3, Caption4, H2, H5 } from '@/components/typo/Typography';
-import { Colors } from '@/constants/theme';
 import { hp, wp } from '@/utils/responsive';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, Platform, StyleSheet, View } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -75,15 +74,52 @@ interface OrderStatusContentProps {
   orderCode: string;
   status: BackendStatus;
   nextRoute?: string;
+  colorCode?: string;
 }
 
 export const OrderStatusContent: React.FC<OrderStatusContentProps> = ({
   orderCode,
   status,
   nextRoute,
+  colorCode,
 }) => {
   const router = useRouter();
   const config = STATUS_CONFIG[status] ?? STATUS_CONFIG['QUEUED'];
+  const [countdown, setCountdown] = useState(5);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+
+    if ((status === 'PICKED' || status === 'READY_FOR_PIC') && nextRoute) {
+      setCountdown(5);
+
+      timerRef.current = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(timerRef.current!);
+            timerRef.current = null;
+            router.replace(nextRoute as any);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [status, nextRoute]);
+
+
 
   return (
     <View style={styles.container}>
@@ -93,7 +129,10 @@ export const OrderStatusContent: React.FC<OrderStatusContentProps> = ({
 
       <View style={styles.content}>
         {/* Order Code Card */}
-        <View style={styles.codeCard}>
+        <View style={[
+          styles.codeCard,
+          colorCode ? { backgroundColor: colorCode } : undefined,
+        ]}>
           <H2 color="white" style={styles.codeText}>{orderCode}</H2>
           <H5 color="white" italic>Order Code</H5>
         </View>
@@ -114,9 +153,9 @@ export const OrderStatusContent: React.FC<OrderStatusContentProps> = ({
           <Body3 color="white" align="center">
             {status === 'CANCELLED'
               ? 'Your order was cancelled. Please contact support if needed.'
-              : status === 'PICKED'
-              ? 'Enjoy your drink! 🎉'
-              : "We'll update you when your order is ready"}
+              : status === 'PICKED' || status === 'READY_FOR_PIC'
+                ? `Enjoy your drink! 🎉  Redirecting in ${countdown}s...`
+                : "We'll update you when your order is ready"}
           </Body3>
         </View>
       </View>
@@ -137,7 +176,7 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? hp(10) : hp(20),
   },
   codeCard: {
-    backgroundColor: Colors.COLOR_ACTIVE,
+    // backgroundColor: Colors.COLOR_ACTIVE,
     width: '100%',
     aspectRatio: 16 / 7,
     borderRadius: 24,

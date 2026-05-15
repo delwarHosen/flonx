@@ -11,19 +11,29 @@ export default function CustomerPickup() {
 
     if (!checked) return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.APP_BACKGROUND }}>
-           <CustomLoader/>
+            <CustomLoader size={40} />
         </View>
     );
-    const { id, orderCode, venueName } = useLocalSearchParams<{ id: string; orderCode: string, venueName: string; }>();
+    const { id,
+        orderCode,
+        venueName,
+        colorCode
+    } = useLocalSearchParams<{
+        id: string;
+        orderCode: string,
+        venueName: string;
+        colorCode: string;
+    }>();
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: Colors.COLOR_ACTIVE }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: colorCode || Colors.COLOR_ACTIVE }}>
             <PickupOrderContent
                 pickupCode={orderCode}
                 orderId={id}
                 orderCode={orderCode}
                 venueName={venueName}
-                successRoute="/customer/items/order-success"
+                successRoute="/customer/items/tip-select"
+
             />
         </SafeAreaView>
     );

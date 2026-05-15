@@ -7,20 +7,19 @@ import { View } from 'react-native';
 
 export default function CustomerTip() {
     const checked = useRequireCustomer();
+    const { orderId } = useLocalSearchParams<{ orderId: string }>();
 
     if (!checked) return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.APP_BACKGROUND }}>
-           <CustomLoader/>
+            <CustomLoader size={40} />
         </View>
     );
-    const { orderId } = useLocalSearchParams<{ orderId: string }>();
 
     return (
         <TipSelectionContent
             orderId={orderId}
-            // role="customer"  
             customTipRoute="/customer/items/custom-tip-seleted"
-            continueRoute="/customer/items/orders"
+            continueRoute="/customer/orders-details/my-orders"  
             skipRoute="/customer/(tabs)/orders"
             primaryColor={Colors.BRAND_PRIMARY_LIGHT}
         />

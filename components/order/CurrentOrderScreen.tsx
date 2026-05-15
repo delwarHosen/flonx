@@ -1,28 +1,47 @@
 import { BackendStatus, OrderStatusContent } from '@/components/ItemsRelated/OrderStatusContent';
+import { useGetOrderQuery } from '@/redux/services/orderApi';
 import { useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface CurrentOrderScreenProps {
-  pickupRoute: string;   // '/guest/pickup-order' | '/customer/items/pickup-order'
-  fallbackRoute: string; // '/guest/(tabs)/order' | '/customer/(tabs)/orders'
+  pickupRoute: string;
+  fallbackRoute: string;
 }
 
-// ── Reusable wrapper ──
 export function CurrentOrderScreen({ pickupRoute, fallbackRoute }: CurrentOrderScreenProps) {
-  const { orderCode, status } = useLocalSearchParams<{
+  const { orderCode, status: initialStatus, colorCode } = useLocalSearchParams<{
     orderCode: string;
     status: BackendStatus;
+    colorCode: string;
   }>();
 
-  const nextRoute =
-    status === 'READY_FOR_PIC' || status === 'PICKED' ? pickupRoute : fallbackRoute;
+  const { data } = useGetOrderQuery(
+    { page: 1, limit: 20 },
+    {
+      pollingInterval: 4000,
+      skip: !orderCode,
+    }
+  );
+
+
+
+
+  const matchedOrder = data?.result?.find(
+    (order: any) => order.orderCode === orderCode
+  );
+
+  const liveStatus = (matchedOrder?.status ?? initialStatus ?? 'QUEUED') as BackendStatus;
+
+  console.log('orderCode from params:', orderCode);
+  console.log('liveStatus:', liveStatus);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0F0B1A' }}>
       <OrderStatusContent
         orderCode={orderCode ?? ''}
-        status={(status as BackendStatus) ?? 'QUEUED'}
-        nextRoute={nextRoute}
+        status={liveStatus}
+        nextRoute={pickupRoute}
+        colorCode={colorCode}
       />
     </SafeAreaView>
   );

@@ -197,13 +197,13 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
                 return;
             }
 
-            // Guest হলে সরাসরি success, card save modal নেই
+
             if (isGuest) {
                 await onPaymentSuccess(data);
                 return;
             }
 
-            // Customer হলে card save করতে চান কিনা জিজ্ঞেস করুন
+
             setPendingSuccessData(data);
             setNewCardInfo({
                 last4: data.last4 || '',
@@ -271,7 +271,11 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ paymentPath }) => {
         showToast('Payment successful!');
 
         const targetPath = isGuest ? '/guest/order' : '/customer/orders';
-        router.replace(targetPath as any);
+        // router.replace(targetPath as any);
+
+        setTimeout(() => {
+            router.replace(targetPath as any);
+        }, 300);
     };
 
     useEffect(() => {

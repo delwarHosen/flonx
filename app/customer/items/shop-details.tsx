@@ -10,7 +10,11 @@ export default function CustomerShopDetails() {
     const { data: venuesData, isLoading } = useGetAllVenuesQuery({});
     const barData = venuesData?.result?.find((v: any) => v._id === barId);
 
-    if (isLoading) return <CustomLoader size={50} />;
+    if (isLoading) return (
+        <View style={{flexDirection:"row",justifyContent:"center",alignItems:"center"}}>
+            <CustomLoader size={40} />
+        </View>
+    );
     if (!barData) return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ color: Colors.NEUTRAL0 }}>Venue not found!</Text>

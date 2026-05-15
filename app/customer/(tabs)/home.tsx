@@ -63,6 +63,7 @@ const HomeScreen: React.FC = () => {
                     status: order.status,
                     id: order._id,
                     venueName: order.venue?.name || '',
+                    colorCode: order.colorCode || '',
                 },
             });
         } else {
@@ -71,6 +72,7 @@ const HomeScreen: React.FC = () => {
                 params: {
                     orderCode: order.orderCode,
                     status: order.status,
+                    colorCode: order.colorCode || '',
                 },
             });
         }
@@ -128,7 +130,10 @@ const HomeScreen: React.FC = () => {
                     </H6>
                 </View>
 
-                <View style={styles.codeBanner}>
+                <View style={[
+                    styles.codeBanner,
+                    { backgroundColor: order.colorCode || Colors.COLOR_ACTIVE }
+                ]}>
                     <H5 italic align="center" color={"#FFFFFFCC"}>Order Code</H5>
                     <H2 align="center" color={Colors.NEUTRAL0} style={{ marginTop: hp(12) }}>
                         {order.orderCode}
@@ -218,7 +223,7 @@ const HomeScreen: React.FC = () => {
                         </View>
                     }
                     ListEmptyComponent={
-                        <View style={{paddingHorizontal:wp(20)}}>
+                        <View style={{ paddingHorizontal: wp(20) }}>
                             <EmptyStateCard message="No active orders found" />
                         </View>
                     }
@@ -332,7 +337,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     codeBanner: {
-        backgroundColor: Colors.COLOR_ACTIVE,
+        // backgroundColor: Colors.COLOR_ACTIVE,
         borderRadius: 16,
         paddingVertical: hp(30),
         marginBottom: hp(16),

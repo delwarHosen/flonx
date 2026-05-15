@@ -24,7 +24,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
 const { width } = Dimensions.get('window');
-const CODE_LENGTH = 6;
+const CODE_LENGTH = 4;
 
 export default function EmailVerifyOtp() {
   const router = useRouter();
@@ -77,7 +77,7 @@ export default function EmailVerifyOtp() {
 
   const handleVerify = async () => {
     if (code.length !== CODE_LENGTH) {
-      showToast('Please enter full 6-digit code');
+      showToast('Please enter full 4-digit code');
       return;
     }
 
@@ -128,7 +128,7 @@ export default function EmailVerifyOtp() {
           <View style={styles.container}>
             <AuthHeading
               title="Verify your email"
-              description="Enter the 6-digit verification code sent to your email address."
+              description="Enter the 4-digit verification code sent to your email address."
             />
 
             <View style={styles.form}>
@@ -200,7 +200,7 @@ export default function EmailVerifyOtp() {
                     title="Verify code"
                     onPress={handleVerify}
                     width="100%"
-                    height={hp(44)}
+                    height={hp(48)}
                     borderRadius={100}
                     style={{ marginTop: hp(16) }}
                   />
@@ -233,12 +233,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   otpBox: {
-    width: (width * 0.9 - 50) / 6,
-    height: (width * 0.9 - 50) / 6,
-    maxWidth: 54,
-    maxHeight: 54,
+    width: (width * 0.8) / 4 - 12,
+    height: (width * 0.8) / 4 - 12,
+    maxWidth: 60,
+    maxHeight: 60,
+    borderRadius: 30,
     borderWidth: 1,
-    borderRadius: 27,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Colors.INPUT_BACKGROUND

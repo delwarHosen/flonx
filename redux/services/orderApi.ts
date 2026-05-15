@@ -13,7 +13,30 @@ export interface SavedCard {
 
 export const orderApi = baseApis.injectEndpoints({
     endpoints: (builder) => ({
+        // view Cart
+        viewCart: builder.query({
+            query: () => ({
+                url: '/cart/view-cart',
+                method: 'GET',
+            }),
+            transformResponse: (response: any) => response.data,
+            providesTags: ['Cart'],
+        }),
 
+        // get All Order
+        getOrder: builder.query({
+            query: (orderData) => ({
+                url: "/order/get-my-orders",
+                method: "GET",
+                params: {
+                    page: orderData?.page || 1,
+                    limit: orderData?.limit || 10,
+                }
+            }),
+            transformResponse: (response: any) => response.data,
+            providesTags: ["order"],
+            keepUnusedDataFor: 0,
+        }),
         // add to cart
         addToCart: builder.mutation({
             query: (cartData) => ({
@@ -25,15 +48,7 @@ export const orderApi = baseApis.injectEndpoints({
             invalidatesTags: ['Cart'],
         }),
 
-        // view Cart
-        viewCart: builder.query({
-            query: () => ({
-                url: '/cart/view-cart',
-                method: 'GET',
-            }),
-            transformResponse: (response: any) => response.data,
-            providesTags: ['Cart'],
-        }),
+
 
         // update quantity
         updateCartQuantity: builder.mutation({
@@ -107,7 +122,7 @@ export const orderApi = baseApis.injectEndpoints({
                 body,
             }),
             transformResponse: (response: any) => response.data,
-            invalidatesTags: ["order"],
+            invalidatesTags: ["order","Cart"],
         }),
 
         // Permition check the payment info 
@@ -126,21 +141,6 @@ export const orderApi = baseApis.injectEndpoints({
                 url: '/customer/payment-methods',
                 method: 'GET',
             }),
-        }),
-
-        // get All Order
-        getOrder: builder.query({
-            query: (orderData) => ({
-                url: "/order/get-my-orders",
-                method: "GET",
-                params: {
-                    page: orderData?.page || 1,
-                    limit: orderData?.limit || 10,
-                }
-            }),
-            transformResponse: (response: any) => response.data,
-            providesTags: ["order"],
-            keepUnusedDataFor: 0,
         }),
 
         // patch picked up order
@@ -179,5 +179,5 @@ export const {
     useUpdateOrderStatusMutation,
     useTipToBartenderMutation,
     useLazyGetSavedCardsQuery,
-    useSaveCardMutation 
+    useSaveCardMutation
 } = orderApi;
