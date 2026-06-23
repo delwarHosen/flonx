@@ -32,8 +32,8 @@ export function CurrentOrderScreen({ pickupRoute, fallbackRoute }: CurrentOrderS
 
   const liveStatus = (matchedOrder?.status ?? initialStatus ?? 'QUEUED') as BackendStatus;
 
-  console.log('orderCode from params:', orderCode);
-  console.log('liveStatus:', liveStatus);
+  // console.log('orderCode from params:', orderCode);
+  // console.log('liveStatus:', liveStatus);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0F0B1A' }}>

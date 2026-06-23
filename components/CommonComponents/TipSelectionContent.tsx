@@ -40,13 +40,15 @@ interface TipSelectionProps {
     skipRoute: string;
     orderId: string;
     primaryColor?: string;
+    role?: 'customer' | 'guest';
 }
 
 const TipSelectionContent: React.FC<TipSelectionProps> = ({
     continueRoute,
     skipRoute,
     orderId,
-    primaryColor = Colors.BRAND_PRIMARY_LIGHT
+    primaryColor = Colors.BRAND_PRIMARY_LIGHT,
+    role = 'customer',
 }) => {
     const router = useRouter();
     const { initPaymentSheet, presentPaymentSheet } = useStripe();
@@ -86,12 +88,10 @@ const TipSelectionContent: React.FC<TipSelectionProps> = ({
         }
     }, [showCustomInput]);
 
-   
     const onPaymentSuccess = async () => {
         const paidAmount = getFinalAmount();
         showToast('Payment successful!');
 
-      
         try {
             const stored = await AsyncStorage.getItem(TIPPED_ORDERS_KEY);
             const existing: Record<string, number> = stored ? JSON.parse(stored) : {};
@@ -99,7 +99,6 @@ const TipSelectionContent: React.FC<TipSelectionProps> = ({
             await AsyncStorage.setItem(TIPPED_ORDERS_KEY, JSON.stringify(existing));
         } catch {}
 
-        
         router.replace({
             pathname: continueRoute as any,
             params: {
@@ -112,33 +111,9 @@ const TipSelectionContent: React.FC<TipSelectionProps> = ({
                 items: params.items,
                 venueId: params.venueId,
                 tipAmount: params.tipAmount,
-                paidTipAmount: String(paidAmount ?? 0), 
+                paidTipAmount: String(paidAmount ?? 0),
             },
         });
-    };
-
-    const handleTopBartender = async () => {
-        const finalAmount = getFinalAmount();
-        if (!finalAmount || finalAmount <= 0) {
-            showToast("Selection Required, Please select a tip amount or enter a custom one.", "error");
-            return;
-        }
-        try {
-            setIsFetchingCards(true);
-            const result = await triggerGetSavedCards().unwrap();
-            const cards = result?.data || [];
-            setSavedCards(cards);
-            if (cards.length > 0) {
-                setSelectedCardId(cards[0].id);
-                setShowCardsModal(true);
-            } else {
-                await payWithNewCard(finalAmount);
-            }
-        } catch {
-            await payWithNewCard(finalAmount);
-        } finally {
-            setIsFetchingCards(false);
-        }
     };
 
     const payWithNewCard = async (amount?: number) => {
@@ -156,11 +131,49 @@ const TipSelectionContent: React.FC<TipSelectionProps> = ({
                 if (paymentError.code !== 'Canceled') showToast(paymentError.message);
                 return;
             }
+
+            // guest হলে save card modal দেখাবে না, সরাসরি success
+            if (role === 'guest') {
+                await onPaymentSuccess();
+                return;
+            }
+
             setPendingSuccessData(data);
             setNewCardInfo({ last4: data.last4 || '', brand: data.brand || '' });
             setShowSaveCardModal(true);
         } catch (error: any) {
             showToast(error?.data?.message || error?.message || 'Payment failed!');
+        }
+    };
+
+    const handleTopBartender = async () => {
+        const finalAmount = getFinalAmount();
+        if (!finalAmount || finalAmount <= 0) {
+            showToast("Selection Required, Please select a tip amount or enter a custom one.", "error");
+            return;
+        }
+
+        // guest হলে সরাসরি new card এ যাবে, saved cards check করবে না
+        if (role === 'guest') {
+            await payWithNewCard(finalAmount);
+            return;
+        }
+
+        try {
+            setIsFetchingCards(true);
+            const result = await triggerGetSavedCards().unwrap();
+            const cards = result?.data || [];
+            setSavedCards(cards);
+            if (cards.length > 0) {
+                setSelectedCardId(cards[0].id);
+                setShowCardsModal(true);
+            } else {
+                await payWithNewCard(finalAmount);
+            }
+        } catch {
+            await payWithNewCard(finalAmount);
+        } finally {
+            setIsFetchingCards(false);
         }
     };
 
@@ -312,24 +325,29 @@ const TipSelectionContent: React.FC<TipSelectionProps> = ({
                 </ScrollView>
             </KeyboardAvoidingView>
 
-            <SaveCardPermissionModal
-                visible={showSaveCardModal}
-                last4={newCardInfo?.last4 || ''}
-                brand={newCardInfo?.brand || ''}
-                onSave={handleSaveCard}
-                onSkip={handleSkipSaveCard}
-            />
-            <SavedCardsModal
-                visible={showCardsModal}
-                paymentMethods={savedCards}
-                selectedCardId={selectedCardId}
-                onSelectCard={setSelectedCardId}
-                onPayWithSelected={payWithSavedCard}
-                onPayWithNewCard={payWithNewCard}
-                onClose={() => setShowCardsModal(false)}
-                isLoading={isSavedCardPaying}
-                totalAmount={getFinalAmount() || 0}
-            />
+            {/* guest হলে এই modals render হবে না */}
+            {role === 'customer' && (
+                <>
+                    <SaveCardPermissionModal
+                        visible={showSaveCardModal}
+                        last4={newCardInfo?.last4 || ''}
+                        brand={newCardInfo?.brand || ''}
+                        onSave={handleSaveCard}
+                        onSkip={handleSkipSaveCard}
+                    />
+                    <SavedCardsModal
+                        visible={showCardsModal}
+                        paymentMethods={savedCards}
+                        selectedCardId={selectedCardId}
+                        onSelectCard={setSelectedCardId}
+                        onPayWithSelected={payWithSavedCard}
+                        onPayWithNewCard={payWithNewCard}
+                        onClose={() => setShowCardsModal(false)}
+                        isLoading={isSavedCardPaying}
+                        totalAmount={getFinalAmount() || 0}
+                    />
+                </>
+            )}
         </SafeAreaView>
     );
 };

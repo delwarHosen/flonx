@@ -3,11 +3,13 @@ import { Colors } from '@/constants/theme';
 import { useLocalSearchParams } from 'expo-router';
 
 export default function GuestTip() {
-    const { orderId } = useLocalSearchParams<{ orderId: string }>();
+    const params = useLocalSearchParams();
+    const orderId = params.orderId as string;
+
     return (
         <TipSelectionContent
             orderId={orderId}
-            // role="guest"
+            role="guest"
             customTipRoute="/guest/custom-tip-seleted"
             continueRoute="/guest/order"
             skipRoute="/guest/(tabs)/search"

@@ -4,16 +4,14 @@ import { useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function GuestPickup() {
-    const { id,
-        orderCode,
-        venueName,
-        colorCode
-    } = useLocalSearchParams<{
-        id: string;
-        orderCode: string,
-        venueName: string,
-        colorCode: string
-    }>();
+    const params = useLocalSearchParams();
+    
+    const id = params.id as string;
+    const orderCode = params.orderCode as string;
+    const venueName = params.venueName as string;
+    const colorCode = params.colorCode as string;
+
+    console.log('Params:', { id, orderCode, venueName, colorCode }); // debug
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: colorCode || Colors.COLOR_ACTIVE }}>
@@ -22,7 +20,7 @@ export default function GuestPickup() {
                 orderId={id}
                 orderCode={orderCode}
                 venueName={venueName}
-                successRoute="/guest/order-success"
+                successRoute="/guest/tip-select"
             />
         </SafeAreaView>
     );

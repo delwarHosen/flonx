@@ -3,7 +3,7 @@ import { Colors } from '@/constants/theme';
 import { useUpdateOrderStatusMutation } from '@/redux/services/orderApi';
 import { fp, hp, wp } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, PanResponder, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -36,6 +36,35 @@ export const PickupOrderContent: React.FC<PickupOrderContentProps> = ({
     const translateX = useRef(new Animated.Value(0)).current;
     const [updateOrderStatus] = useUpdateOrderStatusMutation();
 
+    const orderIdRef = useRef(orderId);
+    const updateOrderStatusRef = useRef(updateOrderStatus);
+
+    useEffect(() => {
+        if (orderId) {
+            orderIdRef.current = orderId;
+            console.log('orderIdRef updated:', orderId);
+        }
+    }, [orderId]);
+
+    useEffect(() => {
+        updateOrderStatusRef.current = updateOrderStatus;
+    }, [updateOrderStatus]);
+
+
+    const handleSlideComplete = useCallback(async () => {
+        console.log('handleSlideComplete called, orderId:', orderIdRef.current); // debug
+        try {
+            await updateOrderStatusRef.current({
+                id: orderIdRef.current,
+                status: 'PICKED'
+            }).unwrap();
+            console.log('Status update success'); // debug
+        } catch (e) {
+            console.log('Status update error:', e);
+        }
+        setStatus(PickupStatus.CONFIRMED);
+    }, []);
+
     const panResponder = useRef(
         PanResponder.create({
             onStartShouldSetPanResponder: () => true,
@@ -45,18 +74,14 @@ export const PickupOrderContent: React.FC<PickupOrderContentProps> = ({
                 translateX.setValue(newDx);
             },
             onPanResponderRelease: (_, gestureState) => {
+                console.log('Slide released, orderIdRef.current:', orderIdRef.current); // debug
                 if (gestureState.dx >= MAX_TRANSLATION * 0.8) {
                     Animated.timing(translateX, {
                         toValue: MAX_TRANSLATION,
                         duration: 200,
                         useNativeDriver: true,
                     }).start(async () => {
-                        try {
-                            await updateOrderStatus({ id: orderId, status: 'PICKED' }).unwrap();
-                        } catch (e) {
-                            console.log('Status update error:', e);
-                        }
-                        setStatus(PickupStatus.CONFIRMED);
+                        await handleSlideComplete();
                     });
                 } else {
                     Animated.spring(translateX, {
@@ -91,9 +116,8 @@ export const PickupOrderContent: React.FC<PickupOrderContentProps> = ({
                     <TouchableOpacity
                         onPress={() => router.push({
                             pathname: successRoute as any,
-                            params: { orderId: orderId }
+                            params: { orderId: orderIdRef.current }
                         })}
-                        // onPress={() => router.push(successRoute as any)}
                         style={[styles.sliderTrack, styles.confirmedTrack]}>
                         <Body2 color="white">Pickup Confirmed.</Body2>
                     </TouchableOpacity>
@@ -111,11 +135,9 @@ export const PickupOrderContent: React.FC<PickupOrderContentProps> = ({
                     </View>
                 )}
 
-                {/* ── Order code + venue name ── */}
                 <View style={styles.footerInfo}>
                     <View style={styles.dot} />
                     <Body3 color="white">{venueName}</Body3>
-                    {/* <Body3 color="white" style={styles.orderCodeText}>• {orderCode}</Body3> */}
                 </View>
             </View>
         </View>
@@ -164,7 +186,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: SLIDER_TRACK_PADDING,
-        marginBottom: wp(12),   // ← reduced so orderCode fits nicely
+        marginBottom: wp(12),
         overflow: 'hidden',
         position: 'relative'
     },
